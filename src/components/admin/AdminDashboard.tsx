@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
 import { 
   Shield, 
   Users, 
@@ -439,12 +440,7 @@ export function AdminDashboard() {
           </div>
         );
       case 'analytics':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold">📈 Analytics Command</h2>
-            <p className="text-muted-foreground">Market insights & performance metrics - Coming soon</p>
-          </div>
-        );
+        return <AnalyticsDashboard />;
       case 'health':
         return (
           <div className="text-center py-12">
