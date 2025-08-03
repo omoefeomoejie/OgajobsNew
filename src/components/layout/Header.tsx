@@ -91,6 +91,9 @@ export const Header = () => {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <>
+                <Button variant="ghost" asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
                 <div className="flex items-center gap-2 text-sm">
                   <User className="w-4 h-4" />
                   <span className="capitalize">{profile?.role || 'User'}</span>
@@ -166,6 +169,9 @@ export const Header = () => {
               <div className="flex flex-col gap-3 mt-4">
                 {user ? (
                   <>
+                    <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/dashboard">Dashboard</Link>
+                    </Button>
                     <div className="flex items-center gap-2 text-sm py-2">
                       <User className="w-4 h-4" />
                       <span className="capitalize">{profile?.role || 'User'}</span>
