@@ -14,7 +14,7 @@ import {
   User
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import ogaJobsLogo from '@/assets/ogajobs-logo-transparent.png';
+import ogaJobsLogo from '@/assets/ogajobs-logo.png';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -50,7 +50,7 @@ export const Header = () => {
             <img 
               src={ogaJobsLogo} 
               alt="OgaJobs Logo" 
-              className="w-12 h-12 drop-shadow-md"
+              className="w-10 h-10"
             />
             <div>
               <h1 className="text-2xl font-bold text-foreground">OgaJobs</h1>

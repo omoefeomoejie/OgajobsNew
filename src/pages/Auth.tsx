@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,8 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Shield, Users, Briefcase } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import ogaJobsLogo from '@/assets/ogajobs-logo-transparent.png';
-import { ArrowLeft, Home } from 'lucide-react';
+import ogaJobsLogo from '@/assets/ogajobs-logo.png';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -141,27 +140,12 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Clean gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-secondary/10">
-      </div>
-      
-      {/* Back to home button */}
-      <div className="absolute top-6 left-6 z-10">
-        <Button variant="ghost" asChild className="gap-2">
-          <Link to="/">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
-        </Button>
-      </div>
-
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md backdrop-blur-sm bg-card/95 border shadow-xl">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <Link to="/" className="flex justify-center mb-6 group">
-            <img src={ogaJobsLogo} alt="OgaJobs Logo" className="w-32 h-32 drop-shadow-lg group-hover:scale-105 transition-transform duration-200" />
-          </Link>
+          <div className="flex justify-center mb-4">
+            <img src={ogaJobsLogo} alt="OgaJobs Logo" className="w-16 h-16" />
+          </div>
           <CardTitle className="text-2xl font-bold">Welcome to OgaJobs</CardTitle>
           <CardDescription>
             Nigeria's most trusted platform for artisan services
@@ -302,7 +286,6 @@ export default function Auth() {
           </div>
         </CardContent>
       </Card>
-      </div>
     </div>
   );
 }
