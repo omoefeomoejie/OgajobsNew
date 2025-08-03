@@ -11,6 +11,7 @@ import ServiceDirectory from "./pages/ServiceDirectory";
 import BookingRequest from "./pages/BookingRequest";
 import MyBookings from "./pages/MyBookings";
 import NotFound from "./pages/NotFound";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/services" element={<ServiceDirectory />} />
             <Route path="/book" element={<BookingRequest />} />
             <Route path="/bookings" element={<MyBookings />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
