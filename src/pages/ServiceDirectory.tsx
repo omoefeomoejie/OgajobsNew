@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { AdvancedSearch } from '@/components/search/AdvancedSearch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Search, 
   MapPin, 
@@ -13,7 +15,8 @@ import {
   Phone, 
   Mail,
   Filter,
-  User
+  User,
+  TrendingUp
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -183,13 +186,33 @@ export default function ServiceDirectory() {
   return (
     <AppLayout>
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Find Skilled Artisans</h1>
-          <p className="text-muted-foreground">
-            Browse and connect with verified professionals in your area
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Find Skilled Artisans</h1>
+            <p className="text-muted-foreground mt-2">
+              Discover verified professionals with AI-powered recommendations
+            </p>
+          </div>
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <TrendingUp className="h-4 w-4" />
+            AI-Enhanced Search
+          </Badge>
         </div>
+
+        <Tabs defaultValue="search" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="search" className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              Smart Search
+            </TabsTrigger>
+            <TabsTrigger value="directory">Browse Directory</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="search" className="space-y-6">
+            <AdvancedSearch />
+          </TabsContent>
+
+          <TabsContent value="directory" className="space-y-6">
 
         {/* Search and Filters */}
         <Card>
@@ -329,6 +352,8 @@ export default function ServiceDirectory() {
             ))}
           </div>
         )}
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
