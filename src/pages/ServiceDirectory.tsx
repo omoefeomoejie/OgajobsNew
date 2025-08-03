@@ -28,6 +28,8 @@ interface Artisan {
   profile_url: string;
   photo_url: string;
   created_at: string;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 const categories = [
@@ -80,7 +82,32 @@ export default function ServiceDirectory() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setArtisans(data || []);
+
+      // Fetch ratings for each artisan
+      const artisansWithRatings = await Promise.all(
+        (data || []).map(async (artisan) => {
+          const { data: reviews, error: reviewError } = await supabase
+            .from('artisan_reviews')
+            .select('rating')
+            .eq('artisan_id', artisan.id);
+
+          let averageRating = 0;
+          let reviewCount = 0;
+
+          if (!reviewError && reviews && reviews.length > 0) {
+            reviewCount = reviews.length;
+            averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+          }
+
+          return {
+            ...artisan,
+            averageRating: Math.round(averageRating * 10) / 10,
+            reviewCount
+          };
+        })
+      );
+
+      setArtisans(artisansWithRatings);
     } catch (error) {
       console.error('Error fetching artisans:', error);
       toast({
@@ -278,7 +305,12 @@ export default function ServiceDirectory() {
 
                   <div className="flex items-center gap-2">
                     <Star className="h-4 w-4 text-yellow-500" />
-                    <span className="text-sm text-muted-foreground">New artisan</span>
+                    <span className="text-sm">
+                      {artisan.averageRating && artisan.averageRating > 0 
+                        ? `${artisan.averageRating} (${artisan.reviewCount} review${artisan.reviewCount !== 1 ? 's' : ''})`
+                        : 'New artisan'
+                      }
+                    </span>
                   </div>
 
                   <div className="flex gap-2">

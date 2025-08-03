@@ -13,6 +13,7 @@ import ServiceDirectory from "./pages/ServiceDirectory";
 import BookingRequest from "./pages/BookingRequest";
 import MyBookings from "./pages/MyBookings";
 import Messages from "./pages/Messages";
+import Reviews from "./pages/Reviews";
 import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/book" element={<BookingRequest />} />
             <Route path="/bookings" element={<MyBookings />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/reviews" element={<Reviews />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
