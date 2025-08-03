@@ -205,29 +205,53 @@ export type Database = {
       bookings: {
         Row: {
           artisan_email: string | null
+          artisan_id: string | null
+          budget: number | null
           city: string | null
           client_email: string | null
+          completion_date: string | null
           created_at: string | null
+          description: string | null
           id: string
+          payment_status: string | null
           preferred_date: string | null
+          status: string | null
+          updated_at: string | null
+          urgency: string | null
           work_type: string | null
         }
         Insert: {
           artisan_email?: string | null
+          artisan_id?: string | null
+          budget?: number | null
           city?: string | null
           client_email?: string | null
+          completion_date?: string | null
           created_at?: string | null
+          description?: string | null
           id?: string
+          payment_status?: string | null
           preferred_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+          urgency?: string | null
           work_type?: string | null
         }
         Update: {
           artisan_email?: string | null
+          artisan_id?: string | null
+          budget?: number | null
           city?: string | null
           client_email?: string | null
+          completion_date?: string | null
           created_at?: string | null
+          description?: string | null
           id?: string
+          payment_status?: string | null
           preferred_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+          urgency?: string | null
           work_type?: string | null
         }
         Relationships: []
@@ -712,7 +736,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_payment_booking"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       platform_settings: {
         Row: {
@@ -902,6 +934,10 @@ export type Database = {
       calculate_platform_fee: {
         Args: { amount: number }
         Returns: number
+      }
+      complete_booking: {
+        Args: { booking_id_param: string; completed_by_param: string }
+        Returns: Json
       }
       delete_user: {
         Args: { uid: string }

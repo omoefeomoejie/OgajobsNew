@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Calendar, 
   MapPin, 
@@ -15,9 +16,16 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Plus
+  Plus,
+  CreditCard,
+  DollarSign,
+  MessageSquare,
+  Briefcase
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import PaymentForm from '@/components/payment/PaymentForm';
+import EscrowManager from '@/components/payment/EscrowManager';
 
 interface Booking {
   id: string;
@@ -25,13 +33,24 @@ interface Booking {
   city: string;
   preferred_date: string;
   artisan_email: string;
+  artisan_id: string;
+  status: string;
+  payment_status: string;
+  description: string;
+  urgency: string;
+  budget: number;
+  completion_date: string;
   created_at: string;
+  updated_at: string;
 }
 
 export default function MyBookings() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
   useEffect(() => {
     if (user?.email) {
@@ -51,27 +70,94 @@ export default function MyBookings() {
       setBookings(data || []);
     } catch (error) {
       console.error('Error fetching bookings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load bookings",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusBadge = (booking: Booking) => {
-    if (booking.artisan_email) {
-      return <Badge variant="default">Assigned</Badge>;
+  const markAsCompleted = async (bookingId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          status: 'completed',
+          completion_date: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Booking marked as completed!"
+      });
+
+      await fetchBookings();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to mark booking as completed",
+        variant: "destructive"
+      });
     }
-    return <Badge variant="secondary">Pending</Badge>;
+  };
+
+  const getStatusBadge = (booking: Booking) => {
+    const statusMap = {
+      'pending': { label: 'Pending', variant: 'secondary' as const },
+      'assigned': { label: 'Assigned', variant: 'default' as const },
+      'paid': { label: 'Paid', variant: 'default' as const },
+      'in_progress': { label: 'In Progress', variant: 'default' as const },
+      'completed': { label: 'Completed', variant: 'default' as const },
+      'cancelled': { label: 'Cancelled', variant: 'destructive' as const }
+    };
+    
+    const status = statusMap[booking.status] || statusMap['pending'];
+    return <Badge variant={status.variant}>{status.label}</Badge>;
+  };
+
+  const getPaymentBadge = (booking: Booking) => {
+    const paymentMap = {
+      'unpaid': { label: 'Unpaid', variant: 'outline' as const },
+      'paid': { label: 'Paid', variant: 'default' as const },
+      'refunded': { label: 'Refunded', variant: 'secondary' as const }
+    };
+    
+    const payment = paymentMap[booking.payment_status] || paymentMap['unpaid'];
+    return <Badge variant={payment.variant}>{payment.label}</Badge>;
+  };
+
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'emergency': return 'text-red-600';
+      case 'high': return 'text-orange-600';
+      case 'normal': return 'text-blue-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
   };
 
   const getStatusColor = (booking: Booking) => {
-    if (booking.artisan_email) return 'border-green-200 bg-green-50';
-    return 'border-yellow-200 bg-yellow-50';
+    switch (booking.status) {
+      case 'completed': return 'border-green-200 bg-green-50';
+      case 'in_progress': return 'border-blue-200 bg-blue-50';
+      case 'paid': return 'border-purple-200 bg-purple-50';
+      case 'assigned': return 'border-yellow-200 bg-yellow-50';
+      case 'cancelled': return 'border-red-200 bg-red-50';
+      default: return 'border-gray-200 bg-gray-50';
+    }
   };
 
   // Filter bookings by status
-  const pendingBookings = bookings.filter(b => !b.artisan_email);
-  const assignedBookings = bookings.filter(b => b.artisan_email);
-  const completedBookings: Booking[] = []; // Simplified for now
+  const pendingBookings = bookings.filter(b => b.status === 'pending');
+  const assignedBookings = bookings.filter(b => ['assigned', 'paid', 'in_progress'].includes(b.status));
+  const completedBookings = bookings.filter(b => b.status === 'completed');
 
   if (loading) {
     return (
@@ -95,9 +181,12 @@ export default function MyBookings() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{booking.work_type}</CardTitle>
-          {getStatusBadge(booking)}
+          <div className="flex gap-2">
+            {getStatusBadge(booking)}
+            {getPaymentBadge(booking)}
+          </div>
         </div>
-        <CardDescription className="flex items-center gap-4">
+        <CardDescription className="flex items-center gap-4 flex-wrap">
           <span className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />
             {booking.city}
@@ -106,10 +195,27 @@ export default function MyBookings() {
             <Calendar className="h-4 w-4" />
             {booking.preferred_date ? new Date(booking.preferred_date).toLocaleDateString() : 'Flexible'}
           </span>
+          <span className={`flex items-center gap-1 font-medium ${getUrgencyColor(booking.urgency)}`}>
+            <Clock className="h-4 w-4" />
+            {booking.urgency?.charAt(0).toUpperCase() + booking.urgency?.slice(1)} Priority
+          </span>
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-4">
+          {booking.description && (
+            <div>
+              <p className="text-sm text-muted-foreground">{booking.description}</p>
+            </div>
+          )}
+
+          {booking.budget && (
+            <div className="flex items-center gap-2 text-sm">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <span>Budget: ₦{booking.budget.toLocaleString()}</span>
+            </div>
+          )}
+
           {booking.artisan_email ? (
             <div className="p-3 bg-white rounded-lg border">
               <h4 className="font-medium flex items-center gap-2 mb-2">
@@ -132,13 +238,97 @@ export default function MyBookings() {
             </div>
           )}
 
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1">
-              View Details
-            </Button>
-            {booking.artisan_email && (
-              <Button size="sm" className="flex-1">
-                Contact Artisan
+          {booking.completion_date && (
+            <div className="flex items-center gap-2 text-sm text-green-600">
+              <CheckCircle className="h-4 w-4" />
+              Completed on {new Date(booking.completion_date).toLocaleDateString()}
+            </div>
+          )}
+
+          <div className="flex gap-2 flex-wrap">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Briefcase className="h-3 w-3 mr-1" />
+                  View Details
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{booking.work_type} - Details</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Status:</span>
+                      <div className="mt-1">{getStatusBadge(booking)}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Payment:</span>
+                      <div className="mt-1">{getPaymentBadge(booking)}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">City:</span>
+                      <p className="font-medium">{booking.city}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Date:</span>
+                      <p className="font-medium">
+                        {booking.preferred_date ? new Date(booking.preferred_date).toLocaleDateString() : 'Flexible'}
+                      </p>
+                    </div>
+                    {booking.budget && (
+                      <div>
+                        <span className="text-muted-foreground">Budget:</span>
+                        <p className="font-medium">₦{booking.budget.toLocaleString()}</p>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-muted-foreground">Priority:</span>
+                      <p className={`font-medium ${getUrgencyColor(booking.urgency)}`}>
+                        {booking.urgency?.charAt(0).toUpperCase() + booking.urgency?.slice(1)}
+                      </p>
+                    </div>
+                  </div>
+                  {booking.description && (
+                    <div>
+                      <span className="text-muted-foreground">Description:</span>
+                      <p className="mt-1 text-sm">{booking.description}</p>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {booking.status === 'assigned' && booking.payment_status === 'unpaid' && (
+              <Button 
+                size="sm" 
+                onClick={() => {
+                  setSelectedBooking(booking);
+                  setShowPaymentDialog(true);
+                }}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CreditCard className="h-3 w-3 mr-1" />
+                Pay Now
+              </Button>
+            )}
+
+            {booking.artisan_email && booking.status !== 'completed' && (
+              <Button variant="outline" size="sm">
+                <MessageSquare className="h-3 w-3 mr-1" />
+                Message
+              </Button>
+            )}
+
+            {booking.status === 'in_progress' && (
+              <Button 
+                size="sm" 
+                onClick={() => markAsCompleted(booking.id)}
+                variant="outline"
+              >
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Mark Complete
               </Button>
             )}
           </div>
@@ -167,7 +357,7 @@ export default function MyBookings() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
@@ -185,6 +375,16 @@ export default function MyBookings() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{pendingBookings.length}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active</CardTitle>
+              <Briefcase className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{assignedBookings.length}</div>
             </CardContent>
           </Card>
 
@@ -218,7 +418,7 @@ export default function MyBookings() {
             <TabsList>
               <TabsTrigger value="all">All ({bookings.length})</TabsTrigger>
               <TabsTrigger value="pending">Pending ({pendingBookings.length})</TabsTrigger>
-              <TabsTrigger value="assigned">Assigned ({assignedBookings.length})</TabsTrigger>
+              <TabsTrigger value="active">Active ({assignedBookings.length})</TabsTrigger>
               <TabsTrigger value="completed">Completed ({completedBookings.length})</TabsTrigger>
             </TabsList>
 
@@ -240,10 +440,10 @@ export default function MyBookings() {
               )}
             </TabsContent>
 
-            <TabsContent value="assigned" className="space-y-4">
+            <TabsContent value="active" className="space-y-4">
               {assignedBookings.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  No assigned bookings
+                  No active bookings
                 </div>
               ) : (
                 assignedBookings.map((booking) => (
@@ -253,12 +453,55 @@ export default function MyBookings() {
             </TabsContent>
 
             <TabsContent value="completed" className="space-y-4">
-              <div className="text-center py-8 text-muted-foreground">
-                No completed bookings yet
-              </div>
+              {completedBookings.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No completed bookings yet
+                </div>
+              ) : (
+                completedBookings.map((booking) => (
+                  <BookingCard key={booking.id} booking={booking} />
+                ))
+              )}
             </TabsContent>
           </Tabs>
         )}
+
+        {/* Escrow Payments Section */}
+        {user && (
+          <div className="mt-8">
+            <EscrowManager clientId={user.id} />
+          </div>
+        )}
+
+        {/* Payment Dialog */}
+        <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Pay for Service</DialogTitle>
+            </DialogHeader>
+            {selectedBooking && (
+              <div className="space-y-4">
+                <div className="p-4 bg-muted rounded-lg">
+                  <h3 className="font-semibold">{selectedBooking.work_type}</h3>
+                  <p className="text-sm text-muted-foreground">{selectedBooking.city}</p>
+                  {selectedBooking.budget && (
+                    <p className="text-sm">Budget: ₦{selectedBooking.budget.toLocaleString()}</p>
+                  )}
+                </div>
+                <PaymentForm
+                  bookingId={selectedBooking.id}
+                  artisanId={selectedBooking.artisan_id}
+                  transactionType="booking_payment"
+                  defaultAmount={selectedBooking.budget || 50000}
+                  onSuccess={() => {
+                    setShowPaymentDialog(false);
+                    fetchBookings();
+                  }}
+                />
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );

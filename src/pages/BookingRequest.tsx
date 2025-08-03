@@ -54,6 +54,8 @@ export default function BookingRequest() {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
 
   const preselectedArtisan = searchParams.get('artisan');
 
@@ -75,16 +77,24 @@ export default function BookingRequest() {
         work_type: formData.workType,
         city: formData.city,
         preferred_date: formData.preferredDate?.toISOString().split('T')[0],
+        description: formData.description,
+        urgency: formData.urgency,
+        budget: formData.budget ? parseFloat(formData.budget) : null,
         artisan_email: preselectedArtisan,
+        status: 'pending',
+        payment_status: 'unpaid',
         created_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
+      const { data: booking, error } = await supabase
         .from('bookings')
-        .insert(bookingData);
+        .insert(bookingData)
+        .select()
+        .single();
 
       if (error) throw error;
 
+      setBookingId(booking.id);
       setSubmitted(true);
       toast({
         title: "Booking request submitted!",
@@ -94,7 +104,7 @@ export default function BookingRequest() {
       // Redirect after a short delay
       setTimeout(() => {
         navigate('/bookings');
-      }, 2000);
+      }, 3000);
 
     } catch (error: any) {
       console.error('Error submitting booking:', error);

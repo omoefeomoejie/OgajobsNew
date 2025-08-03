@@ -10,7 +10,8 @@ import {
   Briefcase,
   DollarSign,
   Clock,
-  TrendingUp
+  TrendingUp,
+  AlertCircle
 } from 'lucide-react';
 import {
   Sidebar,
@@ -29,9 +30,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/layout/Header';
+import BookingAssignment from '@/components/booking/BookingAssignment';
 
 const menuItems = [
   { title: "Overview", url: "#overview", icon: LayoutDashboard },
+  { title: "Available Jobs", url: "#available", icon: AlertCircle },
   { title: "My Jobs", url: "#jobs", icon: Briefcase },
   { title: "Schedule", url: "#schedule", icon: Calendar },
   { title: "Messages", url: "#messages", icon: MessageSquare },
@@ -217,6 +220,19 @@ export function ArtisanDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        );
+      case 'available':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold">Available Jobs</h1>
+              <p className="text-muted-foreground">Apply for jobs that match your skills and location</p>
+            </div>
+            <BookingAssignment 
+              artisanId={user?.id || ''} 
+              artisanEmail={user?.email || ''} 
+            />
           </div>
         );
       case 'jobs':

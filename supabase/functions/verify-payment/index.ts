@@ -70,8 +70,9 @@ serve(async (req) => {
       throw new Error("Failed to update transaction status");
     }
 
-    // If payment is successful and it's a booking payment, create escrow entry
+    // If payment is successful and it's a booking payment, create escrow entry and update booking
     if (paymentStatus === "success" && transaction.transaction_type === "booking_payment") {
+      // Create escrow entry
       const { error: escrowError } = await supabaseClient
         .from("escrow_payments")
         .insert({
@@ -88,7 +89,22 @@ serve(async (req) => {
 
       if (escrowError) {
         console.log("Escrow creation error:", escrowError);
-        // Don't throw here as payment is successful, just log the error
+      }
+
+      // Update booking status to paid
+      if (transaction.booking_id) {
+        const { error: bookingError } = await supabaseClient
+          .from("bookings")
+          .update({
+            status: "paid",
+            payment_status: "paid",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", transaction.booking_id);
+
+        if (bookingError) {
+          console.log("Booking update error:", bookingError);
+        }
       }
     }
 
