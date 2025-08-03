@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
+import { FinancialReporting } from '@/components/admin/FinancialReporting';
 import { 
   Shield, 
   Users, 
@@ -426,12 +427,7 @@ export function AdminDashboard() {
           </div>
         );
       case 'finance':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold">💰 Financial Hub</h2>
-            <p className="text-muted-foreground">Escrow management & commission control - Coming soon</p>
-          </div>
-        );
+        return <FinancialReporting />;
       case 'safety':
         return (
           <div className="text-center py-12">
