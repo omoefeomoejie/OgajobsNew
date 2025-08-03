@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -140,11 +140,47 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Floating watermark logos */}
+      <div className="absolute inset-0 pointer-events-none">
+        <img 
+          src={ogaJobsLogo} 
+          alt="" 
+          className="absolute w-20 h-20 opacity-5 top-10 left-10 rotate-12 animate-pulse" 
+        />
+        <img 
+          src={ogaJobsLogo} 
+          alt="" 
+          className="absolute w-16 h-16 opacity-5 top-32 right-20 -rotate-12 animate-pulse delay-1000" 
+        />
+        <img 
+          src={ogaJobsLogo} 
+          alt="" 
+          className="absolute w-24 h-24 opacity-5 bottom-20 left-20 rotate-45 animate-pulse delay-2000" 
+        />
+        <img 
+          src={ogaJobsLogo} 
+          alt="" 
+          className="absolute w-18 h-18 opacity-5 bottom-32 right-10 -rotate-6 animate-pulse delay-3000" 
+        />
+        <img 
+          src={ogaJobsLogo} 
+          alt="" 
+          className="absolute w-14 h-14 opacity-5 top-1/2 left-5 rotate-90 animate-pulse delay-4000" 
+        />
+        <img 
+          src={ogaJobsLogo} 
+          alt="" 
+          className="absolute w-22 h-22 opacity-5 top-1/3 right-5 -rotate-45 animate-pulse delay-5000" 
+        />
+      </div>
+      
+      <Card className="w-full max-w-md relative z-10">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={ogaJobsLogo} alt="OgaJobs Logo" className="w-16 h-16" />
+            <Link to="/" className="hover:opacity-80 transition-opacity">
+              <img src={ogaJobsLogo} alt="OgaJobs Logo" className="w-24 h-24" />
+            </Link>
           </div>
           <CardTitle className="text-2xl font-bold">Welcome to OgaJobs</CardTitle>
           <CardDescription>
