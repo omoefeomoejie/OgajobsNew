@@ -11,6 +11,7 @@ import {
   Clock,
   Star
 } from 'lucide-react';
+import ogaJobsLogo from '@/assets/ogajobs-logo.png';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,9 +43,11 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">O</span>
-            </div>
+            <img 
+              src={ogaJobsLogo} 
+              alt="OgaJobs Logo" 
+              className="w-10 h-10"
+            />
             <div>
               <h1 className="text-2xl font-bold text-foreground">OgaJobs</h1>
               <p className="text-xs text-muted-foreground">Nigeria's Trust Infrastructure</p>
