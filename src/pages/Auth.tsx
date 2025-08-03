@@ -144,8 +144,8 @@ export default function Auth() {
     <div className="min-h-screen relative overflow-hidden">
       {/* Background with logo watermark */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-secondary/10">
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-5">
-          <img src={ogaJobsLogo} alt="" className="w-96 h-96" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-[0.02] blur-sm">
+          <img src={ogaJobsLogo} alt="" className="w-[32rem] h-[32rem] grayscale" />
         </div>
       </div>
       
