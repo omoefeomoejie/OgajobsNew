@@ -372,6 +372,65 @@ export type Database = {
           },
         ]
       }
+      escrow_payments: {
+        Row: {
+          amount: number
+          artisan_amount: number
+          artisan_id: string | null
+          auto_release_date: string | null
+          booking_id: string | null
+          client_id: string | null
+          created_at: string | null
+          dispute_reason: string | null
+          id: string
+          platform_fee: number
+          release_date: string | null
+          status: string | null
+          transaction_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          artisan_amount: number
+          artisan_id?: string | null
+          auto_release_date?: string | null
+          booking_id?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          dispute_reason?: string | null
+          id?: string
+          platform_fee: number
+          release_date?: string | null
+          status?: string | null
+          transaction_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          artisan_amount?: number
+          artisan_id?: string | null
+          auto_release_date?: string | null
+          booking_id?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          dispute_reason?: string | null
+          id?: string
+          platform_fee?: number
+          release_date?: string | null
+          status?: string | null
+          transaction_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_payments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_assignments: {
         Row: {
           admin_notes: string | null
@@ -601,6 +660,60 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_transactions: {
+        Row: {
+          amount: number
+          artisan_earnings: number | null
+          artisan_id: string | null
+          booking_id: string | null
+          client_id: string | null
+          created_at: string | null
+          currency: string | null
+          escrow_status: string | null
+          id: string
+          payment_status: string | null
+          paystack_reference: string | null
+          platform_fee: number | null
+          transaction_type: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          artisan_earnings?: number | null
+          artisan_id?: string | null
+          booking_id?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          escrow_status?: string | null
+          id?: string
+          payment_status?: string | null
+          paystack_reference?: string | null
+          platform_fee?: number | null
+          transaction_type: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          artisan_earnings?: number | null
+          artisan_id?: string | null
+          booking_id?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          escrow_status?: string | null
+          id?: string
+          payment_status?: string | null
+          paystack_reference?: string | null
+          platform_fee?: number | null
+          transaction_type?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           id: string
@@ -738,11 +851,58 @@ export type Database = {
           },
         ]
       }
+      withdrawal_requests: {
+        Row: {
+          account_name: string
+          amount: number
+          artisan_id: string | null
+          bank_account_number: string
+          bank_code: string
+          created_at: string | null
+          id: string
+          paystack_transfer_code: string | null
+          processed_at: string | null
+          status: string | null
+        }
+        Insert: {
+          account_name: string
+          amount: number
+          artisan_id?: string | null
+          bank_account_number: string
+          bank_code: string
+          created_at?: string | null
+          id?: string
+          paystack_transfer_code?: string | null
+          processed_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          account_name?: string
+          amount?: number
+          artisan_id?: string | null
+          bank_account_number?: string
+          bank_code?: string
+          created_at?: string | null
+          id?: string
+          paystack_transfer_code?: string | null
+          processed_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_artisan_earnings: {
+        Args: { amount: number }
+        Returns: number
+      }
+      calculate_platform_fee: {
+        Args: { amount: number }
+        Returns: number
+      }
       delete_user: {
         Args: { uid: string }
         Returns: undefined
@@ -754,6 +914,14 @@ export type Database = {
           email: string
           role: string
         }[]
+      }
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {
