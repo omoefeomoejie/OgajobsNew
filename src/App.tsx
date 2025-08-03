@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { InstallPrompt } from "@/components/mobile/InstallPrompt";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -26,23 +28,29 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/login" element={<Auth />} />
-            <Route path="/register" element={<Auth />} />
-            <Route path="/ojssytem-admin" element={<AdminLogin />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/services" element={<ServiceDirectory />} />
-            <Route path="/book" element={<BookingRequest />} />
-            <Route path="/bookings" element={<MyBookings />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <div className="relative min-h-screen">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/login" element={<Auth />} />
+              <Route path="/register" element={<Auth />} />
+              <Route path="/ojssytem-admin" element={<AdminLogin />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/services" element={<ServiceDirectory />} />
+              <Route path="/book" element={<BookingRequest />} />
+              <Route path="/bookings" element={<MyBookings />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/reviews" element={<Reviews />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            
+            {/* Mobile-specific components */}
+            <MobileBottomNav />
+            <InstallPrompt />
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

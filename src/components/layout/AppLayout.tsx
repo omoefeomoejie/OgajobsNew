@@ -38,7 +38,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </header>
 
           {/* Main content */}
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto pb-20 md:pb-0">
             {children}
           </main>
         </div>
