@@ -29,8 +29,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/register" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ojssytem-admin" element={<AdminLogin />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/services" element={<ServiceDirectory />} />
             <Route path="/book" element={<BookingRequest />} />
