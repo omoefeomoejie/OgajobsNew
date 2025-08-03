@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ServiceDirectory from "./pages/ServiceDirectory";
 import BookingRequest from "./pages/BookingRequest";
@@ -29,7 +30,8 @@ const App = () => (
             <Route path="/login" element={<Auth />} />
             <Route path="/register" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/ojssytem-admin" element={<AdminDashboard />} />
+            <Route path="/ojssytem-admin" element={<AdminLogin />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/services" element={<ServiceDirectory />} />
             <Route path="/book" element={<BookingRequest />} />
             <Route path="/bookings" element={<MyBookings />} />

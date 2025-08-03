@@ -64,11 +64,10 @@ export function AppSidebar() {
       ];
     }
 
-    // Admin items
+    // Admin items - but admin panel removed from sidebar since it has separate access
     return [
       ...commonItems,
       { title: 'User Management', url: '/admin/users', icon: Users },
-      { title: 'Admin Panel', url: '/ojssytem-admin', icon: Shield },
       { title: 'Settings', url: '/settings', icon: Settings },
     ];
   };
