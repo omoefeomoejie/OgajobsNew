@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Shield, Users, Briefcase } from 'lucide-react';
+import { Loader2, Shield, Users, Briefcase, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import ogaJobsLogo from '@/assets/ogajobs-logo.png';
@@ -141,6 +141,18 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Back to Home Button */}
+      <Button 
+        variant="ghost" 
+        className="absolute top-4 left-4 z-20"
+        asChild
+      >
+        <Link to="/">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Link>
+      </Button>
+
       {/* Floating watermark logos */}
       <div className="absolute inset-0 pointer-events-none">
         <img 
