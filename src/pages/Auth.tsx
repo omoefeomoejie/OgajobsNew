@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Shield, Users, Briefcase } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import ogaJobsLogo from '@/assets/ogajobs-logo-bold.png';
+import ogaJobsLogo from '@/assets/ogajobs-logo-transparent.png';
 import { ArrowLeft, Home } from 'lucide-react';
 
 export default function Auth() {
@@ -142,11 +142,8 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background with logo watermark */}
+      {/* Clean gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-secondary/10">
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-[0.02] blur-sm">
-          <img src={ogaJobsLogo} alt="" className="w-[32rem] h-[32rem] grayscale" />
-        </div>
       </div>
       
       {/* Back to home button */}
@@ -162,9 +159,9 @@ export default function Auth() {
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md backdrop-blur-sm bg-card/95 border shadow-xl">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-6">
-            <img src={ogaJobsLogo} alt="OgaJobs Logo" className="w-24 h-24 drop-shadow-lg" />
-          </div>
+          <Link to="/" className="flex justify-center mb-6 group">
+            <img src={ogaJobsLogo} alt="OgaJobs Logo" className="w-32 h-32 drop-shadow-lg group-hover:scale-105 transition-transform duration-200" />
+          </Link>
           <CardTitle className="text-2xl font-bold">Welcome to OgaJobs</CardTitle>
           <CardDescription>
             Nigeria's most trusted platform for artisan services
