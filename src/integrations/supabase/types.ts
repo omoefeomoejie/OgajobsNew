@@ -788,6 +788,33 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          subscription: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          subscription: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          subscription?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string | null
@@ -882,6 +909,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_notification_settings: {
+        Row: {
+          booking_updates: boolean
+          created_at: string
+          email_notifications: boolean
+          id: string
+          marketing_emails: boolean
+          message_alerts: boolean
+          payment_notifications: boolean
+          push_notifications: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_updates?: boolean
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          marketing_emails?: boolean
+          message_alerts?: boolean
+          payment_notifications?: boolean
+          push_notifications?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_updates?: boolean
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          marketing_emails?: boolean
+          message_alerts?: boolean
+          payment_notifications?: boolean
+          push_notifications?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       withdrawal_requests: {
         Row: {
