@@ -68,7 +68,7 @@ export function AppSidebar() {
     return [
       ...commonItems,
       { title: 'User Management', url: '/admin/users', icon: Users },
-      { title: 'Admin Panel', url: '/admin', icon: Shield },
+      { title: 'Admin Panel', url: '/ojssytem-admin', icon: Shield },
       { title: 'Settings', url: '/settings', icon: Settings },
     ];
   };
