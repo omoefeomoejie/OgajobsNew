@@ -55,9 +55,11 @@ const adminMenuItems = [
   { title: "System Health", url: "#health", icon: Zap },
 ];
 
-function AdminSidebar() {
+function AdminSidebar({ activeSection, setActiveSection }: { 
+  activeSection: string; 
+  setActiveSection: (section: string) => void; 
+}) {
   const { state } = useSidebar();
-  const [activeSection, setActiveSection] = useState("control");
   const collapsed = state === "collapsed";
 
   return (
@@ -364,7 +366,8 @@ function UserQueue() {
                               size="sm"
                               variant="outline"
                               onClick={() => handleUserAction(user.id, 'approve')}
-                              disabled={!user.suspended}
+                              disabled={user.suspended}
+                              title="Approve Artisan"
                             >
                               <CheckCircle className="w-4 h-4" />
                             </Button>
@@ -373,10 +376,11 @@ function UserQueue() {
                               variant="destructive"
                               onClick={() => handleUserAction(user.id, 'reject')}
                               disabled={user.suspended}
+                              title="Suspend Artisan"
                             >
                               <XCircle className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost">
+                            <Button size="sm" variant="ghost" title="View Details">
                               <Eye className="w-4 h-4" />
                             </Button>
                           </div>
@@ -414,6 +418,215 @@ function UserQueue() {
   );
 }
 
+// Booking Control Center
+function BookingControl() {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBookings(data || []);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBookingAction = async (bookingId: string, action: 'approve' | 'cancel' | 'complete') => {
+    try {
+      let updateData: any = {};
+      
+      switch (action) {
+        case 'approve':
+          updateData = { status: 'approved' };
+          break;
+        case 'cancel':
+          updateData = { status: 'cancelled' };
+          break;
+        case 'complete':
+          updateData = { status: 'completed', completion_date: new Date().toISOString() };
+          break;
+      }
+
+      const { error } = await supabase
+        .from('bookings')
+        .update(updateData)
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: `Booking ${action}d successfully`,
+        description: `The booking has been ${action}d.`,
+      });
+
+      fetchBookings();
+    } catch (error) {
+      console.error(`Error ${action}ing booking:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to ${action} booking. Please try again.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">Pending</Badge>;
+      case 'approved':
+        return <Badge variant="default">Approved</Badge>;
+      case 'in_progress':
+        return <Badge variant="outline">In Progress</Badge>;
+      case 'completed':
+        return <Badge variant="default">Completed</Badge>;
+      case 'cancelled':
+        return <Badge variant="destructive">Cancelled</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">📋 Booking Control Center</h1>
+          <p className="text-muted-foreground">Real-time booking management and oversight</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Filter className="w-4 h-4 mr-2" />
+            Filter Status
+          </Button>
+          <Badge variant="secondary">{bookings.length} Total Bookings</Badge>
+        </div>
+      </div>
+
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList>
+          <TabsTrigger value="all">All Bookings</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="all" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Booking Management</CardTitle>
+              <CardDescription>Review and manage all platform bookings</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="text-center py-8">Loading bookings...</div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Artisan</TableHead>
+                      <TableHead>Service</TableHead>
+                      <TableHead>City</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Budget</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bookings.slice(0, 20).map((booking: any) => (
+                      <TableRow key={booking.id}>
+                        <TableCell className="font-medium">{booking.client_email}</TableCell>
+                        <TableCell>{booking.artisan_email || 'Unassigned'}</TableCell>
+                        <TableCell>{booking.work_type}</TableCell>
+                        <TableCell>{booking.city}</TableCell>
+                        <TableCell>{booking.preferred_date ? new Date(booking.preferred_date).toLocaleDateString() : 'N/A'}</TableCell>
+                        <TableCell>{booking.budget ? `₦${Number(booking.budget).toLocaleString()}` : 'N/A'}</TableCell>
+                        <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            {booking.status === 'pending' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleBookingAction(booking.id, 'approve')}
+                                title="Approve Booking"
+                              >
+                                <CheckCircle className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleBookingAction(booking.id, 'cancel')}
+                                title="Cancel Booking"
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </Button>
+                            )}
+                            <Button size="sm" variant="ghost" title="View Details">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="pending">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-8 text-muted-foreground">
+                Pending bookings filter - Coming soon
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="active">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-8 text-muted-foreground">
+                Active bookings filter - Coming soon
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="completed">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-8 text-muted-foreground">
+                Completed bookings filter - Coming soon
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
 // Main Admin Dashboard Component
 export function AdminDashboard() {
   const { user, profile } = useAuth();
@@ -426,12 +639,7 @@ export function AdminDashboard() {
       case 'users':
         return <UserQueue />;
       case 'bookings':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold">🎯 Booking Control Center</h2>
-            <p className="text-muted-foreground">Real-time booking management - Coming soon</p>
-          </div>
-        );
+        return <BookingControl />;
       case 'finance':
         return <FinancialReporting />;
       case 'analytics':
@@ -462,7 +670,7 @@ export function AdminDashboard() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <AdminSidebar />
+        <AdminSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
         <div className="flex-1 flex flex-col">
           <header className="h-16 flex items-center justify-between border-b px-6 bg-destructive/5">
             <SidebarTrigger />
