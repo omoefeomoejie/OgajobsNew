@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
 import { FinancialReporting } from '@/components/admin/FinancialReporting';
+import { AdvancedPerformanceMetrics } from '@/components/analytics/AdvancedPerformanceMetrics';
+import { UserBehaviorAnalytics } from '@/components/analytics/UserBehaviorAnalytics';
 import { 
   Shield, 
   Users, 
@@ -17,7 +19,9 @@ import {
   Filter,
   Bell,
   Activity,
-  Zap
+  Zap,
+  Target,
+  BarChart3
 } from 'lucide-react';
 import {
   Sidebar,
@@ -44,8 +48,10 @@ const adminMenuItems = [
   { title: "User Queue", url: "#users", icon: Users },
   { title: "Booking Control", url: "#bookings", icon: Briefcase },
   { title: "Financial Hub", url: "#finance", icon: DollarSign },
-  { title: "Trust & Safety", url: "#safety", icon: Shield },
   { title: "Analytics", url: "#analytics", icon: TrendingUp },
+  { title: "Performance Metrics", url: "#performance", icon: Target },
+  { title: "User Behavior", url: "#behavior", icon: BarChart3 },
+  { title: "Trust & Safety", url: "#safety", icon: Shield },
   { title: "System Health", url: "#health", icon: Zap },
 ];
 
@@ -428,6 +434,12 @@ export function AdminDashboard() {
         );
       case 'finance':
         return <FinancialReporting />;
+      case 'analytics':
+        return <AnalyticsDashboard />;
+      case 'performance':
+        return <AdvancedPerformanceMetrics />;
+      case 'behavior':
+        return <UserBehaviorAnalytics />;
       case 'safety':
         return (
           <div className="text-center py-12">
@@ -435,8 +447,6 @@ export function AdminDashboard() {
             <p className="text-muted-foreground">Fraud detection & risk management - Coming soon</p>
           </div>
         );
-      case 'analytics':
-        return <AnalyticsDashboard />;
       case 'health':
         return (
           <div className="text-center py-12">
