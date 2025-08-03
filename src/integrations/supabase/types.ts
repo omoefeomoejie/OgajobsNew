@@ -455,6 +455,84 @@ export type Database = {
           },
         ]
       }
+      identity_verifications: {
+        Row: {
+          address: string | null
+          artisan_id: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          document_image_url: string | null
+          document_number: string
+          document_type: Database["public"]["Enums"]["document_type"]
+          expires_at: string | null
+          full_name: string
+          id: string
+          selfie_url: string | null
+          updated_at: string | null
+          verification_notes: string | null
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          artisan_id?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          document_image_url?: string | null
+          document_number: string
+          document_type: Database["public"]["Enums"]["document_type"]
+          expires_at?: string | null
+          full_name: string
+          id?: string
+          selfie_url?: string | null
+          updated_at?: string | null
+          verification_notes?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          artisan_id?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          document_image_url?: string | null
+          document_number?: string
+          document_type?: Database["public"]["Enums"]["document_type"]
+          expires_at?: string | null
+          full_name?: string
+          id?: string
+          selfie_url?: string | null
+          updated_at?: string | null
+          verification_notes?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_verifications_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "identity_verifications_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_assignments: {
         Row: {
           admin_notes: string | null
@@ -772,19 +850,31 @@ export type Database = {
           created_at: string | null
           email: string | null
           id: string
+          identity_verified: boolean | null
           role: string | null
+          skills_verified: boolean | null
+          trust_score: number | null
+          verification_level: string | null
         }
         Insert: {
           created_at?: string | null
           email?: string | null
           id?: string
+          identity_verified?: boolean | null
           role?: string | null
+          skills_verified?: boolean | null
+          trust_score?: number | null
+          verification_level?: string | null
         }
         Update: {
           created_at?: string | null
           email?: string | null
           id?: string
+          identity_verified?: boolean | null
           role?: string | null
+          skills_verified?: boolean | null
+          trust_score?: number | null
+          verification_level?: string | null
         }
         Relationships: []
       }
@@ -866,6 +956,116 @@ export type Database = {
         }
         Relationships: []
       }
+      service_pricing: {
+        Row: {
+          average_price: number
+          city: string
+          id: string
+          last_updated: string | null
+          max_price: number
+          min_price: number
+          price_factors: Json | null
+          recommended_price: number
+          service_category: string
+          service_subcategory: string
+          updated_by: string | null
+        }
+        Insert: {
+          average_price: number
+          city: string
+          id?: string
+          last_updated?: string | null
+          max_price: number
+          min_price: number
+          price_factors?: Json | null
+          recommended_price: number
+          service_category: string
+          service_subcategory: string
+          updated_by?: string | null
+        }
+        Update: {
+          average_price?: number
+          city?: string
+          id?: string
+          last_updated?: string | null
+          max_price?: number
+          min_price?: number
+          price_factors?: Json | null
+          recommended_price?: number
+          service_category?: string
+          service_subcategory?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_pricing_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_certifications: {
+        Row: {
+          artisan_id: string | null
+          certificate_url: string | null
+          certification_level: string
+          certification_type: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          skill_name: string
+          updated_at: string | null
+          verification_score: number | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          artisan_id?: string | null
+          certificate_url?: string | null
+          certification_level: string
+          certification_type: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          skill_name: string
+          updated_at?: string | null
+          verification_score?: number | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          artisan_id?: string | null
+          certificate_url?: string | null
+          certification_level?: string
+          certification_type?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          skill_name?: string
+          updated_at?: string | null
+          verification_score?: number | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_certifications_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skill_certifications_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           admin_reply: string | null
@@ -906,6 +1106,62 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trust_metrics: {
+        Row: {
+          artisan_id: string | null
+          average_rating: number | null
+          dispute_rate: number | null
+          id: string
+          identity_verified: boolean | null
+          last_updated: string | null
+          on_time_completion_rate: number | null
+          repeat_client_rate: number | null
+          response_time_hours: number | null
+          skills_verified: number | null
+          total_jobs_completed: number | null
+          trust_score: number | null
+          verified_since: string | null
+        }
+        Insert: {
+          artisan_id?: string | null
+          average_rating?: number | null
+          dispute_rate?: number | null
+          id?: string
+          identity_verified?: boolean | null
+          last_updated?: string | null
+          on_time_completion_rate?: number | null
+          repeat_client_rate?: number | null
+          response_time_hours?: number | null
+          skills_verified?: number | null
+          total_jobs_completed?: number | null
+          trust_score?: number | null
+          verified_since?: string | null
+        }
+        Update: {
+          artisan_id?: string | null
+          average_rating?: number | null
+          dispute_rate?: number | null
+          id?: string
+          identity_verified?: boolean | null
+          last_updated?: string | null
+          on_time_completion_rate?: number | null
+          repeat_client_rate?: number | null
+          response_time_hours?: number | null
+          skills_verified?: number | null
+          total_jobs_completed?: number | null
+          trust_score?: number | null
+          verified_since?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_metrics_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1001,6 +1257,10 @@ export type Database = {
         Args: { amount: number }
         Returns: number
       }
+      calculate_trust_score: {
+        Args: { artisan_user_id: string }
+        Returns: number
+      }
       complete_booking: {
         Args: { booking_id_param: string; completed_by_param: string }
         Returns: Json
@@ -1029,9 +1289,19 @@ export type Database = {
         Args: { admin_email: string; admin_user_id: string }
         Returns: undefined
       }
+      update_verification_level: {
+        Args: { artisan_user_id: string }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      document_type:
+        | "nin"
+        | "voters_card"
+        | "drivers_license"
+        | "international_passport"
+        | "business_registration"
+      verification_status: "pending" | "verified" | "rejected" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1158,6 +1428,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      document_type: [
+        "nin",
+        "voters_card",
+        "drivers_license",
+        "international_passport",
+        "business_registration",
+      ],
+      verification_status: ["pending", "verified", "rejected", "expired"],
+    },
   },
 } as const

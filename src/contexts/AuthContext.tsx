@@ -7,6 +7,10 @@ interface Profile {
   email: string;
   role: string;
   created_at: string;
+  identity_verified?: boolean;
+  skills_verified?: boolean;
+  trust_score?: number;
+  verification_level?: string;
 }
 
 interface AuthContextType {
