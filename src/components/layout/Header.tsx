@@ -9,12 +9,16 @@ import {
   X, 
   MapPin,
   Clock,
-  Star
+  Star,
+  LogOut,
+  User
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import ogaJobsLogo from '@/assets/ogajobs-logo.png';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, profile, signOut, loading } = useAuth();
 
   return (
     <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm">
@@ -85,12 +89,27 @@ export const Header = () => {
 
           {/* Auth Buttons - Desktop */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/register">Get Started</Link>
-            </Button>
+            {user ? (
+              <>
+                <div className="flex items-center gap-2 text-sm">
+                  <User className="w-4 h-4" />
+                  <span className="capitalize">{profile?.role || 'User'}</span>
+                </div>
+                <Button variant="outline" onClick={signOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/auth">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/auth">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -145,12 +164,27 @@ export const Header = () => {
               </div>
 
               <div className="flex flex-col gap-3 mt-4">
-                <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
-                  <Link to="/login">Login</Link>
-                </Button>
-                <Button asChild onClick={() => setIsMenuOpen(false)}>
-                  <Link to="/register">Get Started</Link>
-                </Button>
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-2 text-sm py-2">
+                      <User className="w-4 h-4" />
+                      <span className="capitalize">{profile?.role || 'User'}</span>
+                    </div>
+                    <Button variant="outline" onClick={() => { signOut(); setIsMenuOpen(false); }}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/auth">Login</Link>
+                    </Button>
+                    <Button asChild onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/auth">Get Started</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>
