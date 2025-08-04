@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Star } from 'lucide-react';
+import { Star, Upload, Image as ImageIcon, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ReviewDialogProps {
@@ -38,6 +38,64 @@ export function ReviewDialog({
   const [hoveredRating, setHoveredRating] = useState(0);
   const [review, setReview] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoUpload = async (files: FileList) => {
+    if (photos.length + files.length > 5) {
+      toast({
+        title: "Upload Limit",
+        description: "Maximum 5 photos allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error(`File ${file.name} is too large. Max 5MB per photo.`);
+        }
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `reviews/${Date.now()}-${Math.random()}.${fileExt}`;
+        
+        const { error, data } = await supabase.storage
+          .from('avatars') // Using avatars bucket since it's public
+          .upload(fileName, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+
+        return publicUrl;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setPhotos(prev => [...prev, ...uploadedUrls]);
+      toast({
+        title: "Photos Uploaded",
+        description: `${uploadedUrls.length} photo(s) uploaded successfully`,
+      });
+    } catch (error: any) {
+      console.error('Error uploading photos:', error);
+      toast({
+        title: "Upload Error",
+        description: error.message || "Failed to upload photos",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async () => {
     if (!user?.email || rating === 0) {
@@ -58,6 +116,7 @@ export function ReviewDialog({
           client_email: user.email,
           rating,
           review: review.trim() || null,
+          photos: photos.length > 0 ? photos : null,
           created_at: new Date().toISOString()
         });
 
@@ -71,6 +130,7 @@ export function ReviewDialog({
       // Reset form
       setRating(0);
       setReview('');
+      setPhotos([]);
       onReviewSubmitted?.();
       onClose();
     } catch (error: any) {
@@ -146,6 +206,62 @@ export function ReviewDialog({
             <p className="text-xs text-muted-foreground">
               {review.length}/500 characters
             </p>
+          </div>
+
+          {/* Photo Upload */}
+          <div className="space-y-2">
+            <Label>Photos of Completed Work (Optional)</Label>
+            <div className="space-y-3">
+              {/* Photo Upload Area */}
+              <div 
+                className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div className="space-y-2">
+                  <Upload className="w-6 h-6 mx-auto text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {uploading ? 'Uploading...' : 'Add photos of the completed work'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      JPG, PNG or WebP. Max 5MB per photo. Up to 5 photos.
+                    </p>
+                  </div>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => e.target.files && handlePhotoUpload(e.target.files)}
+                  className="hidden"
+                  disabled={uploading}
+                />
+              </div>
+
+              {/* Photo Preview */}
+              {photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {photos.map((photo, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={photo}
+                        alt={`Review photo ${index + 1}`}
+                        className="w-full h-20 object-cover rounded border"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removePhoto(index)}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

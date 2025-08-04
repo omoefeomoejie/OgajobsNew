@@ -54,6 +54,7 @@ export function AppSidebar() {
         { title: 'Find Services', url: '/services', icon: Search },
         { title: 'My Bookings', url: '/bookings', icon: Calendar },
         { title: 'Payments', url: '/payments', icon: CreditCard },
+        { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
 
@@ -65,6 +66,7 @@ export function AppSidebar() {
         { title: 'Verification', url: '/verification', icon: Shield },
         { title: 'Earnings', url: '/earnings', icon: CreditCard },
         { title: 'Profile', url: '/profile', icon: User },
+        { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
 

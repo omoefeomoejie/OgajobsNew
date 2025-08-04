@@ -24,6 +24,8 @@ import AgentDashboard from "./pages/AgentDashboard";
 import Portfolio from "./pages/Portfolio";
 import PortfolioView from "./pages/PortfolioView";
 import Disputes from "./pages/Disputes";
+import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,8 @@ const App = () => (
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/:portfolioId" element={<PortfolioView />} />
               <Route path="/disputes" element={<Disputes />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             
