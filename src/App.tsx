@@ -49,7 +49,6 @@ const App = () => (
               <Route path="/verification" element={<Verification />} />
               <Route path="/agent-registration" element={<AgentRegistration />} />
               <Route path="/agent-dashboard" element={<AgentDashboard />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
             
