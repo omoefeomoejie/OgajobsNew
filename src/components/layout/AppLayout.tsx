@@ -4,6 +4,9 @@ import { AppSidebar } from './AppSidebar';
 import { Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { InstallPrompt } from '@/components/mobile/InstallPrompt';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { PresenceIndicator } from '@/components/realtime/PresenceIndicator';
+import { OfflineIndicator } from '@/components/mobile/OfflineIndicator';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -35,6 +38,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <SidebarTrigger className="ml-2" />
             <div className="flex-1 flex items-center justify-between px-4">
               <h1 className="text-lg font-semibold">OgaJobs Platform</h1>
+              <div className="flex items-center gap-3">
+                <PresenceIndicator />
+                <NotificationCenter />
+              </div>
             </div>
           </header>
 
@@ -46,6 +53,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </div>
       {/* Enhanced Install Prompt */}
       <InstallPrompt />
+      {/* Offline/Online Indicator */}
+      <OfflineIndicator />
     </SidebarProvider>
   );
 };
