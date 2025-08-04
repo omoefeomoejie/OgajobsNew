@@ -27,6 +27,7 @@ import Disputes from "./pages/Disputes";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import AgentChatDashboardPage from "./pages/AgentChatDashboard";
+import HowItWorks from "./pages/HowItWorks"; // NEW: Add this import
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Auth />} />
               <Route path="/register" element={<Auth />} />
+              <Route path="/how-it-works" element={<HowItWorks />} /> {/* NEW: Add this route */}
               <Route path="/ojssytem-admin" element={<AdminLogin />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
