@@ -25,6 +25,7 @@ import {
   User,
   LogOut,
   AlertTriangle,
+  Headphones,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ogaJobsLogo from '@/assets/ogajobs-logo.png';
@@ -69,9 +70,20 @@ export function AppSidebar() {
         { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
+    
+    if (profile?.role === 'agent') {
+      return [
+        { title: 'Agent Dashboard', url: '/agent-dashboard', icon: Briefcase },
+        { title: 'Live Chat', url: '/agent-chat', icon: Headphones },
+        ...commonItems,
+        { title: 'Settings', url: '/settings', icon: Settings },
+      ];
+    }
 
-    // Admin items - but admin panel removed from sidebar since it has separate access
+    // Admin items - includes chat support access
     return [
+      { title: 'Admin Panel', url: '/admin-dashboard', icon: Shield },
+      { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
       ...commonItems,
       { title: 'User Management', url: '/admin/users', icon: Users },
       { title: 'Settings', url: '/settings', icon: Settings },

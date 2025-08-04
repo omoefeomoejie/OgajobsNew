@@ -26,6 +26,7 @@ import PortfolioView from "./pages/PortfolioView";
 import Disputes from "./pages/Disputes";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
+import AgentChatDashboardPage from "./pages/AgentChatDashboard";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/disputes" element={<Disputes />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/agent-chat" element={<AgentChatDashboardPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             
