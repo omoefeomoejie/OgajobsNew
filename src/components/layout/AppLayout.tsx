@@ -7,6 +7,7 @@ import { InstallPrompt } from '@/components/mobile/InstallPrompt';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { PresenceIndicator } from '@/components/realtime/PresenceIndicator';
 import { OfflineIndicator } from '@/components/mobile/OfflineIndicator';
+import LiveChatWidget from '@/components/chat/LiveChatWidget';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -55,6 +56,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <InstallPrompt />
       {/* Offline/Online Indicator */}
       <OfflineIndicator />
+      {/* Live Chat Support Widget */}
+      <LiveChatWidget />
     </SidebarProvider>
   );
 };

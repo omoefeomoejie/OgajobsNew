@@ -1187,6 +1187,153 @@ export type Database = {
         }
         Relationships: []
       }
+      live_chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          message_type: string
+          metadata: Json | null
+          read_by_agent: boolean | null
+          read_by_customer: boolean | null
+          sender_id: string | null
+          sender_name: string | null
+          sender_type: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          message_type?: string
+          metadata?: Json | null
+          read_by_agent?: boolean | null
+          read_by_customer?: boolean | null
+          sender_id?: string | null
+          sender_name?: string | null
+          sender_type: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          message_type?: string
+          metadata?: Json | null
+          read_by_agent?: boolean | null
+          read_by_customer?: boolean | null
+          sender_id?: string | null
+          sender_name?: string | null
+          sender_type?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_chat_sessions: {
+        Row: {
+          agent_id: string | null
+          assigned_at: string | null
+          closed_at: string | null
+          created_at: string
+          customer_email: string | null
+          customer_id: string | null
+          customer_name: string | null
+          department: string | null
+          id: string
+          initial_message: string | null
+          metadata: Json | null
+          priority: string
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          assigned_at?: string | null
+          closed_at?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          department?: string | null
+          id?: string
+          initial_message?: string | null
+          metadata?: Json | null
+          priority?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          assigned_at?: string | null
+          closed_at?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          department?: string | null
+          id?: string
+          initial_message?: string | null
+          metadata?: Json | null
+          priority?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_chat_sessions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_chat_typing: {
+        Row: {
+          created_at: string
+          id: string
+          session_id: string
+          user_id: string
+          user_name: string
+          user_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_id: string
+          user_id: string
+          user_name: string
+          user_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_id?: string
+          user_id?: string
+          user_name?: string
+          user_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_chat_typing_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           action: string | null
@@ -2745,6 +2892,10 @@ export type Database = {
         Args: { booking_id_param: string; max_assignments?: number }
         Returns: number
       }
+      auto_assign_chat_session: {
+        Args: { session_id_param: string }
+        Returns: undefined
+      }
       auto_assign_support_ticket: {
         Args: { ticket_id_param: string }
         Returns: undefined
@@ -2773,6 +2924,10 @@ export type Database = {
       calculate_trust_score: {
         Args: { artisan_user_id: string }
         Returns: number
+      }
+      cleanup_old_typing_indicators: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       complete_booking: {
         Args: { booking_id_param: string; completed_by_param: string }
