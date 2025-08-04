@@ -4,6 +4,7 @@ import { HeroSection } from '@/components/home/HeroSection';
 import { ServiceCategoriesSection } from '@/components/home/ServiceCategoriesSection';
 import { TrustSection } from '@/components/home/TrustSection';
 import { HowItWorksSection } from '@/components/home/HowItWorksSection';
+import LiveChatWidget from '@/components/chat/LiveChatWidget';
 
 const Index = () => {
   return (
@@ -16,6 +17,7 @@ const Index = () => {
         <HowItWorksSection />
       </main>
       <Footer />
+      <LiveChatWidget />
     </div>
   );
 };
