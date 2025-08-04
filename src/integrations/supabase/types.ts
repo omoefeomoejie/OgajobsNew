@@ -114,6 +114,13 @@ export type Database = {
             referencedRelation: "artisans"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "agent_referrals_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "mv_artisan_performance"
+            referencedColumns: ["artisan_id"]
+          },
         ]
       }
       artisan_availability: {
@@ -311,6 +318,13 @@ export type Database = {
             referencedRelation: "artisans"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artisan_reviews_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "mv_artisan_performance"
+            referencedColumns: ["artisan_id"]
+          },
         ]
       }
       artisans: {
@@ -388,6 +402,51 @@ export type Database = {
           preferred_date?: string | null
           statcreated_atus?: string | null
           work_type?: string | null
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          changed_fields: string[] | null
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          new_data: Json | null
+          old_data: Json | null
+          operation: string
+          session_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          changed_fields?: string[] | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_data?: Json | null
+          old_data?: Json | null
+          operation: string
+          session_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          changed_fields?: string[] | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_data?: Json | null
+          old_data?: Json | null
+          operation?: string
+          session_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -645,6 +704,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "artisans"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_transactions_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "mv_artisan_performance"
+            referencedColumns: ["artisan_id"]
           },
           {
             foreignKeyName: "commission_transactions_booking_id_fkey"
@@ -1076,6 +1142,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "job_assignments_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "mv_artisan_performance"
+            referencedColumns: ["artisan_id"]
+          },
+          {
             foreignKeyName: "job_assignments_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1167,6 +1240,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "artisans"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "mv_artisan_performance"
+            referencedColumns: ["artisan_id"]
           },
           {
             foreignKeyName: "matches_client_id_fkey"
@@ -1339,6 +1419,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "artisans"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "mv_artisan_performance"
+            referencedColumns: ["artisan_id"]
           },
         ]
       }
@@ -2593,7 +2680,65 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      mv_artisan_performance: {
+        Row: {
+          artisan_id: string | null
+          average_rating: number | null
+          avg_completion_days: number | null
+          cancelled_jobs: number | null
+          category: string | null
+          city: string | null
+          completed_jobs: number | null
+          email: string | null
+          full_name: string | null
+          last_job_date: string | null
+          total_earnings: number | null
+          total_jobs: number | null
+          total_reviews: number | null
+        }
+        Relationships: []
+      }
+      mv_client_analytics: {
+        Row: {
+          average_booking_value: number | null
+          cancelled_bookings: number | null
+          client_email: string | null
+          completed_bookings: number | null
+          first_booking_date: string | null
+          last_booking_date: string | null
+          service_types_used: number | null
+          total_bookings: number | null
+          total_spent: number | null
+          unique_artisans_worked_with: number | null
+        }
+        Relationships: []
+      }
+      mv_monthly_metrics: {
+        Row: {
+          average_rating: number | null
+          completed_bookings: number | null
+          month: string | null
+          platform_fees: number | null
+          total_bookings: number | null
+          total_revenue: number | null
+          unique_artisans: number | null
+          unique_clients: number | null
+        }
+        Relationships: []
+      }
+      mv_service_category_stats: {
+        Row: {
+          average_budget: number | null
+          average_rating: number | null
+          completion_rate: number | null
+          service_category: string | null
+          total_bookings: number | null
+          total_revenue: number | null
+          unique_artisans: number | null
+          unique_clients: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       auto_assign_artisans: {
@@ -2705,6 +2850,10 @@ export type Database = {
           p_referral_code?: string
         }
         Returns: Json
+      }
+      refresh_performance_views: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       setup_admin_user: {
         Args: { admin_email: string; admin_user_id: string }

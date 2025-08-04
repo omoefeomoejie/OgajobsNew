@@ -5,6 +5,7 @@ import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
 import { FinancialReporting } from '@/components/admin/FinancialReporting';
 import { AdvancedPerformanceMetrics } from '@/components/analytics/AdvancedPerformanceMetrics';
 import { UserBehaviorAnalytics } from '@/components/analytics/UserBehaviorAnalytics';
+import { SecurityDashboard } from './SecurityDashboard';
 import { 
   Shield, 
   Users, 
@@ -649,12 +650,7 @@ export function AdminDashboard() {
       case 'behavior':
         return <UserBehaviorAnalytics />;
       case 'safety':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold">🛡️ Trust & Safety</h2>
-            <p className="text-muted-foreground">Fraud detection & risk management - Coming soon</p>
-          </div>
-        );
+        return <SecurityDashboard />;
       case 'health':
         return (
           <div className="text-center py-12">
