@@ -6,6 +6,7 @@ import { FinancialReporting } from '@/components/admin/FinancialReporting';
 import { AdvancedPerformanceMetrics } from '@/components/analytics/AdvancedPerformanceMetrics';
 import { UserBehaviorAnalytics } from '@/components/analytics/UserBehaviorAnalytics';
 import { SecurityDashboard } from './SecurityDashboard';
+import { DemandPredictionDashboard } from '@/components/analytics/DemandPredictionDashboard';
 import { 
   Shield, 
   Users, 
@@ -22,7 +23,8 @@ import {
   Activity,
   Zap,
   Target,
-  BarChart3
+  BarChart3,
+  Brain
 } from 'lucide-react';
 import {
   Sidebar,
@@ -50,6 +52,7 @@ const adminMenuItems = [
   { title: "Booking Control", url: "#bookings", icon: Briefcase },
   { title: "Financial Hub", url: "#finance", icon: DollarSign },
   { title: "Analytics", url: "#analytics", icon: TrendingUp },
+  { title: "Demand Prediction", url: "#demand", icon: Brain },
   { title: "Performance Metrics", url: "#performance", icon: Target },
   { title: "User Behavior", url: "#behavior", icon: BarChart3 },
   { title: "Trust & Safety", url: "#safety", icon: Shield },
@@ -645,6 +648,8 @@ export function AdminDashboard() {
         return <FinancialReporting />;
       case 'analytics':
         return <AnalyticsDashboard />;
+      case 'demand':
+        return <DemandPredictionDashboard />;
       case 'performance':
         return <AdvancedPerformanceMetrics />;
       case 'behavior':

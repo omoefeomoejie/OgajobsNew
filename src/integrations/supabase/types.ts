@@ -813,6 +813,132 @@ export type Database = {
         }
         Relationships: []
       }
+      demand_analytics: {
+        Row: {
+          average_budget: number
+          booking_count: number
+          category: string
+          city: string
+          created_at: string
+          date: string
+          day_of_week: number
+          hour_of_day: number
+          id: string
+          total_budget: number
+          updated_at: string
+        }
+        Insert: {
+          average_budget?: number
+          booking_count?: number
+          category: string
+          city: string
+          created_at?: string
+          date: string
+          day_of_week: number
+          hour_of_day: number
+          id?: string
+          total_budget?: number
+          updated_at?: string
+        }
+        Update: {
+          average_budget?: number
+          booking_count?: number
+          category?: string
+          city?: string
+          created_at?: string
+          date?: string
+          day_of_week?: number
+          hour_of_day?: number
+          id?: string
+          total_budget?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      demand_predictions: {
+        Row: {
+          category: string
+          city: string
+          confidence_score: number
+          created_at: string
+          historical_avg: number | null
+          id: string
+          metadata: Json | null
+          model_version: string
+          predicted_demand: number
+          prediction_date: string
+          prediction_hour: number
+          seasonality_factor: number | null
+          trend_factor: number | null
+        }
+        Insert: {
+          category: string
+          city: string
+          confidence_score: number
+          created_at?: string
+          historical_avg?: number | null
+          id?: string
+          metadata?: Json | null
+          model_version?: string
+          predicted_demand: number
+          prediction_date: string
+          prediction_hour: number
+          seasonality_factor?: number | null
+          trend_factor?: number | null
+        }
+        Update: {
+          category?: string
+          city?: string
+          confidence_score?: number
+          created_at?: string
+          historical_avg?: number | null
+          id?: string
+          metadata?: Json | null
+          model_version?: string
+          predicted_demand?: number
+          prediction_date?: string
+          prediction_hour?: number
+          seasonality_factor?: number | null
+          trend_factor?: number | null
+        }
+        Relationships: []
+      }
+      demand_trends: {
+        Row: {
+          category: string
+          city: string
+          created_at: string
+          id: string
+          period_end: string
+          period_start: string
+          trend_direction: string
+          trend_type: string
+          trend_value: number
+        }
+        Insert: {
+          category: string
+          city: string
+          created_at?: string
+          id?: string
+          period_end: string
+          period_start: string
+          trend_direction: string
+          trend_type: string
+          trend_value: number
+        }
+        Update: {
+          category?: string
+          city?: string
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          trend_direction?: string
+          trend_type?: string
+          trend_value?: number
+        }
+        Relationships: []
+      }
       dispute_activities: {
         Row: {
           action: string
@@ -2971,6 +3097,10 @@ export type Database = {
       }
     }
     Functions: {
+      aggregate_demand_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       auto_assign_artisans: {
         Args: { booking_id_param: string; max_assignments?: number }
         Returns: number
@@ -2986,6 +3116,10 @@ export type Database = {
       calculate_artisan_earnings: {
         Args: { amount: number }
         Returns: number
+      }
+      calculate_demand_predictions: {
+        Args: { prediction_days?: number }
+        Returns: undefined
       }
       calculate_distance: {
         Args: { lat1: number; lon1: number; lat2: number; lon2: number }
