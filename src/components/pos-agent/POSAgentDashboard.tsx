@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Users, DollarSign, UserPlus, TrendingUp, Eye, Search, Filter, Plus, MoreVertical, Check, Clock, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import OnboardingModal from './OnboardingModal';
+import CommissionWithdrawal from './CommissionWithdrawal';
+import CommissionTracker from './CommissionTracker';
 
 const POSAgentDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [agentStats, setAgentStats] = useState({
@@ -26,25 +30,48 @@ const POSAgentDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      // Mock data for now - will be replaced with real Supabase data later
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Get artisans onboarded by this agent (simplified version for now)
+      const { data: artisansData, error: artisansError } = await supabase
+        .from('artisans')
+        .select('*')
+        .ilike('message', `%${user.email}%`)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (artisansError && artisansError.code !== 'PGRST116') {
+        console.error('Error fetching artisans:', artisansError);
+      }
+
+      // Set basic stats based on artisans data
+      const totalArtisans = artisansData?.length || 0;
       setAgentStats({
-        totalArtisans: 47,
-        monthlyCommission: 125400,
-        pendingCommission: 23600,
-        totalEarnings: 892300
+        totalArtisans,
+        monthlyCommission: totalArtisans * 2500, // Estimated ₦2,500 per artisan per month
+        pendingCommission: totalArtisans * 1200, // Estimated pending
+        totalEarnings: totalArtisans * 15000 // Estimated total lifetime
       });
 
-      setRecentArtisans([
-        { id: 1, name: 'Ibrahim Musa', service: 'Plumbing', status: 'pending', joinDate: '2024-08-01', commission: 5000 },
-        { id: 2, name: 'Fatima Hassan', service: 'Tailoring', status: 'verified', joinDate: '2024-07-28', commission: 3500 },
-        { id: 3, name: 'John Okoro', service: 'Electrical', status: 'active', joinDate: '2024-07-25', commission: 7200 },
-        { id: 4, name: 'Amina Bello', service: 'Catering', status: 'pending', joinDate: '2024-08-02', commission: 2800 },
-      ]);
+      if (artisansData) {
+        const formattedArtisans = artisansData.map((artisan: any) => ({
+          id: artisan.id,
+          name: artisan.full_name || 'Unknown',
+          service: artisan.category || 'N/A',
+          status: 'active', // Default status
+          joinDate: new Date(artisan.created_at).toISOString().split('T')[0],
+          commission: 2500, // Default commission
+          email: artisan.email
+        }));
+        setRecentArtisans(formattedArtisans);
+      }
 
+      // Set mock commission history for now
       setCommissionHistory([
-        { month: 'July 2024', amount: 89200, artisans: 12, status: 'paid' },
-        { month: 'June 2024', amount: 76800, artisans: 10, status: 'paid' },
-        { month: 'May 2024', amount: 92500, artisans: 14, status: 'paid' },
+        { month: 'December 2024', amount: totalArtisans * 2500, artisans: totalArtisans, status: 'pending' },
+        { month: 'November 2024', amount: totalArtisans * 2200, artisans: Math.max(totalArtisans - 1, 0), status: 'paid' },
+        { month: 'October 2024', amount: totalArtisans * 2800, artisans: Math.max(totalArtisans - 2, 0), status: 'paid' },
       ]);
 
       setLoading(false);
@@ -161,7 +188,7 @@ const POSAgentDashboard = () => {
         <div className="bg-white rounded-xl border mb-6">
           <div className="border-b">
             <nav className="flex space-x-8 px-6">
-              {['overview', 'artisans', 'commissions'].map((tab) => (
+              {['overview', 'artisans', 'commissions', 'withdrawals'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -180,6 +207,11 @@ const POSAgentDashboard = () => {
           <div className="p-6">
             {activeTab === 'overview' && (
               <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Quick Overview</h3>
+                  <CommissionTracker className="mb-6" />
+                </div>
+                
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
                   <div className="space-y-3">
@@ -263,7 +295,17 @@ const POSAgentDashboard = () => {
 
             {activeTab === 'commissions' && (
               <div>
-                <h3 className="text-lg font-semibold mb-4">Commission History</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Commission History</h3>
+                  <Button 
+                    onClick={() => setShowWithdrawalModal(true)}
+                    className="flex items-center gap-2"
+                    variant="outline"
+                  >
+                    <DollarSign className="w-4 h-4" />
+                    Withdraw Funds
+                  </Button>
+                </div>
                 <div className="space-y-3">
                   {commissionHistory.map((commission, index) => (
                     <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
@@ -273,14 +315,27 @@ const POSAgentDashboard = () => {
                       </div>
                       <div className="text-right">
                         <p className="font-semibold">₦{commission.amount.toLocaleString()}</p>
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <Check className="w-3 h-3" />
-                          Paid
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                          commission.status === 'paid' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {commission.status === 'paid' ? <Check className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                          {commission.status.charAt(0).toUpperCase() + commission.status.slice(1)}
                         </span>
                       </div>
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'withdrawals' && (
+              <div>
+                <CommissionWithdrawal 
+                  availableBalance={agentStats.totalEarnings - agentStats.pendingCommission}
+                  onWithdrawalSuccess={() => loadDashboardData()}
+                />
               </div>
             )}
           </div>
@@ -292,6 +347,31 @@ const POSAgentDashboard = () => {
           onClose={() => setShowOnboardingModal(false)}
           onSuccess={handleOnboardingSuccess}
         />
+      )}
+
+      {showWithdrawalModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-auto">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-semibold">Withdraw Commission</h2>
+              <button 
+                onClick={() => setShowWithdrawalModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <Clock className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4">
+              <CommissionWithdrawal 
+                availableBalance={agentStats.totalEarnings - agentStats.pendingCommission}
+                onWithdrawalSuccess={() => {
+                  setShowWithdrawalModal(false);
+                  loadDashboardData();
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

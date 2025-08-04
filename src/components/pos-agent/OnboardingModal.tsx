@@ -52,9 +52,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // For now, we'll create the artisan directly in the artisans table
-      // This is a simplified version until we properly set up the agent system
-
+      // Create artisan record directly for now
       const { data: artisanData, error: artisanError } = await supabase
         .from('artisans')
         .insert({
@@ -63,14 +61,14 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
           phone: formData.phone,
           category: formData.serviceCategory,
           city: `${formData.lga}, ${formData.state}`,
-          message: `Onboarded by agent: ${user.email}`
+          message: `Onboarded by agent: ${user.email}. Address: ${formData.address}`
         })
         .select()
         .single();
 
       if (artisanError) throw artisanError;
 
-      // Generate a simple referral code for tracking
+      // Generate referral code for tracking
       const referralCode = 'AGT_' + Date.now().toString().slice(-6);
 
       toast({

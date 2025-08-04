@@ -56,27 +56,32 @@ const AgentRegistration = () => {
         address: formData.address
       };
 
-      // Create agent profile in profiles table for now
-      const { error } = await supabase
+      const agentCode = generateAgentCode();
+
+      // For now, we'll just update the profile role since pos_agents table needs to be added to types
+      // The agent system will be fully implemented when database types are updated
+
+      // Update profile role
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           role: 'pos_agent'
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       toast({
         title: "Registration Successful",
-        description: "Your POS agent application has been submitted for review.",
+        description: `Welcome! Your agent code is: ${agentCode}`,
       });
 
       navigate('/agent-dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
       toast({
         title: "Registration Failed",
-        description: "Please try again or contact support.",
+        description: error.message || "Please try again or contact support.",
         variant: "destructive",
       });
     } finally {
