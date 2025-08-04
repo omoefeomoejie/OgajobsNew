@@ -116,6 +116,39 @@ export type Database = {
           },
         ]
       }
+      artisan_availability: {
+        Row: {
+          artisan_id: string
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean | null
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          artisan_id: string
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          artisan_id?: string
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       artisan_reviews: {
         Row: {
           artisan_id: string | null
@@ -255,6 +288,59 @@ export type Database = {
           start_time?: string | null
         }
         Relationships: []
+      }
+      booking_assignments: {
+        Row: {
+          artisan_id: string
+          artisan_response_at: string | null
+          assigned_at: string
+          assigned_by: string | null
+          assignment_type: string
+          booking_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          response_deadline: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          artisan_id: string
+          artisan_response_at?: string | null
+          assigned_at?: string
+          assigned_by?: string | null
+          assignment_type?: string
+          booking_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          response_deadline?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          artisan_id?: string
+          artisan_response_at?: string | null
+          assigned_at?: string
+          assigned_by?: string | null
+          assignment_type?: string
+          booking_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          response_deadline?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_assignments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bookings: {
         Row: {
@@ -958,6 +1044,101 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matching_preferences: {
+        Row: {
+          availability_requirements: Json | null
+          created_at: string
+          id: string
+          max_budget: number | null
+          max_distance_km: number | null
+          min_rating: number | null
+          preferred_categories: string[] | null
+          updated_at: string
+          urgent_only: boolean | null
+          user_id: string
+        }
+        Insert: {
+          availability_requirements?: Json | null
+          created_at?: string
+          id?: string
+          max_budget?: number | null
+          max_distance_km?: number | null
+          min_rating?: number | null
+          preferred_categories?: string[] | null
+          updated_at?: string
+          urgent_only?: boolean | null
+          user_id: string
+        }
+        Update: {
+          availability_requirements?: Json | null
+          created_at?: string
+          id?: string
+          max_budget?: number | null
+          max_distance_km?: number | null
+          min_rating?: number | null
+          preferred_categories?: string[] | null
+          updated_at?: string
+          urgent_only?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      matching_scores: {
+        Row: {
+          algorithm_version: string | null
+          artisan_id: string
+          availability_score: number | null
+          booking_id: string | null
+          category_score: number | null
+          created_at: string
+          distance_score: number | null
+          id: string
+          price_score: number | null
+          rating_score: number | null
+          response_time_score: number | null
+          total_score: number
+          workload_score: number | null
+        }
+        Insert: {
+          algorithm_version?: string | null
+          artisan_id: string
+          availability_score?: number | null
+          booking_id?: string | null
+          category_score?: number | null
+          created_at?: string
+          distance_score?: number | null
+          id?: string
+          price_score?: number | null
+          rating_score?: number | null
+          response_time_score?: number | null
+          total_score: number
+          workload_score?: number | null
+        }
+        Update: {
+          algorithm_version?: string | null
+          artisan_id?: string
+          availability_score?: number | null
+          booking_id?: string | null
+          category_score?: number | null
+          created_at?: string
+          distance_score?: number | null
+          id?: string
+          price_score?: number | null
+          rating_score?: number | null
+          response_time_score?: number | null
+          total_score?: number
+          workload_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matching_scores_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
         ]
@@ -1907,8 +2088,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auto_assign_artisans: {
+        Args: { booking_id_param: string; max_assignments?: number }
+        Returns: number
+      }
       calculate_artisan_earnings: {
         Args: { amount: number }
+        Returns: number
+      }
+      calculate_distance: {
+        Args: { lat1: number; lon1: number; lat2: number; lon2: number }
         Returns: number
       }
       calculate_platform_fee: {
@@ -1926,6 +2115,17 @@ export type Database = {
       delete_user: {
         Args: { uid: string }
         Returns: undefined
+      }
+      find_matching_artisans: {
+        Args: { booking_id_param: string; limit_param?: number }
+        Returns: {
+          artisan_id: string
+          total_score: number
+          distance_km: number
+          rating: number
+          category_match: boolean
+          availability_match: boolean
+        }[]
       }
       get_agent_dashboard_stats: {
         Args: { p_agent_user_id: string }
