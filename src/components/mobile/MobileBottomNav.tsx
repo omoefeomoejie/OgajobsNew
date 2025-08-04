@@ -10,7 +10,8 @@ import {
   User,
   Briefcase,
   Star,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react';
 
 export function MobileBottomNav() {
@@ -39,7 +40,7 @@ export function MobileBottomNav() {
       return [
         ...commonItems,
         { title: 'Jobs', url: '/jobs', icon: Briefcase },
-        { title: 'Reviews', url: '/reviews', icon: Star },
+        { title: 'Verify', url: '/verification', icon: Shield },
         { title: 'Profile', url: '/profile', icon: User },
       ];
     }
