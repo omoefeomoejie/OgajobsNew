@@ -149,6 +149,135 @@ export type Database = {
         }
         Relationships: []
       }
+      artisan_earnings_v2: {
+        Row: {
+          amount: number
+          artisan_id: string
+          available_for_withdrawal_at: string | null
+          booking_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          earning_type: string
+          id: string
+          metadata: Json | null
+          net_amount: number
+          platform_fee: number
+          status: string
+          transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          artisan_id: string
+          available_for_withdrawal_at?: string | null
+          booking_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          earning_type?: string
+          id?: string
+          metadata?: Json | null
+          net_amount: number
+          platform_fee?: number
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          artisan_id?: string
+          available_for_withdrawal_at?: string | null
+          booking_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          earning_type?: string
+          id?: string
+          metadata?: Json | null
+          net_amount?: number
+          platform_fee?: number
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisan_earnings_v2_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_earnings_v2_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artisan_payment_methods: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          artisan_id: string
+          bank_code: string | null
+          bank_name: string | null
+          created_at: string
+          id: string
+          is_default: boolean | null
+          is_verified: boolean | null
+          method_type: Database["public"]["Enums"]["withdrawal_method"]
+          mobile_network: string | null
+          mobile_number: string | null
+          paypal_email: string | null
+          updated_at: string
+          verification_notes: string | null
+          verification_status: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          artisan_id: string
+          bank_code?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          is_verified?: boolean | null
+          method_type: Database["public"]["Enums"]["withdrawal_method"]
+          mobile_network?: string | null
+          mobile_number?: string | null
+          paypal_email?: string | null
+          updated_at?: string
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          artisan_id?: string
+          bank_code?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          is_verified?: boolean | null
+          method_type?: Database["public"]["Enums"]["withdrawal_method"]
+          mobile_network?: string | null
+          mobile_number?: string | null
+          paypal_email?: string | null
+          updated_at?: string
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       artisan_reviews: {
         Row: {
           artisan_id: string | null
@@ -2336,6 +2465,132 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawal_requests_v2: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          admin_notes: string | null
+          amount: number
+          artisan_id: string
+          bank_code: string | null
+          bank_name: string | null
+          completed_at: string | null
+          created_at: string
+          currency: string
+          external_reference: string | null
+          final_amount: number | null
+          id: string
+          mobile_network: string | null
+          mobile_number: string | null
+          paypal_email: string | null
+          processed_at: string | null
+          processed_by: string | null
+          processing_fee: number | null
+          processor_response: Json | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at: string
+          withdrawal_method: Database["public"]["Enums"]["withdrawal_method"]
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          admin_notes?: string | null
+          amount: number
+          artisan_id: string
+          bank_code?: string | null
+          bank_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          external_reference?: string | null
+          final_amount?: number | null
+          id?: string
+          mobile_network?: string | null
+          mobile_number?: string | null
+          paypal_email?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          processing_fee?: number | null
+          processor_response?: Json | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at?: string
+          withdrawal_method: Database["public"]["Enums"]["withdrawal_method"]
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          admin_notes?: string | null
+          amount?: number
+          artisan_id?: string
+          bank_code?: string | null
+          bank_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          external_reference?: string | null
+          final_amount?: number | null
+          id?: string
+          mobile_network?: string | null
+          mobile_number?: string | null
+          paypal_email?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          processing_fee?: number | null
+          processor_response?: Json | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at?: string
+          withdrawal_method?: Database["public"]["Enums"]["withdrawal_method"]
+        }
+        Relationships: []
+      }
+      withdrawal_settings: {
+        Row: {
+          artisan_id: string
+          auto_withdrawal_day: number | null
+          auto_withdrawal_enabled: boolean | null
+          auto_withdrawal_threshold: number | null
+          created_at: string
+          daily_withdrawal_limit: number | null
+          id: string
+          max_withdrawal_amount: number | null
+          min_withdrawal_amount: number | null
+          monthly_withdrawal_limit: number | null
+          updated_at: string
+          weekly_withdrawal_limit: number | null
+        }
+        Insert: {
+          artisan_id: string
+          auto_withdrawal_day?: number | null
+          auto_withdrawal_enabled?: boolean | null
+          auto_withdrawal_threshold?: number | null
+          created_at?: string
+          daily_withdrawal_limit?: number | null
+          id?: string
+          max_withdrawal_amount?: number | null
+          min_withdrawal_amount?: number | null
+          monthly_withdrawal_limit?: number | null
+          updated_at?: string
+          weekly_withdrawal_limit?: number | null
+        }
+        Update: {
+          artisan_id?: string
+          auto_withdrawal_day?: number | null
+          auto_withdrawal_enabled?: boolean | null
+          auto_withdrawal_threshold?: number | null
+          created_at?: string
+          daily_withdrawal_limit?: number | null
+          id?: string
+          max_withdrawal_amount?: number | null
+          min_withdrawal_amount?: number | null
+          monthly_withdrawal_limit?: number | null
+          updated_at?: string
+          weekly_withdrawal_limit?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2409,6 +2664,15 @@ export type Database = {
           role: string
         }[]
       }
+      get_artisan_balance_v2: {
+        Args: { artisan_id_param: string }
+        Returns: {
+          total_earnings: number
+          available_balance: number
+          pending_withdrawals: number
+          withdrawn_amount: number
+        }[]
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: string
@@ -2459,6 +2723,14 @@ export type Database = {
         Args: { artisan_user_id: string }
         Returns: string
       }
+      validate_withdrawal_request_v2: {
+        Args: { artisan_id_param: string; amount_param: number }
+        Returns: {
+          is_valid: boolean
+          error_message: string
+          available_balance: number
+        }[]
+      }
     }
     Enums: {
       dispute_category:
@@ -2505,6 +2777,20 @@ export type Database = {
         | "resolved"
         | "closed"
       verification_status: "pending" | "verified" | "rejected" | "expired"
+      withdrawal_method:
+        | "bank_transfer"
+        | "mobile_money"
+        | "paypal"
+        | "stripe"
+        | "crypto"
+      withdrawal_status:
+        | "pending"
+        | "processing"
+        | "approved"
+        | "completed"
+        | "failed"
+        | "rejected"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2681,6 +2967,22 @@ export const Constants = {
         "closed",
       ],
       verification_status: ["pending", "verified", "rejected", "expired"],
+      withdrawal_method: [
+        "bank_transfer",
+        "mobile_money",
+        "paypal",
+        "stripe",
+        "crypto",
+      ],
+      withdrawal_status: [
+        "pending",
+        "processing",
+        "approved",
+        "completed",
+        "failed",
+        "rejected",
+        "cancelled",
+      ],
     },
   },
 } as const
