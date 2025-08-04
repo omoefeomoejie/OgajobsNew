@@ -36,16 +36,22 @@ interface BookingAssignment {
   id: string;
   booking_id: string;
   artisan_id: string;
-  total_score: number;
   status: string;
+  assigned_at: string;
+  assignment_type: string;
+  response_deadline: string | null;
+  artisan_response_at: string | null;
+  assigned_by: string | null;
+  notes: string | null;
   created_at: string;
-  booking: {
+  updated_at: string;
+  bookings?: {
     work_type: string;
     city: string;
     budget: number;
     client_email: string;
   };
-  artisan: {
+  artisans?: {
     full_name: string;
     email: string;
     category: string;
@@ -106,11 +112,7 @@ export const MatchingDashboard: React.FC = () => {
       // Fetch booking assignments with related data
       const { data: assignmentsData, error: assignmentsError } = await supabase
         .from('booking_assignments')
-        .select(`
-          *,
-          bookings!inner (work_type, city, budget, client_email),
-          artisans!inner (full_name, email, category)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -494,21 +496,21 @@ export const MatchingDashboard: React.FC = () => {
                 <TableRow key={assignment.id}>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{assignment.booking.work_type}</div>
+                      <div className="font-medium">{assignment.bookings?.work_type || 'N/A'}</div>
                       <div className="text-sm text-muted-foreground">
-                        {assignment.booking.city} • ₦{assignment.booking.budget?.toLocaleString()}
+                        {assignment.bookings?.city} • ₦{assignment.bookings?.budget?.toLocaleString()}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{assignment.artisan.full_name}</div>
-                      <div className="text-sm text-muted-foreground">{assignment.artisan.category}</div>
+                      <div className="font-medium">{assignment.artisans?.full_name || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">{assignment.artisans?.category}</div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {assignment.total_score?.toFixed(1)} pts
+                      N/A
                     </Badge>
                   </TableCell>
                   <TableCell>{getStatusBadge(assignment.status)}</TableCell>

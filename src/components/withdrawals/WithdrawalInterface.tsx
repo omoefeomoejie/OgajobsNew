@@ -173,6 +173,7 @@ export const WithdrawalInterface: React.FC = () => {
           bank_code: selectedBank,
           account_number: accountNumber,
           account_name: accountName,
+          withdrawal_method: 'bank_transfer' as any,
           status: 'pending'
         });
 
@@ -409,15 +410,15 @@ export const WithdrawalInterface: React.FC = () => {
                     {withdrawalHistory.map((withdrawal) => (
                       <TableRow key={withdrawal.id}>
                         <TableCell>
-                          {new Date(withdrawal.requestedAt).toLocaleDateString()}
+                          {new Date(withdrawal.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell className="font-medium">
                           ₦{withdrawal.amount.toLocaleString()}
                         </TableCell>
-                        <TableCell>{withdrawal.bankName}</TableCell>
+                        <TableCell>{withdrawal.bank_name}</TableCell>
                         <TableCell>{getStatusBadge(withdrawal.status)}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {withdrawal.transactionReference || 'Pending'}
+                          {withdrawal.transaction_reference || 'Pending'}
                         </TableCell>
                       </TableRow>
                     ))}

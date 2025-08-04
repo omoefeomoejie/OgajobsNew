@@ -157,11 +157,12 @@ export const SupportTicketInterface: React.FC = () => {
         .from('support_tickets_v2')
         .insert({
           user_id: user.id,
-          title: newTicket.title,
+          subject: newTicket.title,
           description: newTicket.description,
-          category: newTicket.category,
-          priority: newTicket.priority,
-          status: 'open'
+          category: newTicket.category as any,
+          priority: newTicket.priority as any,
+          status: 'open',
+          ticket_number: `TK${Date.now()}`
         });
 
       if (error) throw error;
@@ -207,7 +208,7 @@ export const SupportTicketInterface: React.FC = () => {
           ticket_id: selectedTicket.id,
           message: newMessage.trim(),
           sender_type: 'user',
-          sender_name: user.email || 'User'
+          sender_id: user.id
         });
 
       if (error) throw error;
@@ -259,7 +260,7 @@ export const SupportTicketInterface: React.FC = () => {
   };
 
   const filteredTickets = tickets.filter(ticket =>
-    ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ticket.ticket_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ticket.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -404,7 +405,7 @@ export const SupportTicketInterface: React.FC = () => {
                           {getStatusBadge(ticket.status)}
                           {getPriorityBadge(ticket.priority)}
                         </div>
-                        <h4 className="font-medium truncate">{ticket.title}</h4>
+                        <h4 className="font-medium truncate">{ticket.subject}</h4>
                         <p className="text-sm text-muted-foreground">
                           {TICKET_CATEGORIES.find(c => c.value === ticket.category)?.label}
                         </p>
@@ -436,7 +437,7 @@ export const SupportTicketInterface: React.FC = () => {
                     {getStatusBadge(selectedTicket.status)}
                     {getPriorityBadge(selectedTicket.priority)}
                   </div>
-                  <h3 className="font-semibold">{selectedTicket.title}</h3>
+                  <h3 className="font-semibold">{selectedTicket.subject}</h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     {selectedTicket.description}
                   </p>
@@ -458,7 +459,7 @@ export const SupportTicketInterface: React.FC = () => {
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium">
-                          {message.sender_type === 'user' ? 'You' : message.sender_name}
+                          {message.sender_type === 'user' ? 'You' : 'Support Agent'}
                         </span>
                         <span className="text-xs text-muted-foreground">
                           {new Date(message.created_at).toLocaleString()}
