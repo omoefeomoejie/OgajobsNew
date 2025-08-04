@@ -126,11 +126,26 @@ export default function Auth() {
       if (signInError) throw signInError;
 
       if (data.user) {
+        // Check user role and redirect accordingly
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
         toast({
           title: "Welcome back!",
           description: "You have been signed in successfully.",
         });
-        navigate(redirectTo);
+
+        // Redirect based on role
+        if (profile?.role === 'pos_agent') {
+          navigate('/agent-dashboard');
+        } else if (profile?.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate(redirectTo);
+        }
       }
     } catch (error: any) {
       setError(error.message || 'An error occurred during sign in');
@@ -326,10 +341,19 @@ export default function Auth() {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-6 pt-6 border-t">
+          <div className="mt-6 pt-6 border-t space-y-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="w-4 h-4" />
               <span>100% secure and verified platform</span>
+            </div>
+            
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-2">Want to become a POS Agent?</p>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/agent-registration">
+                  Join as POS Agent
+                </Link>
+              </Button>
             </div>
           </div>
         </CardContent>
