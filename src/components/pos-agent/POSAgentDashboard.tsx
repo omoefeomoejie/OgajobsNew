@@ -1,32 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, DollarSign, UserPlus, TrendingUp, Eye, Search, Filter, Plus, MoreVertical, Check, Clock, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import OnboardingModal from './OnboardingModal';
 
 const POSAgentDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [agentStats, setAgentStats] = useState({
+    totalArtisans: 0,
+    monthlyCommission: 0,
+    pendingCommission: 0,
+    totalEarnings: 0
+  });
+  const [recentArtisans, setRecentArtisans] = useState([]);
+  const [commissionHistory, setCommissionHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Mock data - you'll replace with real Supabase data
-  const agentStats = {
-    totalArtisans: 47,
-    monthlyCommission: 125400,
-    pendingCommission: 23600,
-    totalEarnings: 892300
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      // Mock data for now - will be replaced with real Supabase data later
+      setAgentStats({
+        totalArtisans: 47,
+        monthlyCommission: 125400,
+        pendingCommission: 23600,
+        totalEarnings: 892300
+      });
+
+      setRecentArtisans([
+        { id: 1, name: 'Ibrahim Musa', service: 'Plumbing', status: 'pending', joinDate: '2024-08-01', commission: 5000 },
+        { id: 2, name: 'Fatima Hassan', service: 'Tailoring', status: 'verified', joinDate: '2024-07-28', commission: 3500 },
+        { id: 3, name: 'John Okoro', service: 'Electrical', status: 'active', joinDate: '2024-07-25', commission: 7200 },
+        { id: 4, name: 'Amina Bello', service: 'Catering', status: 'pending', joinDate: '2024-08-02', commission: 2800 },
+      ]);
+
+      setCommissionHistory([
+        { month: 'July 2024', amount: 89200, artisans: 12, status: 'paid' },
+        { month: 'June 2024', amount: 76800, artisans: 10, status: 'paid' },
+        { month: 'May 2024', amount: 92500, artisans: 14, status: 'paid' },
+      ]);
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
   };
-
-  const recentArtisans = [
-    { id: 1, name: 'Ibrahim Musa', service: 'Plumbing', status: 'pending', joinDate: '2024-08-01', commission: 5000 },
-    { id: 2, name: 'Fatima Hassan', service: 'Tailoring', status: 'verified', joinDate: '2024-07-28', commission: 3500 },
-    { id: 3, name: 'John Okoro', service: 'Electrical', status: 'active', joinDate: '2024-07-25', commission: 7200 },
-    { id: 4, name: 'Amina Bello', service: 'Catering', status: 'pending', joinDate: '2024-08-02', commission: 2800 },
-  ];
-
-  const commissionHistory = [
-    { month: 'July 2024', amount: 89200, artisans: 12, status: 'paid' },
-    { month: 'June 2024', amount: 76800, artisans: 10, status: 'paid' },
-    { month: 'May 2024', amount: 92500, artisans: 14, status: 'paid' },
-  ];
 
   const StatusBadge = ({ status }) => {
     const colors = {
@@ -51,49 +82,9 @@ const POSAgentDashboard = () => {
     );
   };
 
-  const OnboardingModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">Onboard New Artisan</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Full Name</label>
-            <input type="text" className="w-full p-3 border rounded-lg" placeholder="Enter artisan's full name" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Phone Number</label>
-            <input type="tel" className="w-full p-3 border rounded-lg" placeholder="+234 XXX XXX XXXX" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Service Category</label>
-            <select className="w-full p-3 border rounded-lg">
-              <option>Select service...</option>
-              <option>Plumbing</option>
-              <option>Electrical</option>
-              <option>Carpentry</option>
-              <option>Tailoring</option>
-              <option>Catering</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Location</label>
-            <input type="text" className="w-full p-3 border rounded-lg" placeholder="Lagos, Abuja, etc." />
-          </div>
-        </div>
-        <div className="flex gap-3 mt-6">
-          <button 
-            onClick={() => setShowOnboardingModal(false)}
-            className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Onboard Artisan
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  const handleOnboardingSuccess = () => {
+    loadDashboardData(); // Refresh data after successful onboarding
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -296,7 +287,12 @@ const POSAgentDashboard = () => {
         </div>
       </div>
 
-      {showOnboardingModal && <OnboardingModal />}
+      {showOnboardingModal && (
+        <OnboardingModal 
+          onClose={() => setShowOnboardingModal(false)}
+          onSuccess={handleOnboardingSuccess}
+        />
+      )}
     </div>
   );
 };

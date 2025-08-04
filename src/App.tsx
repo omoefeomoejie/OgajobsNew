@@ -19,6 +19,8 @@ import Reviews from "./pages/Reviews";
 import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Verification from "./pages/Verification";
+import AgentRegistration from "./pages/AgentRegistration";
+import AgentDashboard from "./pages/AgentDashboard";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,8 @@ const App = () => (
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/verification" element={<Verification />} />
+              <Route path="/agent-registration" element={<AgentRegistration />} />
+              <Route path="/agent-dashboard" element={<AgentDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
