@@ -27,7 +27,7 @@ import Disputes from "./pages/Disputes";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import AgentChatDashboardPage from "./pages/AgentChatDashboard";
-import HowItWorks from "./pages/HowItWorks"; // NEW: Add this import
+import HowItWorksSection from "./pages/HowItWorksSection"; // NEW: Add this import
 
 const queryClient = new QueryClient();
 
