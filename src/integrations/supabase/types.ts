@@ -123,6 +123,77 @@ export type Database = {
           },
         ]
       }
+      ai_chat_config: {
+        Row: {
+          auto_response_delay_seconds: number | null
+          created_at: string
+          enabled: boolean
+          escalation_keywords: string[] | null
+          id: string
+          max_auto_responses: number | null
+          updated_at: string
+          welcome_message: string | null
+        }
+        Insert: {
+          auto_response_delay_seconds?: number | null
+          created_at?: string
+          enabled?: boolean
+          escalation_keywords?: string[] | null
+          id?: string
+          max_auto_responses?: number | null
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Update: {
+          auto_response_delay_seconds?: number | null
+          created_at?: string
+          enabled?: boolean
+          escalation_keywords?: string[] | null
+          id?: string
+          max_auto_responses?: number | null
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Relationships: []
+      }
+      ai_chat_conversations: {
+        Row: {
+          ai_responses_count: number | null
+          created_at: string
+          escalated_to_human: boolean | null
+          escalation_reason: string | null
+          id: string
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          ai_responses_count?: number | null
+          created_at?: string
+          escalated_to_human?: boolean | null
+          escalation_reason?: string | null
+          id?: string
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          ai_responses_count?: number | null
+          created_at?: string
+          escalated_to_human?: boolean | null
+          escalation_reason?: string | null
+          id?: string
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_chat_conversations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "live_chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artisan_availability: {
         Row: {
           artisan_id: string
@@ -1190,6 +1261,10 @@ export type Database = {
       live_chat_messages: {
         Row: {
           created_at: string
+          file_name: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
           id: string
           message: string
           message_type: string
@@ -1203,6 +1278,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           message: string
           message_type?: string
@@ -1216,6 +1295,10 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           message?: string
           message_type?: string

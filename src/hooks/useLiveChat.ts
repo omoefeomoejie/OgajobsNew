@@ -14,6 +14,10 @@ interface ChatMessage {
   read_by_customer: boolean;
   read_by_agent: boolean;
   created_at: string;
+  file_url?: string;
+  file_name?: string;
+  file_size?: number;
+  file_type?: string;
 }
 
 interface ChatSession {
@@ -50,6 +54,7 @@ export const useLiveChat = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
@@ -230,6 +235,70 @@ export const useLiveChat = () => {
     }
   };
 
+  // Send a file message
+  const sendFile = async (file: File) => {
+    if (!session?.id) {
+      throw new Error('No active session');
+    }
+
+    try {
+      setUploadingFile(true);
+      const { data: user } = await supabase.auth.getUser();
+      
+      // Upload file to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `chat-files/${session.id}/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('support-attachments')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('support-attachments')
+        .getPublicUrl(filePath);
+
+      // Send file message
+      const messageData = {
+        session_id: session.id,
+        sender_id: user.user?.id,
+        sender_type: 'customer' as const,
+        sender_name: session.customer_name || 'Customer',
+        message: `Shared a file: ${file.name}`,
+        message_type: file.type.startsWith('image/') ? 'image' as const : 'file' as const,
+        file_url: urlData.publicUrl,
+        file_name: file.name,
+        file_size: file.size,
+        file_type: file.type,
+      };
+
+      const { error } = await supabase
+        .from('live_chat_messages')
+        .insert(messageData);
+
+      if (error) throw error;
+
+      toast({
+        title: "File sent",
+        description: `${file.name} has been shared successfully.`,
+      });
+
+    } catch (error) {
+      console.error('Error sending file:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send file. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
   // Load messages for current session
   const loadMessages = async (sessionId: string) => {
     try {
@@ -348,8 +417,10 @@ export const useLiveChat = () => {
     isConnected,
     isLoading,
     isTyping,
+    uploadingFile,
     startChat,
     sendMessage,
+    sendFile,
     setTypingIndicator,
     clearTypingIndicator,
     closeChat,

@@ -32,3 +32,9 @@ verify_jwt = true
 
 [functions.update-booking-status]
 verify_jwt = true
+
+[functions.ai-chat-response]
+verify_jwt = false
+
+[functions.trigger-ai-response]
+verify_jwt = false

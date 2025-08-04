@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Minimize2, Maximize2 } from 'lucide-react';
+import { MessageCircle, X, Send, Minimize2, Maximize2, Paperclip, Download, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useLiveChat } from '@/hooks/useLiveChat';
+import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -26,7 +27,9 @@ const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const { toast } = useToast();
 
   const {
     session,
@@ -34,8 +37,10 @@ const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
     typingUsers,
     isConnected,
     isLoading,
+    uploadingFile,
     startChat,
     sendMessage,
+    sendFile,
     setTypingIndicator,
     clearTypingIndicator,
     closeChat,
@@ -113,6 +118,75 @@ const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
         clearTypingIndicator();
       }, 1000);
     }
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select a file smaller than 10MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await sendFile(file);
+    } catch (error) {
+      console.error('Error sending file:', error);
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const renderFileMessage = (message: any) => {
+    const isImage = message.message_type === 'image';
+    
+    return (
+      <div className="max-w-xs">
+        {isImage ? (
+          <div className="space-y-2">
+            <img 
+              src={message.file_url} 
+              alt={message.file_name}
+              className="rounded-lg max-w-full h-auto cursor-pointer"
+              onClick={() => window.open(message.file_url, '_blank')}
+            />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <ImageIcon className="h-3 w-3" />
+              <span>{message.file_name}</span>
+              <span>({(message.file_size / 1024 / 1024).toFixed(1)}MB)</span>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-background/10 rounded-lg p-3 border">
+            <div className="flex items-center gap-2 mb-2">
+              <Paperclip className="h-4 w-4" />
+              <span className="font-medium text-sm">{message.file_name}</span>
+            </div>
+            <div className="text-xs text-muted-foreground mb-2">
+              {(message.file_size / 1024 / 1024).toFixed(1)}MB
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.open(message.file_url, '_blank')}
+              className="h-8"
+            >
+              <Download className="h-3 w-3 mr-1" />
+              Download
+            </Button>
+          </div>
+        )}
+      </div>
+    );
   };
 
   const getStatusBadge = () => {
@@ -266,7 +340,7 @@ const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
                           </Avatar>
                         )}
                         
-                        <div
+                         <div
                           className={cn(
                             'max-w-xs rounded-lg px-3 py-2 text-sm',
                             message.sender_type === 'customer'
@@ -276,15 +350,25 @@ const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
                               : 'bg-muted',
                             message.sender_type === 'system' && 'self-center'
                           )}
-                        >
-                          <p>{message.message}</p>
-                          <p className={cn(
-                            'text-xs mt-1 opacity-70',
-                            message.sender_type === 'customer' ? 'text-right' : 'text-left'
-                          )}>
-                            {formatMessageTime(message.created_at)}
-                          </p>
-                        </div>
+                         >
+                           {message.message_type === 'file' || message.message_type === 'image' ? (
+                             renderFileMessage(message)
+                           ) : (
+                             <p>{message.message}</p>
+                           )}
+                           {message.metadata?.ai_generated && (
+                             <div className="flex items-center gap-1 mt-1">
+                               <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                               <span className="text-xs opacity-60">AI Assistant</span>
+                             </div>
+                           )}
+                           <p className={cn(
+                             'text-xs mt-1 opacity-70',
+                             message.sender_type === 'customer' ? 'text-right' : 'text-left'
+                           )}>
+                             {formatMessageTime(message.created_at)}
+                           </p>
+                         </div>
                         
                         {message.sender_type === 'customer' && (
                           <Avatar className="h-8 w-8">
@@ -309,15 +393,34 @@ const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
                       value={currentMessage}
                       onChange={(e) => handleInputChange(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      disabled={session?.status === 'closed'}
+                      disabled={session?.status === 'closed' || uploadingFile}
                       className="flex-1"
                     />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      accept="image/*,.pdf,.doc,.docx,.txt"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={session?.status === 'closed' || uploadingFile}
+                    >
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
                     <Button
                       onClick={handleSendMessage}
-                      disabled={!currentMessage.trim() || session?.status === 'closed'}
+                      disabled={!currentMessage.trim() || session?.status === 'closed' || uploadingFile}
                       size="sm"
                     >
-                      <Send className="h-4 w-4" />
+                      {uploadingFile ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
