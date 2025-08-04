@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { X } from 'lucide-react';
 
 interface OnboardingModalProps {
@@ -20,13 +21,23 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
     phone: '',
     email: '',
     serviceCategory: '',
-    location: '',
+    state: '',
+    lga: '',
+    address: '',
   });
 
   const serviceCategories = [
     'Plumbing', 'Electrical', 'Carpentry', 'Tailoring', 'Catering',
     'Hair Styling', 'Makeup', 'Cleaning', 'Painting', 'Welding',
     'Auto Mechanic', 'Phone Repair', 'Appliance Repair'
+  ];
+
+  const nigerianStates = [
+    'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+    'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe',
+    'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara',
+    'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau',
+    'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -38,20 +49,42 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
     setLoading(true);
 
     try {
-      // Simulate API call to onboard artisan
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // For now, we'll create the artisan directly in the artisans table
+      // This is a simplified version until we properly set up the agent system
+
+      const { data: artisanData, error: artisanError } = await supabase
+        .from('artisans')
+        .insert({
+          email: formData.email,
+          full_name: formData.fullName,
+          phone: formData.phone,
+          category: formData.serviceCategory,
+          city: `${formData.lga}, ${formData.state}`,
+          message: `Onboarded by agent: ${user.email}`
+        })
+        .select()
+        .single();
+
+      if (artisanError) throw artisanError;
+
+      // Generate a simple referral code for tracking
+      const referralCode = 'AGT_' + Date.now().toString().slice(-6);
+
       toast({
         title: "Artisan Onboarded Successfully",
-        description: `${formData.fullName} has been added to your network.`,
+        description: `${formData.fullName} has been added to the platform with tracking code: ${referralCode}`,
       });
       
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Onboarding error:', error);
       toast({
         title: "Onboarding Failed",
-        description: "Please try again or contact support.",
+        description: error.message || "Please try again or contact support.",
         variant: "destructive",
       });
     } finally {
@@ -125,12 +158,39 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="state">State</Label>
+              <Select onValueChange={(value) => handleInputChange('state', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {nigerianStates.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="lga">Local Government Area</Label>
               <Input
-                id="location"
-                placeholder="City, State"
-                value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
+                id="lga"
+                placeholder="Enter LGA"
+                value={formData.lga}
+                onChange={(e) => handleInputChange('lga', e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                placeholder="Street address"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
                 required
               />
             </div>
