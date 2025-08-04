@@ -21,6 +21,9 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import Verification from "./pages/Verification";
 import AgentRegistration from "./pages/AgentRegistration";
 import AgentDashboard from "./pages/AgentDashboard";
+import Portfolio from "./pages/Portfolio";
+import PortfolioView from "./pages/PortfolioView";
+import Disputes from "./pages/Disputes";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +52,9 @@ const App = () => (
               <Route path="/verification" element={<Verification />} />
               <Route path="/agent-registration" element={<AgentRegistration />} />
               <Route path="/agent-dashboard" element={<AgentDashboard />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/portfolio/:portfolioId" element={<PortfolioView />} />
+              <Route path="/disputes" element={<Disputes />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             

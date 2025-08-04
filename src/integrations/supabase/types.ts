@@ -62,6 +62,60 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_referrals: {
+        Row: {
+          agent_id: string | null
+          artisan_id: string | null
+          commission_status: string | null
+          created_at: string | null
+          id: string
+          onboarding_date: string | null
+          referral_code: string | null
+          total_commission_generated: number | null
+          total_jobs_completed: number | null
+          verification_status: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          artisan_id?: string | null
+          commission_status?: string | null
+          created_at?: string | null
+          id?: string
+          onboarding_date?: string | null
+          referral_code?: string | null
+          total_commission_generated?: number | null
+          total_jobs_completed?: number | null
+          verification_status?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          artisan_id?: string | null
+          commission_status?: string | null
+          created_at?: string | null
+          id?: string
+          onboarding_date?: string | null
+          referral_code?: string | null
+          total_commission_generated?: number | null
+          total_jobs_completed?: number | null
+          verification_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_referrals_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "pos_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_referrals_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artisan_reviews: {
         Row: {
           artisan_id: string | null
@@ -321,6 +375,70 @@ export type Database = {
           work_type?: string | null
         }
         Relationships: []
+      }
+      commission_transactions: {
+        Row: {
+          agent_id: string | null
+          amount: number
+          artisan_id: string | null
+          base_amount: number | null
+          booking_id: string | null
+          commission_rate: number | null
+          created_at: string | null
+          id: string
+          payment_date: string | null
+          status: string | null
+          transaction_type: string
+        }
+        Insert: {
+          agent_id?: string | null
+          amount: number
+          artisan_id?: string | null
+          base_amount?: number | null
+          booking_id?: string | null
+          commission_rate?: number | null
+          created_at?: string | null
+          id?: string
+          payment_date?: string | null
+          status?: string | null
+          transaction_type: string
+        }
+        Update: {
+          agent_id?: string | null
+          amount?: number
+          artisan_id?: string | null
+          base_amount?: number | null
+          booking_id?: string | null
+          commission_rate?: number | null
+          created_at?: string | null
+          id?: string
+          payment_date?: string | null
+          status?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_transactions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "pos_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_transactions_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
@@ -845,6 +963,317 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_analytics: {
+        Row: {
+          booking_requests: number | null
+          contact_clicks: number | null
+          created_at: string | null
+          id: string
+          package_views: Json | null
+          portfolio_id: string
+          project_views: Json | null
+          referrer_sources: Json | null
+          total_views: number | null
+          view_date: string
+        }
+        Insert: {
+          booking_requests?: number | null
+          contact_clicks?: number | null
+          created_at?: string | null
+          id?: string
+          package_views?: Json | null
+          portfolio_id: string
+          project_views?: Json | null
+          referrer_sources?: Json | null
+          total_views?: number | null
+          view_date?: string
+        }
+        Update: {
+          booking_requests?: number | null
+          contact_clicks?: number | null
+          created_at?: string | null
+          id?: string
+          package_views?: Json | null
+          portfolio_id?: string
+          project_views?: Json | null
+          referrer_sources?: Json | null
+          total_views?: number | null
+          view_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_analytics_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_projects: {
+        Row: {
+          after_image_url: string | null
+          before_image_url: string | null
+          category: string
+          client_name: string | null
+          completion_date: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_featured: boolean | null
+          materials_used: string[] | null
+          portfolio_id: string
+          project_cost: number | null
+          project_duration: string | null
+          project_images: string[] | null
+          title: string
+        }
+        Insert: {
+          after_image_url?: string | null
+          before_image_url?: string | null
+          category: string
+          client_name?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_featured?: boolean | null
+          materials_used?: string[] | null
+          portfolio_id: string
+          project_cost?: number | null
+          project_duration?: string | null
+          project_images?: string[] | null
+          title: string
+        }
+        Update: {
+          after_image_url?: string | null
+          before_image_url?: string | null
+          category?: string
+          client_name?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_featured?: boolean | null
+          materials_used?: string[] | null
+          portfolio_id?: string
+          project_cost?: number | null
+          project_duration?: string | null
+          project_images?: string[] | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_projects_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_skills: {
+        Row: {
+          certification_authority: string | null
+          certification_date: string | null
+          certification_expiry: string | null
+          certification_name: string | null
+          certification_url: string | null
+          created_at: string | null
+          id: string
+          portfolio_id: string
+          skill_level: number | null
+          skill_name: string
+          years_experience: number | null
+        }
+        Insert: {
+          certification_authority?: string | null
+          certification_date?: string | null
+          certification_expiry?: string | null
+          certification_name?: string | null
+          certification_url?: string | null
+          created_at?: string | null
+          id?: string
+          portfolio_id: string
+          skill_level?: number | null
+          skill_name: string
+          years_experience?: number | null
+        }
+        Update: {
+          certification_authority?: string | null
+          certification_date?: string | null
+          certification_expiry?: string | null
+          certification_name?: string | null
+          certification_url?: string | null
+          created_at?: string | null
+          id?: string
+          portfolio_id?: string
+          skill_level?: number | null
+          skill_name?: string
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_skills_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_testimonials: {
+        Row: {
+          client_avatar_url: string | null
+          client_name: string
+          completion_date: string | null
+          created_at: string | null
+          id: string
+          is_approved: boolean | null
+          is_featured: boolean | null
+          portfolio_id: string
+          project_title: string | null
+          rating: number | null
+          testimonial: string
+        }
+        Insert: {
+          client_avatar_url?: string | null
+          client_name: string
+          completion_date?: string | null
+          created_at?: string | null
+          id?: string
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          portfolio_id: string
+          project_title?: string | null
+          rating?: number | null
+          testimonial: string
+        }
+        Update: {
+          client_avatar_url?: string | null
+          client_name?: string
+          completion_date?: string | null
+          created_at?: string | null
+          id?: string
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          portfolio_id?: string
+          project_title?: string | null
+          rating?: number | null
+          testimonial?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_testimonials_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolios: {
+        Row: {
+          artisan_id: string
+          availability_status: string | null
+          bio: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          featured: boolean | null
+          hourly_rate: number | null
+          id: string
+          is_public: boolean | null
+          location: Json | null
+          portfolio_views: number | null
+          profile_image_url: string | null
+          specialties: string[] | null
+          title: string
+          updated_at: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          artisan_id: string
+          availability_status?: string | null
+          bio?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          featured?: boolean | null
+          hourly_rate?: number | null
+          id?: string
+          is_public?: boolean | null
+          location?: Json | null
+          portfolio_views?: number | null
+          profile_image_url?: string | null
+          specialties?: string[] | null
+          title: string
+          updated_at?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          artisan_id?: string
+          availability_status?: string | null
+          bio?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          featured?: boolean | null
+          hourly_rate?: number | null
+          id?: string
+          is_public?: boolean | null
+          location?: Json | null
+          portfolio_views?: number | null
+          profile_image_url?: string | null
+          specialties?: string[] | null
+          title?: string
+          updated_at?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      pos_agents: {
+        Row: {
+          agent_code: string
+          commission_rate: number | null
+          created_at: string | null
+          id: string
+          location: Json | null
+          phone: string
+          status: string | null
+          total_artisans_onboarded: number | null
+          total_commission_earned: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_code: string
+          commission_rate?: number | null
+          created_at?: string | null
+          id?: string
+          location?: Json | null
+          phone: string
+          status?: string | null
+          total_artisans_onboarded?: number | null
+          total_commission_earned?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_code?: string
+          commission_rate?: number | null
+          created_at?: string | null
+          id?: string
+          location?: Json | null
+          phone?: string
+          status?: string | null
+          total_artisans_onboarded?: number | null
+          total_commission_earned?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -955,6 +1384,59 @@ export type Database = {
           review?: string | null
         }
         Relationships: []
+      }
+      service_packages: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          duration: string | null
+          id: string
+          includes: string[] | null
+          is_popular: boolean | null
+          package_name: string
+          portfolio_id: string
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          duration?: string | null
+          id?: string
+          includes?: string[] | null
+          is_popular?: boolean | null
+          package_name: string
+          portfolio_id: string
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          duration?: string | null
+          id?: string
+          includes?: string[] | null
+          is_popular?: boolean | null
+          package_name?: string
+          portfolio_id?: string
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_packages_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_pricing: {
         Row: {
@@ -1269,6 +1751,10 @@ export type Database = {
         Args: { uid: string }
         Returns: undefined
       }
+      get_agent_dashboard_stats: {
+        Args: { p_agent_user_id: string }
+        Returns: Json
+      }
       get_all_users_with_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1281,9 +1767,25 @@ export type Database = {
         Args: { user_id: string }
         Returns: string
       }
+      increment_portfolio_views: {
+        Args: { portfolio_id_param: string }
+        Returns: undefined
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      onboard_artisan_by_agent: {
+        Args: {
+          p_agent_user_id: string
+          p_artisan_name: string
+          p_artisan_phone: string
+          p_artisan_email: string
+          p_service_category: string
+          p_location: Json
+          p_referral_code?: string
+        }
+        Returns: Json
       }
       setup_admin_user: {
         Args: { admin_email: string; admin_user_id: string }

@@ -58,7 +58,8 @@ export function AppSidebar() {
     if (profile?.role === 'artisan') {
       return [
         ...commonItems,
-        { title: 'My Jobs', url: '/jobs', icon: Briefcase },
+        { title: 'Portfolio', url: '/portfolio', icon: Briefcase },
+        { title: 'My Jobs', url: '/jobs', icon: Calendar },
         { title: 'Verification', url: '/verification', icon: Shield },
         { title: 'Earnings', url: '/earnings', icon: CreditCard },
         { title: 'Profile', url: '/profile', icon: User },
