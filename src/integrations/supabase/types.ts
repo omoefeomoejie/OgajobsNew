@@ -461,6 +461,182 @@ export type Database = {
         }
         Relationships: []
       }
+      dispute_activities: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          dispute_id: string
+          id: string
+          performed_by: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          dispute_id: string
+          id?: string
+          performed_by: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          dispute_id?: string
+          id?: string
+          performed_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_activities_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_evidence: {
+        Row: {
+          created_at: string
+          description: string | null
+          dispute_id: string
+          file_name: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          dispute_id: string
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          dispute_id?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_evidence_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_messages: {
+        Row: {
+          created_at: string
+          dispute_id: string
+          id: string
+          is_internal: boolean | null
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          dispute_id: string
+          id?: string
+          is_internal?: boolean | null
+          message: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          dispute_id?: string
+          id?: string
+          is_internal?: boolean | null
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_messages_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          admin_notes: string | null
+          booking_id: string | null
+          category: Database["public"]["Enums"]["dispute_category"]
+          complainant_id: string
+          created_at: string
+          description: string
+          id: string
+          priority: number | null
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          respondent_id: string
+          status: Database["public"]["Enums"]["dispute_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          booking_id?: string | null
+          category: Database["public"]["Enums"]["dispute_category"]
+          complainant_id: string
+          created_at?: string
+          description: string
+          id?: string
+          priority?: number | null
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          respondent_id: string
+          status?: Database["public"]["Enums"]["dispute_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          booking_id?: string | null
+          category?: Database["public"]["Enums"]["dispute_category"]
+          complainant_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: number | null
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          respondent_id?: string
+          status?: Database["public"]["Enums"]["dispute_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       earnings: {
         Row: {
           amount: number | null
@@ -1775,6 +1951,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      log_dispute_activity: {
+        Args: {
+          dispute_id_param: string
+          action_param: string
+          performed_by_param: string
+          details_param?: Json
+        }
+        Returns: undefined
+      }
       onboard_artisan_by_agent: {
         Args: {
           p_agent_user_id: string
@@ -1791,12 +1976,38 @@ export type Database = {
         Args: { admin_email: string; admin_user_id: string }
         Returns: undefined
       }
+      update_dispute_status: {
+        Args: {
+          dispute_id_param: string
+          new_status_param: Database["public"]["Enums"]["dispute_status"]
+          resolution_param?: string
+          admin_notes_param?: string
+        }
+        Returns: undefined
+      }
       update_verification_level: {
         Args: { artisan_user_id: string }
         Returns: string
       }
     }
     Enums: {
+      dispute_category:
+        | "quality_of_work"
+        | "payment_issues"
+        | "communication_problems"
+        | "incomplete_work"
+        | "property_damage"
+        | "schedule_conflicts"
+        | "safety_concerns"
+        | "billing_disputes"
+        | "contract_violations"
+        | "other"
+      dispute_status:
+        | "open"
+        | "under_review"
+        | "awaiting_response"
+        | "resolved"
+        | "closed"
       document_type:
         | "nin"
         | "voters_card"
@@ -1931,6 +2142,25 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      dispute_category: [
+        "quality_of_work",
+        "payment_issues",
+        "communication_problems",
+        "incomplete_work",
+        "property_damage",
+        "schedule_conflicts",
+        "safety_concerns",
+        "billing_disputes",
+        "contract_violations",
+        "other",
+      ],
+      dispute_status: [
+        "open",
+        "under_review",
+        "awaiting_response",
+        "resolved",
+        "closed",
+      ],
       document_type: [
         "nin",
         "voters_card",

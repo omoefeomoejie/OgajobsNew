@@ -24,6 +24,7 @@ import {
   Briefcase,
   User,
   LogOut,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ogaJobsLogo from '@/assets/ogajobs-logo.png';
@@ -44,6 +45,7 @@ export function AppSidebar() {
       { title: 'Dashboard', url: '/dashboard', icon: Home },
       { title: 'Messages', url: '/messages', icon: MessageSquare },
       { title: 'Reviews', url: '/reviews', icon: Star },
+      { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
     ];
 
     if (profile?.role === 'client') {
