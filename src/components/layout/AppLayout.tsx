@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { InstallPrompt } from '@/components/mobile/InstallPrompt';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -43,6 +44,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </main>
         </div>
       </div>
+      {/* Enhanced Install Prompt */}
+      <InstallPrompt />
     </SidebarProvider>
   );
 };
