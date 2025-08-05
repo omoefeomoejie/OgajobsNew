@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.generate-demand-predictions]
 verify_jwt = false
+
+[functions.update-market-conditions]
+verify_jwt = false

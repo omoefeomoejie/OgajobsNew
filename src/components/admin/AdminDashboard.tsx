@@ -7,6 +7,7 @@ import { AdvancedPerformanceMetrics } from '@/components/analytics/AdvancedPerfo
 import { UserBehaviorAnalytics } from '@/components/analytics/UserBehaviorAnalytics';
 import { SecurityDashboard } from './SecurityDashboard';
 import { DemandPredictionDashboard } from '@/components/analytics/DemandPredictionDashboard';
+import DynamicPricingDashboard from '@/components/analytics/DynamicPricingDashboard';
 import { 
   Shield, 
   Users, 
@@ -53,6 +54,7 @@ const adminMenuItems = [
   { title: "Financial Hub", url: "#finance", icon: DollarSign },
   { title: "Analytics", url: "#analytics", icon: TrendingUp },
   { title: "Demand Prediction", url: "#demand", icon: Brain },
+  { title: "Dynamic Pricing", url: "#pricing", icon: DollarSign },
   { title: "Performance Metrics", url: "#performance", icon: Target },
   { title: "User Behavior", url: "#behavior", icon: BarChart3 },
   { title: "Trust & Safety", url: "#safety", icon: Shield },
@@ -650,6 +652,8 @@ export function AdminDashboard() {
         return <AnalyticsDashboard />;
       case 'demand':
         return <DemandPredictionDashboard />;
+      case 'pricing':
+        return <DynamicPricingDashboard />;
       case 'performance':
         return <AdvancedPerformanceMetrics />;
       case 'behavior':
