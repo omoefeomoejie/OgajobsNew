@@ -1567,6 +1567,48 @@ export type Database = {
         }
         Relationships: []
       }
+      market_conditions: {
+        Row: {
+          average_response_time: number | null
+          city: string
+          completion_rate: number | null
+          created_at: string
+          date: string
+          demand_level: number
+          hour_of_day: number
+          id: string
+          price_sensitivity: number | null
+          service_category: string
+          supply_level: number
+        }
+        Insert: {
+          average_response_time?: number | null
+          city: string
+          completion_rate?: number | null
+          created_at?: string
+          date: string
+          demand_level: number
+          hour_of_day: number
+          id?: string
+          price_sensitivity?: number | null
+          service_category: string
+          supply_level: number
+        }
+        Update: {
+          average_response_time?: number | null
+          city?: string
+          completion_rate?: number | null
+          created_at?: string
+          date?: string
+          demand_level?: number
+          hour_of_day?: number
+          id?: string
+          price_sensitivity?: number | null
+          service_category?: string
+          supply_level?: number
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           artisan_id: string | null
@@ -2200,6 +2242,153 @@ export type Database = {
           total_commission_earned?: number | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      pricing_adjustments: {
+        Row: {
+          adjustment_type: string
+          adjustment_value: number
+          city: string
+          created_at: string
+          created_by: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          reason: string | null
+          service_category: string
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          adjustment_type: string
+          adjustment_value: number
+          city: string
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          service_category: string
+          starts_at: string
+          updated_at?: string
+        }
+        Update: {
+          adjustment_type?: string
+          adjustment_value?: number
+          city?: string
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          service_category?: string
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_calculations: {
+        Row: {
+          applied_rules: Json
+          artisan_id: string | null
+          base_price: number
+          booking_id: string | null
+          calculation_factors: Json
+          client_id: string | null
+          created_at: string
+          demand_score: number | null
+          final_price: number
+          id: string
+          location_data: Json | null
+          service_category: string
+          supply_score: number | null
+          time_factors: Json | null
+        }
+        Insert: {
+          applied_rules?: Json
+          artisan_id?: string | null
+          base_price: number
+          booking_id?: string | null
+          calculation_factors?: Json
+          client_id?: string | null
+          created_at?: string
+          demand_score?: number | null
+          final_price: number
+          id?: string
+          location_data?: Json | null
+          service_category: string
+          supply_score?: number | null
+          time_factors?: Json | null
+        }
+        Update: {
+          applied_rules?: Json
+          artisan_id?: string | null
+          base_price?: number
+          booking_id?: string | null
+          calculation_factors?: Json
+          client_id?: string | null
+          created_at?: string
+          demand_score?: number | null
+          final_price?: number
+          id?: string
+          location_data?: Json | null
+          service_category?: string
+          supply_score?: number | null
+          time_factors?: Json | null
+        }
+        Relationships: []
+      }
+      pricing_rules: {
+        Row: {
+          adjustment_value: number
+          category: string
+          conditions: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          rule_type: string
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          adjustment_value: number
+          category: string
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          rule_type: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          adjustment_value?: number
+          category?: string
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          rule_type?: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
         }
         Relationships: []
       }
@@ -3125,6 +3314,17 @@ export type Database = {
         Args: { lat1: number; lon1: number; lat2: number; lon2: number }
         Returns: number
       }
+      calculate_dynamic_price: {
+        Args: {
+          p_service_category: string
+          p_base_price: number
+          p_city: string
+          p_booking_time?: string
+          p_client_id?: string
+          p_booking_urgency?: string
+        }
+        Returns: Json
+      }
       calculate_platform_fee: {
         Args: { amount: number }
         Returns: number
@@ -3238,6 +3438,10 @@ export type Database = {
           resolution_param?: string
           admin_notes_param?: string
         }
+        Returns: undefined
+      }
+      update_market_conditions: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       update_verification_level: {
