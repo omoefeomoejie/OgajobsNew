@@ -28,7 +28,7 @@ import {
   Headphones,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ogaJobsLogo from '@/assets/ogajobs-logo.png';
+import ogaJobsLogo from '@/assets/ogajobs-new-logo.png';
 
 export function AppSidebar() {
   const { profile, signOut } = useAuth();

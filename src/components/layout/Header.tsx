@@ -15,7 +15,7 @@ import {
   User
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import ogaJobsLogo from '@/assets/ogajobs-logo.png';
+import ogaJobsLogo from '@/assets/ogajobs-new-logo.png';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
