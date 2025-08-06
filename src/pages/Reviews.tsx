@@ -92,7 +92,7 @@ export default function Reviews() {
       .from('artisans')
       .select('id')
       .eq('email', user?.email)
-      .single();
+      .maybeSingle();
 
     if (!artisanData) return;
 

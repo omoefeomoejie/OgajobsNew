@@ -77,6 +77,7 @@ export function AppSidebar() {
         { title: 'Agent Dashboard', url: '/agent-dashboard', icon: Briefcase },
         { title: 'Live Chat', url: '/agent-chat', icon: Headphones },
         ...commonItems,
+        { title: 'Verification', url: '/verification', icon: Shield },
         { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
