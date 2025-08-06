@@ -54,6 +54,7 @@ export function AppSidebar() {
         ...commonItems,
         { title: 'Find Services', url: '/services', icon: Search },
         { title: 'My Bookings', url: '/bookings', icon: Calendar },
+        { title: 'Verification', url: '/verification', icon: Shield },
         { title: 'Payments', url: '/payments', icon: CreditCard },
         { title: 'Settings', url: '/settings', icon: Settings },
       ];
@@ -97,17 +98,17 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Logo Section */}
         <div className="p-4 border-b">
-          <div className="flex items-center gap-2">
-            <img src={ogaJobsLogo} alt="OgaJobs" className="w-8 h-8" />
+          <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <img src={ogaJobsLogo} alt="OgaJobs" className="w-12 h-12 object-contain" />
             {state !== "collapsed" && (
               <div>
-                <h2 className="font-bold text-lg">OgaJobs</h2>
+                <h2 className="font-bold text-xl">OgaJobs</h2>
                 <p className="text-xs text-muted-foreground capitalize">
                   {profile?.role || 'User'} Dashboard
                 </p>
               </div>
             )}
-          </div>
+          </NavLink>
         </div>
 
         {/* Navigation */}

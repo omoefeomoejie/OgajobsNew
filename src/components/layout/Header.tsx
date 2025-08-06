@@ -47,15 +47,15 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img 
               src={ogaJobsLogo} 
               alt="OgaJobs Logo" 
-              className="w-10 h-10"
+              className="w-14 h-14 object-contain"
             />
             <div>
-              <h1 className="text-2xl font-bold text-foreground">OgaJobs</h1>
-              <p className="text-xs text-muted-foreground">Nigeria's Trust Infrastructure</p>
+              <h1 className="text-3xl font-bold text-foreground">OgaJobs</h1>
+              <p className="text-xs text-muted-foreground font-medium">Nigeria's Trust Infrastructure</p>
             </div>
           </Link>
 

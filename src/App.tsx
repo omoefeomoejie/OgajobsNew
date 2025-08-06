@@ -27,6 +27,7 @@ import Disputes from "./pages/Disputes";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import AgentChatDashboardPage from "./pages/AgentChatDashboard";
+import HowItWorks from "./pages/HowItWorks";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/agent-chat" element={<AgentChatDashboardPage />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             
