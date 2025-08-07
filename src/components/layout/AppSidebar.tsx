@@ -42,53 +42,37 @@ export function AppSidebar() {
 
   // Different navigation items based on user role
   const getNavigationItems = () => {
-    const commonItems = [
+    const baseItems = [
       { title: 'Dashboard', url: '/dashboard', icon: Home },
       { title: 'Messages', url: '/messages', icon: MessageSquare },
       { title: 'Reviews', url: '/reviews', icon: Star },
       { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
+      { title: 'Verification', url: '/verification', icon: Shield },
+      { title: 'Settings', url: '/settings', icon: Settings },
     ];
 
     if (profile?.role === 'client') {
-      return [
-        ...commonItems,
-        { title: 'Find Services', url: '/services', icon: Search },
-        { title: 'My Bookings', url: '/bookings', icon: Calendar },
-        { title: 'Verification', url: '/verification', icon: Shield },
-        { title: 'Payments', url: '/payments', icon: CreditCard },
-        { title: 'Settings', url: '/settings', icon: Settings },
-      ];
+      return baseItems;
     }
 
     if (profile?.role === 'artisan') {
-      return [
-        ...commonItems,
-        { title: 'Portfolio', url: '/portfolio', icon: Briefcase },
-        { title: 'My Jobs', url: '/jobs', icon: Calendar },
-        { title: 'Verification', url: '/verification', icon: Shield },
-        { title: 'Earnings', url: '/earnings', icon: CreditCard },
-        { title: 'Profile', url: '/profile', icon: User },
-        { title: 'Settings', url: '/settings', icon: Settings },
-      ];
+      return baseItems;
     }
     
     if (profile?.role === 'agent') {
       return [
         { title: 'Agent Dashboard', url: '/agent-dashboard', icon: Briefcase },
         { title: 'Live Chat', url: '/agent-chat', icon: Headphones },
-        ...commonItems,
-        { title: 'Verification', url: '/verification', icon: Shield },
-        { title: 'Settings', url: '/settings', icon: Settings },
+        ...baseItems,
       ];
     }
 
-    // Admin items - includes chat support access
+    // Admin items - includes administrative access
     return [
       { title: 'Admin Panel', url: '/admin-dashboard', icon: Shield },
       { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
-      ...commonItems,
       { title: 'User Management', url: '/admin/users', icon: Users },
-      { title: 'Settings', url: '/settings', icon: Settings },
+      ...baseItems,
     ];
   };
 
