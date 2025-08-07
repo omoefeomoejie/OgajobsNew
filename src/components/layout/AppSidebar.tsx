@@ -42,7 +42,8 @@ export function AppSidebar() {
 
   // Different navigation items based on user role
   const getNavigationItems = () => {
-    const baseItems = [
+    // Base items for regular users (clients and artisans)
+    const userBaseItems = [
       { title: 'Dashboard', url: '/dashboard', icon: Home },
       { title: 'Messages', url: '/messages', icon: MessageSquare },
       { title: 'Reviews', url: '/reviews', icon: Star },
@@ -52,27 +53,32 @@ export function AppSidebar() {
     ];
 
     if (profile?.role === 'client') {
-      return baseItems;
+      return userBaseItems;
     }
 
     if (profile?.role === 'artisan') {
-      return baseItems;
+      return userBaseItems;
     }
     
     if (profile?.role === 'agent') {
       return [
         { title: 'Agent Dashboard', url: '/agent-dashboard', icon: Briefcase },
         { title: 'Live Chat', url: '/agent-chat', icon: Headphones },
-        ...baseItems,
+        ...userBaseItems,
       ];
     }
 
-    // Admin items - includes administrative access
+    // Admin-only items - separate from regular user navigation
     return [
       { title: 'Admin Panel', url: '/admin-dashboard', icon: Shield },
-      { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
       { title: 'User Management', url: '/admin/users', icon: Users },
-      ...baseItems,
+      { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
+      { title: 'Dashboard', url: '/dashboard', icon: Home },
+      { title: 'Messages', url: '/messages', icon: MessageSquare },
+      { title: 'Reviews', url: '/reviews', icon: Star },
+      { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
+      { title: 'Verification', url: '/verification', icon: Shield },
+      { title: 'Settings', url: '/settings', icon: Settings },
     ];
   };
 
