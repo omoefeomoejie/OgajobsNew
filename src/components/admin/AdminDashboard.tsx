@@ -8,6 +8,10 @@ import { UserBehaviorAnalytics } from '@/components/analytics/UserBehaviorAnalyt
 import { SecurityDashboard } from './SecurityDashboard';
 import { DemandPredictionDashboard } from '@/components/analytics/DemandPredictionDashboard';
 import DynamicPricingDashboard from '@/components/analytics/DynamicPricingDashboard';
+import FraudDetectionDashboard from '@/components/analytics/FraudDetectionDashboard';
+import QualityPredictionDashboard from '@/components/analytics/QualityPredictionDashboard';
+import RecommendationEngine from '@/components/analytics/RecommendationEngine';
+import PredictiveAnalyticsDashboard from '@/components/analytics/PredictiveAnalyticsDashboard';
 import { 
   Shield, 
   Users, 
@@ -55,6 +59,10 @@ const adminMenuItems = [
   { title: "Analytics", url: "#analytics", icon: TrendingUp },
   { title: "Demand Prediction", url: "#demand", icon: Brain },
   { title: "Dynamic Pricing", url: "#pricing", icon: DollarSign },
+  { title: "Fraud Detection", url: "#fraud", icon: AlertTriangle },
+  { title: "Quality Prediction", url: "#quality", icon: Target },
+  { title: "Recommendations", url: "#recommendations", icon: Users },
+  { title: "Predictive Analytics", url: "#predictive", icon: TrendingUp },
   { title: "Performance Metrics", url: "#performance", icon: Target },
   { title: "User Behavior", url: "#behavior", icon: BarChart3 },
   { title: "Trust & Safety", url: "#safety", icon: Shield },
@@ -654,6 +662,14 @@ export function AdminDashboard() {
         return <DemandPredictionDashboard />;
       case 'pricing':
         return <DynamicPricingDashboard />;
+      case 'fraud':
+        return <FraudDetectionDashboard />;
+      case 'quality':
+        return <QualityPredictionDashboard />;
+      case 'recommendations':
+        return <RecommendationEngine />;
+      case 'predictive':
+        return <PredictiveAnalyticsDashboard />;
       case 'performance':
         return <AdvancedPerformanceMetrics />;
       case 'behavior':
