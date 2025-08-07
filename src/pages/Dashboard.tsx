@@ -1,8 +1,8 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
-import ClientDashboard from './ClientDashboard';
-import ArtisanDashboard from './ArtisanDashboard';
-import AdminDashboard from './AdminDashboard';
+import { ClientDashboard } from '@/components/dashboard/ClientDashboard';
+import { ArtisanDashboard } from '@/components/dashboard/ArtisanDashboard';
+import { AdminDashboard as AdminDashboardComponent } from '@/components/admin/AdminDashboard';
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -14,7 +14,7 @@ export default function Dashboard() {
       case 'artisan':
         return <ArtisanDashboard />;
       case 'admin':
-        return <AdminDashboard />;
+        return <AdminDashboardComponent />;
       default:
         return <ClientDashboard />; // Default fallback
     }
