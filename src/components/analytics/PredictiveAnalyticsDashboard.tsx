@@ -103,11 +103,6 @@ export default function PredictiveAnalyticsDashboard() {
         }
       });
 
-      // Fetch CLV analysis
-      const { data: clvData, error: clvError } = await supabase.functions.invoke('calculate-customer-lifetime-value', {
-        body: { timeframe: selectedTimeframe }
-      });
-
       // Fetch churn predictions
       const { data: churnData, error: churnError } = await supabase.functions.invoke('predict-customer-churn', {
         body: { 
@@ -116,13 +111,19 @@ export default function PredictiveAnalyticsDashboard() {
         }
       });
 
-      // Fetch business metrics forecasts
-      const { data: metricsData, error: metricsError } = await supabase.functions.invoke('forecast-business-metrics', {
-        body: { 
-          timeframe: selectedTimeframe,
-          metrics: ['revenue', 'bookings', 'users', 'retention']
-        }
-      });
+      // Fetch CLV data from database
+      const { data: clvData, error: clvError } = await supabase
+        .from('customer_lifetime_value')
+        .select('*')
+        .order('calculated_at', { ascending: false })
+        .limit(20);
+
+      // Fetch business forecasts from database
+      const { data: metricsData, error: metricsError } = await supabase
+        .from('business_forecasts')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20);
 
       if (trendsError) throw trendsError;
       if (clvError) throw clvError;
@@ -130,9 +131,9 @@ export default function PredictiveAnalyticsDashboard() {
       if (metricsError) throw metricsError;
 
       setMarketTrends(trendsData?.trends || []);
-      setClvAnalysis(clvData?.segments || []);
+      setClvAnalysis(clvData || []);
       setChurnPredictions(churnData?.predictions || []);
-      setBusinessMetrics(metricsData?.forecasts || []);
+      setBusinessMetrics(metricsData || []);
 
     } catch (error: any) {
       console.error('Error fetching predictive data:', error);

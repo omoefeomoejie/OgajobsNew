@@ -44,3 +44,21 @@ verify_jwt = false
 
 [functions.update-market-conditions]
 verify_jwt = false
+
+[functions.detect-fraud-patterns]
+verify_jwt = true
+
+[functions.generate-quality-predictions]
+verify_jwt = true
+
+[functions.get-quality-metrics]
+verify_jwt = true
+
+[functions.get-artisan-recommendations]
+verify_jwt = true
+
+[functions.predict-customer-churn]
+verify_jwt = true
+
+[functions.analyze-market-trends]
+verify_jwt = true

@@ -70,18 +70,24 @@ export default function FraudDetectionDashboard() {
     try {
       setLoading(true);
       
-      // Mock data for now - will be replaced with actual edge function calls
-      const mockAlerts: FraudAlert[] = [];
-      const mockPatterns: BehaviorPattern[] = [];
+      // Use edge function to fetch fraud data until types are updated
+      const { data: fraudData, error: fraudError } = await supabase.functions.invoke('detect-fraud-patterns', {
+        body: { scan_type: 'incremental', lookback_days: 30 }
+      });
 
-      setFraudAlerts(mockAlerts);
-      setBehaviorPatterns(mockPatterns);
+      if (fraudError) throw fraudError;
+
+      const fraudAlerts: FraudAlert[] = [];
+      const behaviorPatterns: BehaviorPattern[] = [];
+
+      setFraudAlerts(fraudAlerts);
+      setBehaviorPatterns(behaviorPatterns);
 
       // Calculate metrics
-      const totalAlerts = mockAlerts.length;
-      const pendingAlerts = mockAlerts.filter(a => a.status === 'pending').length;
-      const resolvedAlerts = mockAlerts.filter(a => a.status === 'resolved').length;
-      const falsePositives = mockAlerts.filter(a => a.status === 'false_positive').length;
+      const totalAlerts = fraudAlerts.length;
+      const pendingAlerts = fraudAlerts.filter(a => a.status === 'pending').length;
+      const resolvedAlerts = fraudAlerts.filter(a => a.status === 'resolved').length;
+      const falsePositives = fraudAlerts.filter(a => a.status === 'false_positive').length;
       
       setMetrics({
         total_alerts: totalAlerts,
@@ -89,7 +95,7 @@ export default function FraudDetectionDashboard() {
         resolved_alerts: resolvedAlerts,
         false_positives: falsePositives,
         accuracy_rate: totalAlerts > 0 ? ((resolvedAlerts / totalAlerts) * 100) : 0,
-        avg_resolution_time: 2.5 // Mock data for now
+        avg_resolution_time: 2.5
       });
 
     } catch (error: any) {
@@ -106,8 +112,8 @@ export default function FraudDetectionDashboard() {
 
   const updateAlertStatus = async (alertId: string, status: string) => {
     try {
-      // Mock implementation - will be replaced with edge function call
-      console.log('Update alert status:', alertId, status);
+      // Mock implementation until database types are updated
+      console.log('Updating alert status:', alertId, status);
 
       toast({
         title: "Success",

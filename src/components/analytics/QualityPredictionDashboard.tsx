@@ -82,14 +82,6 @@ export default function QualityPredictionDashboard() {
     try {
       setLoading(true);
       
-      // Call edge function to generate quality predictions
-      const { data: predictionsData, error: predictionsError } = await supabase.functions.invoke('generate-quality-predictions', {
-        body: { 
-          category: selectedCategory,
-          limit: 50
-        }
-      });
-
       // Fetch artisan quality metrics
       const { data: metricsData, error: metricsError } = await supabase.functions.invoke('get-quality-metrics', {
         body: { 
@@ -98,18 +90,48 @@ export default function QualityPredictionDashboard() {
         }
       });
 
-      // Fetch performance insights
-      const { data: insightsData, error: insightsError } = await supabase.functions.invoke('generate-performance-insights', {
-        body: { category: selectedCategory }
-      });
+      // Fetch quality predictions from database
+      const { data: predictionsData, error: predictionsError } = await supabase
+        .from('quality_predictions')
+        .select(`
+          *,
+          bookings!inner(client_email, work_type),
+          artisans!inner(email)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-      if (predictionsError) throw predictionsError;
       if (metricsError) throw metricsError;
-      if (insightsError) throw insightsError;
+      if (predictionsError) throw predictionsError;
 
       setQualityMetrics(metricsData?.metrics || []);
-      setPredictions(predictionsData?.predictions || []);
-      setInsights(insightsData?.insights || []);
+      
+      // Transform predictions data
+      const transformedPredictions = (predictionsData || []).map(p => ({
+        booking_id: p.booking_id,
+        client_email: p.bookings?.client_email || '',
+        artisan_email: p.artisans?.email || '',
+        service_category: p.bookings?.work_type || '',
+        predicted_outcome: p.predicted_outcome,
+        success_probability: p.success_probability,
+        quality_factors: p.quality_factors || {},
+        recommendations: p.recommendations || [],
+        created_at: p.created_at
+      }));
+
+      setPredictions(transformedPredictions);
+      
+      // Generate mock insights for now
+      setInsights([
+        {
+          category: 'Performance',
+          insight_type: 'opportunity',
+          description: 'Top artisans maintain 95%+ completion rates',
+          impact_score: 85,
+          actionable: true,
+          recommendation: 'Promote best practices from high performers'
+        }
+      ]);
 
     } catch (error: any) {
       console.error('Error fetching quality data:', error);
