@@ -111,29 +111,43 @@ export default function PredictiveAnalyticsDashboard() {
         }
       });
 
-      // Fetch CLV data from database
-      const { data: clvData, error: clvError } = await supabase
-        .from('customer_lifetime_value')
-        .select('*')
-        .order('calculated_at', { ascending: false })
-        .limit(20);
-
-      // Fetch business forecasts from database
-      const { data: metricsData, error: metricsError } = await supabase
-        .from('business_forecasts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
-
       if (trendsError) throw trendsError;
-      if (clvError) throw clvError;
       if (churnError) throw churnError;
-      if (metricsError) throw metricsError;
 
       setMarketTrends(trendsData?.trends || []);
-      setClvAnalysis(clvData || []);
       setChurnPredictions(churnData?.predictions || []);
-      setBusinessMetrics(metricsData || []);
+      
+      // Generate mock CLV and business metrics data
+      const mockClvData: CustomerLifetimeValue[] = [
+        {
+          segment: 'Premium Clients',
+          current_clv: 25000,
+          predicted_clv: 28000,
+          clv_trend: 'increasing',
+          acquisition_cost: 2500,
+          retention_rate: 85.5,
+          average_order_value: 8500,
+          frequency: 2.3,
+          churn_risk: 15,
+          recommendations: ['Offer loyalty program', 'Increase engagement']
+        }
+      ];
+
+      const mockBusinessMetrics: BusinessMetric[] = [
+        {
+          metric_name: 'Monthly Revenue',
+          current_value: 450000,
+          predicted_value: 520000,
+          change_percentage: 15.6,
+          trend_direction: 'up',
+          confidence_interval: { low: 480000, high: 560000 },
+          factors_influencing: ['Increased demand', 'New artisan onboarding'],
+          forecast_period: '30 days'
+        }
+      ];
+
+      setClvAnalysis(mockClvData);
+      setBusinessMetrics(mockBusinessMetrics);
 
     } catch (error: any) {
       console.error('Error fetching predictive data:', error);

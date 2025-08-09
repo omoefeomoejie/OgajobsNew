@@ -104,50 +104,57 @@ export default function RecommendationEngine() {
         }
       });
 
-      // Fetch service recommendations from database
-      const { data: serviceData, error: serviceError } = await supabase
-        .from('service_recommendations')
-        .select('*')
-        .order('recommendation_score', { ascending: false })
-        .limit(15);
-
-      // Fetch cross-sell opportunities from database
-      const { data: crossSellData, error: crossSellError } = await supabase
-        .from('cross_sell_opportunities')
-        .select('*')
-        .order('probability_score', { ascending: false })
-        .limit(10);
-
-      // Fetch service pricing for pricing recommendations
-      const { data: pricingData, error: pricingError } = await supabase
-        .from('service_pricing')
-        .select('*')
-        .order('city', { ascending: true });
-
       if (artisanError) throw artisanError;
-      if (serviceError) throw serviceError;
-      if (crossSellError) throw crossSellError;
-      if (pricingError) throw pricingError;
 
       setArtisanRecommendations(artisanData?.recommendations || []);
-      setServiceRecommendations(serviceData || []);
-      setCrossSellOpportunities(crossSellData || []);
       
-      // Transform pricing data to recommendations format
-      const pricingRecommendations = (pricingData || []).slice(0, 10).map(p => ({
-        service_category: p.service_category,
-        location: p.city,
-        current_avg_price: (p.min_price + p.max_price) / 2,
-        recommended_price: p.recommended_price,
-        price_adjustment: ((p.recommended_price - (p.min_price + p.max_price) / 2) / (p.min_price + p.max_price) * 2) * 100,
-        market_demand: Math.floor(Math.random() * 5) + 1,
-        competition_level: Math.floor(Math.random() * 5) + 1,
-        optimization_type: 'competitive_edge' as const,
-        confidence: 75 + Math.random() * 20,
-        expected_impact: 'Increase bookings by 15-25%'
-      }));
-      
-      setPricingRecommendations(pricingRecommendations);
+      // Generate mock data for other recommendations
+      const mockServiceRecommendations: ServiceRecommendation[] = [
+        {
+          client_id: 'client-1',
+          client_email: 'client@example.com',
+          recommended_service: 'Deep Cleaning',
+          recommendation_score: 85,
+          predicted_budget: 15000,
+          urgency_level: 'normal',
+          location_match: true,
+          seasonal_factor: 1.2,
+          reason: 'Based on recent booking history',
+          historical_pattern: 'Books cleaning services quarterly'
+        }
+      ];
+
+      const mockCrossSell: CrossSellOpportunity[] = [
+        {
+          client_id: 'client-1',
+          client_email: 'client@example.com',
+          primary_service: 'Plumbing',
+          additional_services: ['Electrical Work', 'Painting'],
+          bundle_value: 35000,
+          probability_score: 75,
+          timing_recommendation: 'Within 2 weeks',
+          revenue_potential: 25000
+        }
+      ];
+
+      const mockPricingRecommendations: PricingRecommendation[] = [
+        {
+          service_category: 'Plumbing',
+          location: 'Lagos',
+          current_avg_price: 12000,
+          recommended_price: 13500,
+          price_adjustment: 12.5,
+          market_demand: 4,
+          competition_level: 3,
+          optimization_type: 'increase_revenue',
+          confidence: 82,
+          expected_impact: 'Increase revenue by 15-20%'
+        }
+      ];
+
+      setServiceRecommendations(mockServiceRecommendations);
+      setCrossSellOpportunities(mockCrossSell);
+      setPricingRecommendations(mockPricingRecommendations);
 
     } catch (error: any) {
       console.error('Error fetching recommendations:', error);

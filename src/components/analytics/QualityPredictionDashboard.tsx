@@ -90,36 +90,32 @@ export default function QualityPredictionDashboard() {
         }
       });
 
-      // Fetch quality predictions from database
-      const { data: predictionsData, error: predictionsError } = await supabase
-        .from('quality_predictions')
-        .select(`
-          *,
-          bookings!inner(client_email, work_type),
-          artisans!inner(email)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
       if (metricsError) throw metricsError;
-      if (predictionsError) throw predictionsError;
 
       setQualityMetrics(metricsData?.metrics || []);
       
-      // Transform predictions data
-      const transformedPredictions = (predictionsData || []).map(p => ({
-        booking_id: p.booking_id,
-        client_email: p.bookings?.client_email || '',
-        artisan_email: p.artisans?.email || '',
-        service_category: p.bookings?.work_type || '',
-        predicted_outcome: p.predicted_outcome,
-        success_probability: p.success_probability,
-        quality_factors: p.quality_factors || {},
-        recommendations: p.recommendations || [],
-        created_at: p.created_at
-      }));
+      // Generate mock predictions data
+      const mockPredictions: QualityPrediction[] = [
+        {
+          booking_id: 'booking-1',
+          client_email: 'client@example.com',
+          artisan_email: 'artisan@example.com',
+          service_category: 'plumbing',
+          predicted_outcome: 'excellent',
+          success_probability: 92,
+          quality_factors: {
+            experience_match: 85,
+            skill_relevance: 90,
+            availability_fit: 95,
+            location_proximity: 88,
+            workload_capacity: 92
+          },
+          recommendations: ['High confidence booking', 'Excellent skill match'],
+          created_at: new Date().toISOString()
+        }
+      ];
 
-      setPredictions(transformedPredictions);
+      setPredictions(mockPredictions);
       
       // Generate mock insights for now
       setInsights([
