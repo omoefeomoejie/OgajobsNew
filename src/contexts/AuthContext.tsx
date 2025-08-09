@@ -52,8 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .insert({
             id: userId,
             email: user?.email || '',
-            role: user?.user_metadata?.role || 'client',
-            created_at: new Date().toISOString()
+            role: user?.user_metadata?.role || 'client'
           })
           .select()
           .single();

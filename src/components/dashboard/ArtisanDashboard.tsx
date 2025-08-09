@@ -44,9 +44,11 @@ const menuItems = [
   { title: "Settings", url: "#settings", icon: Settings },
 ];
 
-function DashboardSidebar() {
+function DashboardSidebar({ activeSection, setActiveSection }: { 
+  activeSection: string; 
+  setActiveSection: (section: string) => void; 
+}) {
   const { state } = useSidebar();
-  const [activeSection, setActiveSection] = useState("overview");
   const collapsed = state === "collapsed";
 
   return (
@@ -250,7 +252,7 @@ export function ArtisanDashboard() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <DashboardSidebar />
+        <DashboardSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
         <div className="flex-1 flex flex-col">
           <header className="h-16 flex items-center justify-between border-b px-6">
             <SidebarTrigger />
