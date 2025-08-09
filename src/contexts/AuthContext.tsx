@@ -36,14 +36,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to handle cases with no profile
 
       if (error) {
         console.error('Error fetching profile:', error);
         return;
       }
 
-      setProfile(data);
+      if (data) {
+        setProfile(data);
+      } else {
+        // If no profile exists, create one with default values
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            email: user?.email || '',
+            role: user?.user_metadata?.role || 'client',
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating profile:', createError);
+          return;
+        }
+
+        setProfile(newProfile);
+      }
     } catch (error) {
       console.error('Profile fetch error:', error);
     }

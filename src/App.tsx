@@ -29,6 +29,7 @@ import Profile from "./pages/Profile";
 import AgentChatDashboardPage from "./pages/AgentChatDashboard";
 import HowItWorks from "./pages/HowItWorks";
 import AdminUsers from "./pages/AdminUsers";
+import Favorites from "./pages/Favorites";
 
 const queryClient = new QueryClient();
 
@@ -46,11 +47,15 @@ const App = () => (
               <Route path="/login" element={<Auth />} />
               <Route path="/register" element={<Auth />} />
               <Route path="/ojssytem-admin" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/services" element={<ServiceDirectory />} />
+              <Route path="/service-directory" element={<ServiceDirectory />} />
               <Route path="/book" element={<BookingRequest />} />
               <Route path="/bookings" element={<MyBookings />} />
+              <Route path="/my-bookings" element={<MyBookings />} />
+              <Route path="/favorites" element={<Favorites />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />

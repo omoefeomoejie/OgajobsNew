@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   User, 
@@ -33,19 +34,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 const menuItems = [
-  { title: "Overview", url: "#overview", icon: LayoutDashboard },
-  { title: "Find Services", url: "#services", icon: Search },
-  { title: "My Bookings", url: "#bookings", icon: Calendar },
-  { title: "Messages", url: "#messages", icon: MessageSquare },
-  { title: "Favorites", url: "#favorites", icon: Heart },
-  { title: "Reviews", url: "#reviews", icon: Star },
-  { title: "Profile", url: "#profile", icon: User },
-  { title: "Settings", url: "#settings", icon: Settings },
+  { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Find Services", url: "/service-directory", icon: Search },
+  { title: "My Bookings", url: "/my-bookings", icon: Calendar },
+  { title: "Messages", url: "/messages", icon: MessageSquare },
+  { title: "Favorites", url: "/favorites", icon: Heart },
+  { title: "Reviews", url: "/reviews", icon: Star },
+  { title: "Profile", url: "/profile", icon: User },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 function DashboardSidebar() {
   const { state } = useSidebar();
-  const [activeSection, setActiveSection] = useState("overview");
   const collapsed = state === "collapsed";
 
   return (
@@ -57,12 +57,16 @@ function DashboardSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    onClick={() => setActiveSection(item.url.replace('#', ''))}
-                    className={activeSection === item.url.replace('#', '') ? "bg-muted text-primary font-medium" : "hover:bg-muted/50"}
-                  >
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>{item.title}</span>}
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url}
+                      className={({ isActive }) => 
+                        isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted/50"
+                      }
+                    >
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
