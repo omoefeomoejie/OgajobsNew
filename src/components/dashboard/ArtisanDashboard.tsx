@@ -13,23 +13,9 @@ import {
   TrendingUp,
   AlertCircle
 } from 'lucide-react';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Header } from '@/components/layout/Header';
 import BookingAssignment from '@/components/booking/BookingAssignment';
 
 const menuItems = [
@@ -43,39 +29,6 @@ const menuItems = [
   { title: "Profile", url: "#profile", icon: User },
   { title: "Settings", url: "#settings", icon: Settings },
 ];
-
-function DashboardSidebar({ activeSection, setActiveSection }: { 
-  activeSection: string; 
-  setActiveSection: (section: string) => void; 
-}) {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
-
-  return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    onClick={() => setActiveSection(item.url.replace('#', ''))}
-                    className={activeSection === item.url.replace('#', '') ? "bg-muted text-primary font-medium" : "hover:bg-muted/50"}
-                  >
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>{item.title}</span>}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
-}
 
 function ArtisanOverview() {
   return (
@@ -259,7 +212,7 @@ export function ArtisanDashboard() {
             <span className="text-sm font-medium">Profile: 85% Complete</span>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {menuItems.map((item) => (
             <Button
               key={item.title}

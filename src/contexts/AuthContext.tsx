@@ -47,22 +47,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(data);
       } else {
         // If no profile exists, create one with default values
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert({
-            id: userId,
-            email: user?.email || '',
-            role: user?.user_metadata?.role || 'client'
-          })
-          .select()
-          .single();
+        try {
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: user?.email || '',
+              role: user?.user_metadata?.role || 'client'
+            })
+            .select()
+            .single();
 
-        if (createError) {
-          console.error('Error creating profile:', createError);
-          return;
+          if (createError) {
+            console.error('Error creating profile:', createError);
+            return;
+          }
+
+          setProfile(newProfile);
+        } catch (createErr) {
+          console.error('Profile creation failed:', createErr);
         }
-
-        setProfile(newProfile);
       }
     } catch (error) {
       console.error('Profile fetch error:', error);
