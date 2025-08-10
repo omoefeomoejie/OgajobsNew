@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   User, 
@@ -15,68 +14,11 @@ import {
   Clock,
   Filter
 } from 'lucide-react';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const menuItems = [
-  { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Find Services", url: "/service-directory", icon: Search },
-  { title: "My Bookings", url: "/my-bookings", icon: Calendar },
-  { title: "Messages", url: "/messages", icon: MessageSquare },
-  { title: "Favorites", url: "/favorites", icon: Heart },
-  { title: "Reviews", url: "/reviews", icon: Star },
-  { title: "Profile", url: "/profile", icon: User },
-  { title: "Settings", url: "/settings", icon: Settings },
-];
-
-function DashboardSidebar() {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
-
-  return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url}
-                      className={({ isActive }) => 
-                        isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted/50"
-                      }
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
-}
 
 function ClientOverview() {
   return (
@@ -226,100 +168,60 @@ function ClientBookings() {
 
 export function ClientDashboard() {
   const { user, profile } = useAuth();
-  const [activeSection, setActiveSection] = useState("overview");
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'overview':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold">Welcome back, {user?.user_metadata?.full_name || 'Client'}!</h1>
-              <p className="text-muted-foreground">Find trusted artisans for all your service needs.</p>
-            </div>
-            <ClientOverview />
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <p className="text-sm">Plumbing service completed successfully</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <p className="text-sm">New message from Fatima (House Cleaner)</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <p className="text-sm">Reminder: Cleaning service tomorrow</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Popular Services</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">Home Cleaning</p>
-                        <p className="text-sm text-muted-foreground">56 artisans available</p>
-                      </div>
-                      <Button size="sm" variant="outline">Book</Button>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">Plumbing</p>
-                        <p className="text-sm text-muted-foreground">45 artisans available</p>
-                      </div>
-                      <Button size="sm" variant="outline">Book</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-      case 'services':
-        return <ServiceSearch />;
-      case 'bookings':
-        return <ClientBookings />;
-      default:
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold">Coming Soon</h2>
-            <p className="text-muted-foreground">This section is under development.</p>
-          </div>
-        );
-    }
-  };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <DashboardSidebar />
-        <div className="flex-1 flex flex-col">
-          <header className="h-16 flex items-center justify-between border-b px-6">
-            <SidebarTrigger />
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary">Client Dashboard</Badge>
-              <div className="flex items-center gap-2">
-                <Heart className="w-4 h-4 text-red-500" />
-                <span className="text-sm font-medium">8 Favorite Artisans</span>
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold">Welcome back, {user?.user_metadata?.full_name || 'Client'}!</h1>
+        <p className="text-muted-foreground">Find trusted artisans for all your service needs.</p>
+      </div>
+      <ClientOverview />
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <p className="text-sm">Plumbing service completed successfully</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <p className="text-sm">New message from Fatima (House Cleaner)</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <p className="text-sm">Reminder: Cleaning service tomorrow</p>
               </div>
             </div>
-          </header>
-          <main className="flex-1 p-6">
-            {renderContent()}
-          </main>
-        </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Popular Services</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Home Cleaning</p>
+                  <p className="text-sm text-muted-foreground">56 artisans available</p>
+                </div>
+                <Button size="sm" variant="outline">Book</Button>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Plumbing</p>
+                  <p className="text-sm text-muted-foreground">45 artisans available</p>
+                </div>
+                <Button size="sm" variant="outline">Book</Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }

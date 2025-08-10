@@ -53,11 +53,29 @@ export function AppSidebar() {
     ];
 
     if (profile?.role === 'client') {
-      return userBaseItems;
+      return [
+        { title: 'Dashboard', url: '/dashboard', icon: Home },
+        { title: 'Find Services', url: '/service-directory', icon: Search },
+        { title: 'My Bookings', url: '/my-bookings', icon: Calendar },
+        { title: 'Messages', url: '/messages', icon: MessageSquare },
+        { title: 'Favorites', url: '/favorites', icon: Star },
+        { title: 'Reviews', url: '/reviews', icon: Star },
+        { title: 'Profile', url: '/profile', icon: User },
+        { title: 'Settings', url: '/settings', icon: Settings },
+      ];
     }
 
     if (profile?.role === 'artisan') {
-      return userBaseItems;
+      return [
+        { title: 'Dashboard', url: '/dashboard', icon: Home },
+        { title: 'Messages', url: '/messages', icon: MessageSquare },
+        { title: 'Reviews', url: '/reviews', icon: Star },
+        { title: 'Portfolio', url: '/portfolio', icon: Briefcase },
+        { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
+        { title: 'Verification', url: '/verification', icon: Shield },
+        { title: 'Profile', url: '/profile', icon: User },
+        { title: 'Settings', url: '/settings', icon: Settings },
+      ];
     }
     
     if (profile?.role === 'agent') {

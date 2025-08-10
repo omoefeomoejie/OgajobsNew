@@ -250,25 +250,30 @@ export function ArtisanDashboard() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <DashboardSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-        <div className="flex-1 flex flex-col">
-          <header className="h-16 flex items-center justify-between border-b px-6">
-            <SidebarTrigger />
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary">Artisan Dashboard</Badge>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-medium">Profile: 85% Complete</span>
-              </div>
-            </div>
-          </header>
-          <main className="flex-1 p-6">
-            {renderContent()}
-          </main>
+    <div className="space-y-6 p-6">
+      <div className="mb-6">
+        <div className="flex items-center gap-4 mb-4">
+          <Badge variant="secondary">Artisan Dashboard</Badge>
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-green-500" />
+            <span className="text-sm font-medium">Profile: 85% Complete</span>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {menuItems.map((item) => (
+            <Button
+              key={item.title}
+              variant={activeSection === item.url.replace('#', '') ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setActiveSection(item.url.replace('#', ''))}
+            >
+              <item.icon className="w-4 h-4 mr-2" />
+              {item.title}
+            </Button>
+          ))}
         </div>
       </div>
-    </SidebarProvider>
+      {renderContent()}
+    </div>
   );
 }
