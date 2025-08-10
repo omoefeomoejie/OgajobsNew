@@ -68,7 +68,8 @@ export default function Auth() {
           .insert({
             id: data.user.id,
             email: data.user.email,
-            role
+            role,
+            created_at: new Date().toISOString()
           });
 
         if (profileError) {
