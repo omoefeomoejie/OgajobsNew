@@ -86,18 +86,22 @@ export function AppSidebar() {
       ];
     }
 
-    // Admin-only items - separate from regular user navigation
-    return [
-      { title: 'Admin Panel', url: '/admin-dashboard', icon: Shield },
-      { title: 'User Management', url: '/admin/users', icon: Users },
-      { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
-      { title: 'Dashboard', url: '/dashboard', icon: Home },
-      { title: 'Messages', url: '/messages', icon: MessageSquare },
-      { title: 'Reviews', url: '/reviews', icon: Star },
-      { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
-      { title: 'Verification', url: '/verification', icon: Shield },
-      { title: 'Settings', url: '/settings', icon: Settings },
-    ];
+    if (profile?.role === 'admin') {
+      return [
+        { title: 'Admin Panel', url: '/admin-dashboard', icon: Shield },
+        { title: 'User Management', url: '/admin/users', icon: Users },
+        { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
+        { title: 'Dashboard', url: '/dashboard', icon: Home },
+        { title: 'Messages', url: '/messages', icon: MessageSquare },
+        { title: 'Reviews', url: '/reviews', icon: Star },
+        { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
+        { title: 'Verification', url: '/verification', icon: Shield },
+        { title: 'Settings', url: '/settings', icon: Settings },
+      ];
+    }
+
+    // Default fallback for any other roles
+    return userBaseItems;
   };
 
   const navigationItems = getNavigationItems();
