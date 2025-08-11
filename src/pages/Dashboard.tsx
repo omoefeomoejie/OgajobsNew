@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ClientDashboard } from '@/components/dashboard/ClientDashboard';
-import { ArtisanDashboard } from '@/components/dashboard/ArtisanDashboard';
+import ClientDashboardPage from '@/pages/ClientDashboard';
+import ArtisanDashboardPage from '@/pages/ArtisanDashboard';
 import { AdminDashboard as AdminDashboardComponent } from '@/components/admin/AdminDashboard';
 
 export default function Dashboard() {
@@ -10,19 +10,15 @@ export default function Dashboard() {
   const renderDashboard = () => {
     switch (profile?.role) {
       case 'client':
-        return <ClientDashboard />;
+        return <ClientDashboardPage />;
       case 'artisan':
-        return <ArtisanDashboard />;
+        return <ArtisanDashboardPage />;
       case 'admin':
         return <AdminDashboardComponent />;
       default:
-        return <ClientDashboard />; // Default fallback
+        return <ClientDashboardPage />; // Default fallback
     }
   };
 
-  return (
-    <AppLayout>
-      {renderDashboard()}
-    </AppLayout>
-  );
+  return renderDashboard();
 }
