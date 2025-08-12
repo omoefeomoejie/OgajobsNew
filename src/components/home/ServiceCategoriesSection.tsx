@@ -98,6 +98,7 @@ export const ServiceCategoriesSection = () => {
                   <Button 
                     variant="ghost" 
                     className="w-full group-hover:bg-primary group-hover:text-white transition-colors"
+                    onClick={() => window.location.href = `/all-services?category=${category.slug}`}
                   >
                     View Services
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -110,7 +111,7 @@ export const ServiceCategoriesSection = () => {
 
         {/* View All Services CTA */}
         <div className="text-center">
-          <Button size="lg" className="px-8">
+          <Button size="lg" className="px-8" onClick={() => window.location.href = '/all-services'}>
             View All Services
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>

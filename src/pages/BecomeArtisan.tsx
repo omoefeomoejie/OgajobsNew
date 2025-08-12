@@ -1,0 +1,288 @@
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  CheckCircle, 
+  Star, 
+  TrendingUp, 
+  Shield, 
+  Clock,
+  Users,
+  DollarSign,
+  ArrowRight,
+  Phone,
+  Mail
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export default function BecomeArtisan() {
+  const navigate = useNavigate();
+
+  const benefits = [
+    {
+      icon: DollarSign,
+      title: "Flexible Earnings",
+      description: "Set your own rates and work on your schedule. Top artisans earn ₦200,000+ monthly."
+    },
+    {
+      icon: Users,
+      title: "Instant Customer Base",
+      description: "Connect with thousands of verified customers actively seeking your services."
+    },
+    {
+      icon: Shield,
+      title: "Payment Protection",
+      description: "Secure escrow system ensures you get paid for completed work. No more chasing payments."
+    },
+    {
+      icon: Star,
+      title: "Build Your Reputation",
+      description: "Customer reviews and ratings help you build credibility and attract more clients."
+    }
+  ];
+
+  const steps = [
+    {
+      step: "1",
+      title: "Sign Up & Verify",
+      description: "Create your profile and verify your identity, skills, and certifications.",
+      time: "5 minutes"
+    },
+    {
+      step: "2", 
+      title: "Complete Your Profile",
+      description: "Add your skills, experience, work samples, and service areas.",
+      time: "15 minutes"
+    },
+    {
+      step: "3",
+      title: "Get Approved",
+      description: "Our team reviews your application and approves qualified artisans.",
+      time: "24-48 hours"
+    },
+    {
+      step: "4",
+      title: "Start Earning",
+      description: "Browse job requests, submit quotes, and start completing jobs.",
+      time: "Immediately"
+    }
+  ];
+
+  const requirements = [
+    "Valid Nigerian ID (NIN, Driver's License, or Passport)",
+    "Relevant skills and experience in your trade",
+    "Basic tools and equipment for your services",
+    "Smartphone with internet access",
+    "Professional attitude and reliability"
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main>
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-primary via-primary-light to-accent py-16 md:py-24 text-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <Badge className="bg-white/20 text-white border-white/30 mb-6">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Join 5,000+ Verified Artisans
+              </Badge>
+              
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+                Turn Your Skills Into
+                <br />
+                <span className="text-accent">Steady Income</span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl mb-8 text-white/90">
+                Join Nigeria's largest trusted service platform and connect with customers 
+                who need your expertise.
+              </p>
+              
+              <div className="flex flex-col md:flex-row gap-4 justify-center">
+                <Button 
+                  size="lg" 
+                  variant="secondary" 
+                  className="px-8"
+                  onClick={() => navigate('/auth?tab=register&role=artisan')}
+                >
+                  Start Your Application
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="px-8 text-white border-white hover:bg-white hover:text-primary"
+                  onClick={() => navigate('/how-it-works')}
+                >
+                  Learn How It Works
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Benefits Section */}
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">
+                Why Choose OgaJobs?
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                We've built the platform that puts artisans first. Here's how we help you grow your business.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+              {benefits.map((benefit, index) => {
+                const IconComponent = benefit.icon;
+                return (
+                  <Card key={index} className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <IconComponent className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
+                        <p className="text-muted-foreground">{benefit.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-3xl font-bold text-primary mb-2">₦150k+</div>
+                <div className="text-muted-foreground">Average Monthly Earnings</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-primary mb-2">4.9/5</div>
+                <div className="text-muted-foreground">Artisan Satisfaction</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-primary mb-2">48hrs</div>
+                <div className="text-muted-foreground">Average Approval Time</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-primary mb-2">24/7</div>
+                <div className="text-muted-foreground">Support Available</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How to Join Steps */}
+        <section className="py-16 md:py-24 bg-muted">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">
+                How to Join
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Get started in just 4 simple steps
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {steps.map((step, index) => (
+                <Card key={index} className="relative">
+                  <CardHeader>
+                    <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl mb-4">
+                      {step.step}
+                    </div>
+                    <CardTitle className="text-lg">{step.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground mb-4">{step.description}</p>
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {step.time}
+                    </Badge>
+                  </CardContent>
+                  
+                  {index < steps.length - 1 && (
+                    <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2">
+                      <ArrowRight className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Requirements */}
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  What You Need to Get Started
+                </h2>
+                <p className="text-xl text-muted-foreground">
+                  Basic requirements to become a verified artisan
+                </p>
+              </div>
+
+              <Card className="p-8">
+                <div className="space-y-4">
+                  {requirements.map((requirement, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-success" />
+                      <span>{requirement}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-16 md:py-24 bg-primary text-white">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              Ready to Start Earning?
+            </h2>
+            <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
+              Join thousands of successful artisans who have transformed their skills into sustainable income.
+            </p>
+            
+            <div className="flex flex-col md:flex-row gap-4 justify-center mb-12">
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="px-8"
+                onClick={() => navigate('/auth?tab=register&role=artisan')}
+              >
+                Apply Now - It's Free
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8 justify-center items-center text-sm">
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                <span>Need help? Call: +234 803 123 4567</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                <span>artisans@ogajobs.com</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+}

@@ -31,6 +31,11 @@ import AgentChatDashboardPage from "./pages/AgentChatDashboard";
 import HowItWorks from "./pages/HowItWorks";
 import AdminUsers from "./pages/AdminUsers";
 import Favorites from "./pages/Favorites";
+import BecomeArtisan from "./pages/BecomeArtisan";
+import Services from "./pages/Services";
+import HelpCenter from "./pages/HelpCenter";
+import SafetyGuidelines from "./pages/SafetyGuidelines";
+import POSPartnership from "./pages/POSPartnership";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +76,11 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/agent-chat" element={<AgentChatDashboardPage />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/become-artisan" element={<BecomeArtisan />} />
+              <Route path="/all-services" element={<Services />} />
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
+              <Route path="/pos-partnership" element={<POSPartnership />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

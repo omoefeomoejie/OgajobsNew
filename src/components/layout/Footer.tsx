@@ -96,12 +96,10 @@ export const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-6">Our Services</h4>
             <ul className="space-y-3 text-primary-foreground/80">
-              <li><Link to="/services/home" className="hover:text-white transition-colors">Home Services</Link></li>
-              <li><Link to="/services/construction" className="hover:text-white transition-colors">Construction & Building</Link></li>
-              <li><Link to="/services/personal" className="hover:text-white transition-colors">Personal Services</Link></li>
-              <li><Link to="/services/business" className="hover:text-white transition-colors">Business Services</Link></li>
-              <li><Link to="/services/transportation" className="hover:text-white transition-colors">Transportation</Link></li>
-              <li><Link to="/services/specialized" className="hover:text-white transition-colors">Nigerian Specialties</Link></li>
+              <li><Link to="/all-services" className="hover:text-white transition-colors">Find Services</Link></li>
+              <li><Link to="/become-artisan" className="hover:text-white transition-colors">Become an Artisan</Link></li>
+              <li><Link to="/pos-partnership" className="hover:text-white transition-colors">POS Partnership</Link></li>
+              <li><Link to="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
             </ul>
           </div>
 

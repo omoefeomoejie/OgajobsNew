@@ -135,11 +135,11 @@ export const HeroSection = () => {
 
           {/* CTA Section */}
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-            <Button size="lg" variant="secondary" className="px-8">
+            <Button size="lg" variant="secondary" className="px-8" onClick={() => window.location.href = '/how-it-works'}>
               <TrendingUp className="w-5 h-5 mr-2" />
               How It Works
             </Button>
-            <Button size="lg" variant="outline" className="px-8 text-white border-white hover:bg-white hover:text-primary">
+            <Button size="lg" variant="outline" className="px-8 text-white border-white hover:bg-white hover:text-primary" onClick={() => window.location.href = '/become-artisan'}>
               Become an Artisan
             </Button>
           </div>
