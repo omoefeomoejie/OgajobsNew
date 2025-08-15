@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -112,6 +112,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_referrals_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
             referencedColumns: ["id"]
           },
           {
@@ -387,6 +394,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_reviews_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
             referencedColumns: ["id"]
           },
           {
@@ -774,6 +788,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_transactions_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
             referencedColumns: ["id"]
           },
           {
@@ -1342,6 +1363,13 @@ export type Database = {
             foreignKeyName: "job_assignments_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
+            referencedRelation: "artisans_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_assignments_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
             referencedRelation: "mv_artisan_performance"
             referencedColumns: ["artisan_id"]
           },
@@ -1643,6 +1671,13 @@ export type Database = {
             foreignKeyName: "matches_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
+            referencedRelation: "artisans_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
             referencedRelation: "mv_artisan_performance"
             referencedColumns: ["artisan_id"]
           },
@@ -1816,6 +1851,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
             referencedColumns: ["id"]
           },
           {
@@ -3225,6 +3267,54 @@ export type Database = {
       }
     }
     Views: {
+      artisans_public: {
+        Row: {
+          average_rating: number | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          photo_url: string | null
+          profile_url: string | null
+          skill: string | null
+          slug: string | null
+          suspended: boolean | null
+          total_reviews: number | null
+          verification_level: string | null
+        }
+        Insert: {
+          average_rating?: never
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          photo_url?: string | null
+          profile_url?: string | null
+          skill?: string | null
+          slug?: string | null
+          suspended?: boolean | null
+          total_reviews?: never
+          verification_level?: never
+        }
+        Update: {
+          average_rating?: never
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          photo_url?: string | null
+          profile_url?: string | null
+          skill?: string | null
+          slug?: string | null
+          suspended?: boolean | null
+          total_reviews?: never
+          verification_level?: never
+        }
+        Relationships: []
+      }
       mv_artisan_performance: {
         Row: {
           artisan_id: string | null
@@ -3311,17 +3401,17 @@ export type Database = {
         Returns: undefined
       }
       calculate_distance: {
-        Args: { lat1: number; lon1: number; lat2: number; lon2: number }
+        Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
       }
       calculate_dynamic_price: {
         Args: {
-          p_service_category: string
           p_base_price: number
-          p_city: string
           p_booking_time?: string
-          p_client_id?: string
           p_booking_urgency?: string
+          p_city: string
+          p_client_id?: string
+          p_service_category: string
         }
         Returns: Json
       }
@@ -3358,11 +3448,11 @@ export type Database = {
         Args: { booking_id_param: string; limit_param?: number }
         Returns: {
           artisan_id: string
-          total_score: number
+          availability_match: boolean
+          category_match: boolean
           distance_km: number
           rating: number
-          category_match: boolean
-          availability_match: boolean
+          total_score: number
         }[]
       }
       generate_ticket_number: {
@@ -3376,18 +3466,26 @@ export type Database = {
       get_all_users_with_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
           email: string
+          id: string
           role: string
         }[]
       }
       get_artisan_balance_v2: {
         Args: { artisan_id_param: string }
         Returns: {
-          total_earnings: number
           available_balance: number
           pending_withdrawals: number
+          total_earnings: number
           withdrawn_amount: number
+        }[]
+      }
+      get_artisan_contact_info: {
+        Args: { artisan_id_param: string }
+        Returns: {
+          email: string
+          full_name: string
+          phone: string
         }[]
       }
       get_user_role: {
@@ -3404,22 +3502,26 @@ export type Database = {
       }
       log_dispute_activity: {
         Args: {
-          dispute_id_param: string
           action_param: string
-          performed_by_param: string
           details_param?: Json
+          dispute_id_param: string
+          performed_by_param: string
         }
+        Returns: undefined
+      }
+      notify_artisan_policy_update: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       onboard_artisan_by_agent: {
         Args: {
           p_agent_user_id: string
+          p_artisan_email: string
           p_artisan_name: string
           p_artisan_phone: string
-          p_artisan_email: string
-          p_service_category: string
           p_location: Json
           p_referral_code?: string
+          p_service_category: string
         }
         Returns: Json
       }
@@ -3433,10 +3535,10 @@ export type Database = {
       }
       update_dispute_status: {
         Args: {
+          admin_notes_param?: string
           dispute_id_param: string
           new_status_param: Database["public"]["Enums"]["dispute_status"]
           resolution_param?: string
-          admin_notes_param?: string
         }
         Returns: undefined
       }
@@ -3449,11 +3551,11 @@ export type Database = {
         Returns: string
       }
       validate_withdrawal_request_v2: {
-        Args: { artisan_id_param: string; amount_param: number }
+        Args: { amount_param: number; artisan_id_param: string }
         Returns: {
-          is_valid: boolean
-          error_message: string
           available_balance: number
+          error_message: string
+          is_valid: boolean
         }[]
       }
     }
