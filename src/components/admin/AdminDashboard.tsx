@@ -280,6 +280,7 @@ function UserQueue() {
 
   const fetchPendingUsers = async () => {
     try {
+      // Admin access to full artisan data
       const { data, error } = await supabase
         .from('artisans')
         .select('*')

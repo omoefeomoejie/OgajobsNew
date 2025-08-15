@@ -166,7 +166,7 @@ export function AdvancedPerformanceMetrics() {
       ] = await Promise.all([
         supabase.from('bookings').select('*').order('created_at'),
         supabase.from('artisan_reviews').select('*'),
-        supabase.from('artisans').select('*'),
+        supabase.from('artisans_public').select('*'),
         supabase.from('assignments').select('*')
       ]);
 
@@ -225,7 +225,7 @@ export function AdvancedPerformanceMetrics() {
       });
 
       const serviceCompletionByArtisan = Array.from(artisanMap.entries()).map(([email, data]) => {
-        const artisan = artisans?.find(a => a.email === email);
+        const artisan = artisans?.find(a => a.id === email); // Match by ID instead of email
         const artisanReviews = reviews?.filter(r => r.artisan_id === artisan?.id) || [];
         const avgRating = artisanReviews.length 
           ? artisanReviews.reduce((sum, r) => sum + r.rating, 0) / artisanReviews.length 

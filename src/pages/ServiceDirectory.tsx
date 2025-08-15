@@ -23,14 +23,15 @@ import { useToast } from '@/hooks/use-toast';
 interface Artisan {
   id: string;
   full_name: string;
-  email: string;
-  phone: string;
   skill: string;
   category: string;
   city: string;
   profile_url: string;
   photo_url: string;
   created_at: string;
+  average_rating: number;
+  total_reviews: number;
+  verification_level: string;
   averageRating?: number;
   reviewCount?: number;
 }
@@ -78,37 +79,20 @@ export default function ServiceDirectory() {
 
   const fetchArtisans = async () => {
     try {
+      // Use the secure public view instead of direct table access
       const { data, error } = await supabase
-        .from('artisans')
+        .from('artisans_public')
         .select('*')
-        .eq('suspended', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Fetch ratings for each artisan
-      const artisansWithRatings = await Promise.all(
-        (data || []).map(async (artisan) => {
-          const { data: reviews, error: reviewError } = await supabase
-            .from('artisan_reviews')
-            .select('rating')
-            .eq('artisan_id', artisan.id);
-
-          let averageRating = 0;
-          let reviewCount = 0;
-
-          if (!reviewError && reviews && reviews.length > 0) {
-            reviewCount = reviews.length;
-            averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
-          }
-
-          return {
-            ...artisan,
-            averageRating: Math.round(averageRating * 10) / 10,
-            reviewCount
-          };
-        })
-      );
+      // The public view already includes ratings, so we can use them directly
+      const artisansWithRatings = (data || []).map(artisan => ({
+        ...artisan,
+        averageRating: artisan.average_rating,
+        reviewCount: artisan.total_reviews
+      }));
 
       setArtisans(artisansWithRatings);
     } catch (error) {
@@ -155,7 +139,7 @@ export default function ServiceDirectory() {
   const handleBookArtisan = async (artisan: Artisan) => {
     try {
       // Navigate to booking form with pre-filled artisan info
-      window.location.href = `/book?artisan=${artisan.email}&service=${artisan.category}`;
+      window.location.href = `/book?artisan=${artisan.id}&service=${artisan.category}`;
     } catch (error) {
       console.error('Error booking artisan:', error);
       toast({
@@ -314,16 +298,10 @@ export default function ServiceDirectory() {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      {artisan.email}
+                    <div className="text-sm text-muted-foreground">
+                      <Badge variant="outline" className="mr-2">{artisan.verification_level}</Badge>
+                      Contact via booking only (for security)
                     </div>
-                    {artisan.phone && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        {artisan.phone}
-                      </div>
-                    )}
                   </div>
 
                   <div className="flex items-center gap-2">
