@@ -36,6 +36,7 @@ import Services from "./pages/Services";
 import HelpCenter from "./pages/HelpCenter";
 import SafetyGuidelines from "./pages/SafetyGuidelines";
 import POSPartnership from "./pages/POSPartnership";
+import CompetitiveAdvantages from "./pages/CompetitiveAdvantages";
 
 const queryClient = new QueryClient();
 
@@ -79,8 +80,9 @@ const App = () => (
               <Route path="/become-artisan" element={<BecomeArtisan />} />
               <Route path="/all-services" element={<Services />} />
               <Route path="/help-center" element={<HelpCenter />} />
-              <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
-              <Route path="/pos-partnership" element={<POSPartnership />} />
+            <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
+            <Route path="/pos-partnership" element={<POSPartnership />} />
+            <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

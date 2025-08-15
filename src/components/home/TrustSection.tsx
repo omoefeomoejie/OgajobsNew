@@ -159,7 +159,7 @@ export const TrustSection = () => {
             </div>
           </div>
 
-          <Button variant="secondary" size="lg" className="px-8">
+          <Button variant="secondary" size="lg" className="px-8" onClick={() => window.location.href = '/competitive-advantages'}>
             See How We're Different
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
