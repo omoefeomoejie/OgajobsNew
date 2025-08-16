@@ -79,10 +79,14 @@ const App = () => (
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/become-artisan" element={<BecomeArtisan />} />
               <Route path="/all-services" element={<Services />} />
+              <Route path="/services" element={<Services />} />
               <Route path="/help-center" element={<HelpCenter />} />
-            <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
-            <Route path="/pos-partnership" element={<POSPartnership />} />
-            <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
+              <Route path="/help" element={<HelpCenter />} />
+              <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
+              <Route path="/safety" element={<SafetyGuidelines />} />
+              <Route path="/pos-partnership" element={<POSPartnership />} />
+              <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
+              <Route path="/dispute-resolution" element={<Disputes />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

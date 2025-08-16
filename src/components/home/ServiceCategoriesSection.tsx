@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -98,10 +99,12 @@ export const ServiceCategoriesSection = () => {
                   <Button 
                     variant="ghost" 
                     className="w-full group-hover:bg-primary group-hover:text-white transition-colors"
-                    onClick={() => window.location.href = `/all-services?category=${category.slug}`}
+                    asChild
                   >
-                    View Services
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <Link to={`/all-services?category=${category.slug}`}>
+                      View Services
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -111,9 +114,11 @@ export const ServiceCategoriesSection = () => {
 
         {/* View All Services CTA */}
         <div className="text-center">
-          <Button size="lg" className="px-8" onClick={() => window.location.href = '/all-services'}>
-            View All Services
-            <ArrowRight className="w-5 h-5 ml-2" />
+          <Button size="lg" className="px-8" asChild>
+            <Link to="/all-services">
+              View All Services
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
           </Button>
           <p className="text-muted-foreground mt-4">
             Over {serviceCategories.reduce((total, cat) => total + cat.subcategories.length, 0)} specialized services available

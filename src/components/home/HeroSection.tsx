@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -92,7 +93,7 @@ export const HeroSection = () => {
                 />
               </div>
 
-              <Button size="lg" className="px-8 h-12 bg-primary hover:bg-primary-dark">
+              <Button size="lg" className="px-8 h-12 bg-primary hover:bg-primary-dark" onClick={() => window.location.href = '/all-services'}>
                 <Search className="w-5 h-5 mr-2" />
                 Find Artisans
               </Button>
@@ -135,12 +136,16 @@ export const HeroSection = () => {
 
           {/* CTA Section */}
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-            <Button size="lg" variant="secondary" className="px-8" onClick={() => window.location.href = '/how-it-works'}>
-              <TrendingUp className="w-5 h-5 mr-2" />
-              How It Works
+            <Button size="lg" variant="secondary" className="px-8" asChild>
+              <Link to="/how-it-works">
+                <TrendingUp className="w-5 h-5 mr-2" />
+                How It Works
+              </Link>
             </Button>
-            <Button size="lg" variant="outline" className="px-8 text-white border-white hover:bg-white hover:text-primary" onClick={() => window.location.href = '/become-artisan'}>
-              Become an Artisan
+            <Button size="lg" variant="outline" className="px-8 text-white border-white hover:bg-white hover:text-primary" asChild>
+              <Link to="/become-artisan">
+                Become an Artisan
+              </Link>
             </Button>
           </div>
 

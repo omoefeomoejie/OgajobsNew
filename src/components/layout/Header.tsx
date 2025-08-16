@@ -71,7 +71,7 @@ export const Header = () => {
 
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors">
               Find Services
             </Link>
             <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -140,7 +140,7 @@ export const Header = () => {
               </div>
               
               <Link 
-                to="/services" 
+                to="/all-services" 
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
