@@ -213,6 +213,117 @@ export function validateFileUpload(
   return { valid: true };
 }
 
+// Enhanced validation for booking requests
+export function validateBookingRequest(data: {
+  workType: string;
+  description: string;
+  city: string;
+  budget?: number;
+  urgency?: string;
+}): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  // Validate required fields
+  if (!data.workType?.trim()) {
+    errors.push('Work type is required');
+  }
+
+  if (!data.description?.trim()) {
+    errors.push('Description is required');
+  } else if (data.description.length < 10) {
+    errors.push('Description must be at least 10 characters');
+  } else if (data.description.length > 1000) {
+    errors.push('Description must be less than 1000 characters');
+  }
+
+  if (!data.city?.trim()) {
+    errors.push('City is required');
+  }
+
+  // Validate budget if provided
+  if (data.budget !== undefined) {
+    if (data.budget < 500) {
+      errors.push('Budget must be at least ₦500');
+    } else if (data.budget > 10000000) {
+      errors.push('Budget cannot exceed ₦10,000,000');
+    }
+  }
+
+  // Validate urgency
+  const validUrgencies = ['low', 'normal', 'high', 'urgent', 'emergency'];
+  if (data.urgency && !validUrgencies.includes(data.urgency)) {
+    errors.push('Invalid urgency level');
+  }
+
+  // Security checks
+  const combinedText = `${data.workType} ${data.description} ${data.city}`;
+  if (detectXSS(combinedText)) {
+    errors.push('Invalid characters detected in input');
+  }
+
+  if (detectSQLInjection(combinedText)) {
+    errors.push('Invalid input detected');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+// Validate artisan profile data
+export function validateArtisanProfile(data: {
+  fullName: string;
+  email: string;
+  phone: string;
+  city: string;
+  category: string;
+  skill?: string;
+}): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  // Validate required fields
+  if (!data.fullName?.trim()) {
+    errors.push('Full name is required');
+  } else if (data.fullName.length < 2) {
+    errors.push('Full name must be at least 2 characters');
+  } else if (data.fullName.length > 100) {
+    errors.push('Full name must be less than 100 characters');
+  }
+
+  if (!validators.email(data.email)) {
+    errors.push('Valid email is required');
+  }
+
+  if (!validators.phone(data.phone)) {
+    errors.push('Valid Nigerian phone number is required');
+  }
+
+  if (!data.city?.trim()) {
+    errors.push('City is required');
+  }
+
+  if (!data.category?.trim()) {
+    errors.push('Service category is required');
+  }
+
+  // Validate optional skill field
+  if (data.skill && data.skill.length > 200) {
+    errors.push('Skill description must be less than 200 characters');
+  }
+
+  // Security checks
+  const combinedText = `${data.fullName} ${data.email} ${data.city} ${data.category} ${data.skill || ''}`;
+  if (detectXSS(combinedText)) {
+    errors.push('Invalid characters detected in input');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 // Encrypt sensitive data (client-side)
 export async function encryptSensitiveData(data: string, key?: string): Promise<string> {
   try {
