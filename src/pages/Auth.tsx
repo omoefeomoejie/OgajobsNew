@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import LiveChatWidget from '@/components/chat/LiveChatWidget';
 import ogaJobsLogo from '@/assets/ogajobs-logo.png';
+import { SecureForm } from '@/components/security/SecureForm';
+import { ValidatedInput } from '@/components/security/InputValidator';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -115,25 +117,24 @@ export default function Auth() {
     }
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignIn = async (data: any) => {
     setLoading(true);
     setError('');
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
       });
 
       if (signInError) throw signInError;
 
-      if (data.user) {
+      if (authData.user) {
         // Check user role and redirect accordingly
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
-          .eq('id', data.user.id)
+          .eq('id', authData.user.id)
           .single();
 
         toast({
@@ -226,39 +227,37 @@ export default function Auth() {
             </TabsList>
 
             <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Your password"
-                    required
-                  />
-                </div>
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
+              <SecureForm
+                onSubmit={async (data) => await handleSignIn(data)}
+                rateLimitKey="auth-signin"
+                validationSchema={(data) => {
+                  const errors: string[] = [];
+                  if (!data.email) errors.push('Email is required');
+                  if (!data.password) errors.push('Password is required');
+                  return { valid: errors.length === 0, errors };
+                }}
+                className="space-y-4"
+              >
+                <ValidatedInput
+                  name="email"
+                  label="Email"
+                  type="email"
+                  placeholder="your@email.com"
+                  required
+                />
+                <ValidatedInput
+                  name="password"
+                  label="Password"
+                  type="password"
+                  placeholder="Your password"
+                  required
+                  minLength={6}
+                />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Sign In
                 </Button>
-              </form>
+              </SecureForm>
             </TabsContent>
 
             <TabsContent value="signup">

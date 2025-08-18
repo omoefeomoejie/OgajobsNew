@@ -9,7 +9,7 @@ import { AlertTriangle, CheckCircle } from 'lucide-react';
 interface ValidatedInputProps {
   label: string;
   name: string;
-  type?: 'text' | 'email' | 'tel' | 'number' | 'textarea';
+  type?: 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'password';
   placeholder?: string;
   required?: boolean;
   minLength?: number;

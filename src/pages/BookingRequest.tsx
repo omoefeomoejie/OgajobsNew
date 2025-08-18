@@ -15,6 +15,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CalendarIcon, MapPin, User, Briefcase, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { SecureForm } from '@/components/security/SecureForm';
+import { ValidatedInput } from '@/components/security/InputValidator';
+import { validateBookingRequest } from '@/lib/security';
 
 const cities = [
   'Lagos',
@@ -59,8 +62,7 @@ export default function BookingRequest() {
 
   const preselectedArtisan = searchParams.get('artisan');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSecureSubmit = async (data: any) => {
     if (!user?.email) {
       toast({
         title: "Authentication required",
@@ -74,12 +76,12 @@ export default function BookingRequest() {
     try {
       const bookingData = {
         client_email: user.email,
-        work_type: formData.workType,
-        city: formData.city,
+        work_type: data.workType,
+        city: data.city,
         preferred_date: formData.preferredDate?.toISOString().split('T')[0],
-        description: formData.description,
-        urgency: formData.urgency,
-        budget: formData.budget ? parseFloat(formData.budget) : null,
+        description: data.description,
+        urgency: data.urgency || 'normal',
+        budget: data.budget ? parseFloat(data.budget) : null,
         artisan_email: preselectedArtisan,
         status: 'pending',
         payment_status: 'unpaid',
@@ -167,128 +169,54 @@ export default function BookingRequest() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Service Type */}
-              <div className="space-y-2">
-                <Label htmlFor="workType">Service Type *</Label>
-                <Select 
-                  value={formData.workType} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, workType: value }))}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select service type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {serviceTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <SecureForm
+              onSubmit={async (data) => await handleSecureSubmit(data)}
+              rateLimitKey="booking-request"
+              validationSchema={validateBookingRequest}
+              className="space-y-6"
+            >
+              <ValidatedInput
+                name="workType"
+                label="Service Type"
+                placeholder="Select service type"
+                required
+              />
 
-              {/* City */}
-              <div className="space-y-2">
-                <Label htmlFor="city">City *</Label>
-                <Select 
-                  value={formData.city} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your city" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cities.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <ValidatedInput
+                name="city"
+                label="City"
+                placeholder="Select your city"
+                required
+              />
 
-              {/* Preferred Date */}
-              <div className="space-y-2">
-                <Label>Preferred Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.preferredDate ? (
-                        format(formData.preferredDate, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.preferredDate}
-                      onSelect={(date) => setFormData(prev => ({ ...prev, preferredDate: date }))}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <ValidatedInput
+                name="description"
+                label="Description"
+                type="textarea"
+                placeholder="Describe what work you need done..."
+                maxLength={500}
+              />
 
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe what work you need done..."
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  rows={4}
-                />
-              </div>
+              <ValidatedInput
+                name="urgency"
+                label="Urgency Level"
+                placeholder="Select urgency"
+              />
 
-              {/* Urgency */}
-              <div className="space-y-2">
-                <Label htmlFor="urgency">Urgency Level</Label>
-                <Select 
-                  value={formData.urgency} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, urgency: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select urgency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low - Can wait a week</SelectItem>
-                    <SelectItem value="normal">Normal - Within a few days</SelectItem>
-                    <SelectItem value="high">High - ASAP</SelectItem>
-                    <SelectItem value="emergency">Emergency - Today</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Budget */}
-              <div className="space-y-2">
-                <Label htmlFor="budget">Estimated Budget (₦)</Label>
-                <Input
-                  id="budget"
-                  type="number"
-                  placeholder="e.g. 50000"
-                  value={formData.budget}
-                  onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
-                />
-                <p className="text-sm text-muted-foreground">
-                  Optional: This helps us match you with artisans in your price range
-                </p>
-              </div>
+              <ValidatedInput
+                name="budget"
+                label="Estimated Budget (₦)"
+                type="number"
+                placeholder="e.g. 50000"
+              />
+              <p className="text-sm text-muted-foreground">
+                Optional: This helps us match you with artisans in your price range
+              </p>
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Submitting..." : "Submit Request"}
               </Button>
-            </form>
+            </SecureForm>
           </CardContent>
         </Card>
 

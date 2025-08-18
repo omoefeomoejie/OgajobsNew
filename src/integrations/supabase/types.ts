@@ -125,6 +125,13 @@ export type Database = {
             foreignKeyName: "agent_referrals_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
+            referencedRelation: "artisans_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_referrals_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
             referencedRelation: "mv_artisan_performance"
             referencedColumns: ["artisan_id"]
           },
@@ -401,6 +408,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_reviews_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public_safe"
             referencedColumns: ["id"]
           },
           {
@@ -795,6 +809,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_transactions_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public_safe"
             referencedColumns: ["id"]
           },
           {
@@ -1370,6 +1391,13 @@ export type Database = {
             foreignKeyName: "job_assignments_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
+            referencedRelation: "artisans_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_assignments_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
             referencedRelation: "mv_artisan_performance"
             referencedColumns: ["artisan_id"]
           },
@@ -1678,6 +1706,13 @@ export type Database = {
             foreignKeyName: "matches_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
+            referencedRelation: "artisans_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
             referencedRelation: "mv_artisan_performance"
             referencedColumns: ["artisan_id"]
           },
@@ -1858,6 +1893,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public_safe"
             referencedColumns: ["id"]
           },
           {
@@ -2542,6 +2584,39 @@ export type Database = {
           id?: string
           rating?: number | null
           review?: string | null
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          created_at: string | null
+          event_details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -3315,6 +3390,24 @@ export type Database = {
         }
         Relationships: []
       }
+      artisans_public_safe: {
+        Row: {
+          average_rating: number | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          photo_url: string | null
+          profile_url: string | null
+          skill: string | null
+          slug: string | null
+          suspended: boolean | null
+          total_reviews: number | null
+          verification_level: string | null
+        }
+        Relationships: []
+      }
       mv_artisan_performance: {
         Row: {
           artisan_id: string | null
@@ -3512,6 +3605,14 @@ export type Database = {
           performed_by_param: string
         }
         Returns: undefined
+      }
+      log_security_event: {
+        Args: {
+          p_event_details?: Json
+          p_event_type: string
+          p_severity?: string
+        }
+        Returns: string
       }
       notify_artisan_policy_update: {
         Args: Record<PropertyKey, never>
