@@ -264,7 +264,7 @@ export default function RecommendationEngine() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value="plumbing">Plumbing</SelectItem>
                   <SelectItem value="electrical">Electrical</SelectItem>
                   <SelectItem value="cleaning">Cleaning</SelectItem>
@@ -283,7 +283,7 @@ export default function RecommendationEngine() {
                   <SelectValue placeholder="Select budget" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any Budget</SelectItem>
+                  <SelectItem value="all">Any Budget</SelectItem>
                   <SelectItem value="0-5000">₦0 - ₦5,000</SelectItem>
                   <SelectItem value="5000-15000">₦5,000 - ₦15,000</SelectItem>
                   <SelectItem value="15000-50000">₦15,000 - ₦50,000</SelectItem>

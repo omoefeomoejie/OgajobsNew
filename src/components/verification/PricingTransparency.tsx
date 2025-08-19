@@ -123,7 +123,7 @@ export const PricingTransparency = () => {
                   <SelectValue placeholder="All categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {serviceCategories.map(category => (
                     <SelectItem key={category.slug} value={category.slug}>
                       {category.name}
