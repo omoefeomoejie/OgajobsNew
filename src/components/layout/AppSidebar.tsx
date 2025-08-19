@@ -112,7 +112,12 @@ export function AppSidebar() {
         {/* Logo Section */}
         <div className="p-4 border-b">
           <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src={ogaJobsLogo} alt="OgaJobs" className="w-12 h-12 object-contain" />
+            <img 
+              src="/lovable-uploads/6ebf328d-8a3c-40db-9fb5-06ab2a52fc20.png" 
+              alt="OgaJobs" 
+              className="w-12 h-12 object-contain"
+              style={{ background: 'transparent' }}
+            />
             {state !== "collapsed" && (
               <div>
                 <h2 className="font-bold text-xl">OgaJobs</h2>
