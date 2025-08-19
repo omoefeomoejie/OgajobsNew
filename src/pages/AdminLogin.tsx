@@ -144,7 +144,14 @@ export default function AdminLogin() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center space-y-2">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate('/admin/users')}
+              >
+                Admin User Management
+              </Button>
               <Button
                 variant="link"
                 className="text-sm text-muted-foreground"
