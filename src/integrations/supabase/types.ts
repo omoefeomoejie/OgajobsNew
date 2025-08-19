@@ -3639,6 +3639,16 @@ export type Database = {
           phone: string
         }[]
       }
+      get_artisan_performance_secure: {
+        Args: { p_artisan_id?: string }
+        Returns: {
+          artisan_id: string
+          avg_rating: number
+          completion_rate: number
+          response_time_hours: number
+          total_jobs: number
+        }[]
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -3646,6 +3656,15 @@ export type Database = {
       get_security_headers: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_service_category_stats_secure: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avg_rating: number
+          category: string
+          total_artisans: number
+          total_jobs: number
+        }[]
       }
       get_user_role: {
         Args: { user_id: string }
