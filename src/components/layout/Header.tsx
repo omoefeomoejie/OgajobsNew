@@ -100,7 +100,7 @@ export const Header = () => {
                   <User className="w-4 h-4" />
                   <span className="capitalize">{profile?.role || 'User'}</span>
                 </div>
-                {profile?.role === 'admin' && (
+                {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                   <Button variant="ghost" asChild>
                     <Link to="/admin-dashboard">Admin</Link>
                   </Button>
@@ -184,7 +184,7 @@ export const Header = () => {
                       <User className="w-4 h-4" />
                       <span className="capitalize">{profile?.role || 'User'}</span>
                     </div>
-                    {profile?.role === 'admin' && (
+                    {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                       <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
                         <Link to="/admin-dashboard">Admin</Link>
                       </Button>
