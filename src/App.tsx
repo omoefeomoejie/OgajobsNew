@@ -41,6 +41,7 @@ import HelpCenter from "./pages/HelpCenter";
 import SafetyGuidelines from "./pages/SafetyGuidelines";
 import POSPartnership from "./pages/POSPartnership";
 import CompetitiveAdvantages from "./pages/CompetitiveAdvantages";
+import Calendar from "./pages/Calendar";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,7 @@ const App = () => (
               <Route path="/pos-partnership" element={<POSPartnership />} />
               <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
               <Route path="/dispute-resolution" element={<Disputes />} />
+              <Route path="/calendar" element={<Calendar />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
