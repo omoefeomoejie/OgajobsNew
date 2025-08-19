@@ -45,13 +45,16 @@ export class PaymentErrorBoundary extends Component<Props, State> {
       timestamp: new Date().toISOString()
     });
 
-    // Send to monitoring service if available
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'exception', {
-        description: `Payment Error: ${error.message}`,
-        fatal: false,
-        custom_map: { error_id: this.state.errorId }
-      });
+    // Send to monitoring service if available (with proper typing)
+    if (typeof window !== 'undefined') {
+      const gtag = (window as any).gtag;
+      if (typeof gtag === 'function') {
+        gtag('event', 'exception', {
+          description: `Payment Error: ${error.message}`,
+          fatal: false,
+          custom_map: { error_id: this.state.errorId }
+        });
+      }
     }
   }
 
