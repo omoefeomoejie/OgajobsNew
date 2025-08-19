@@ -15,21 +15,16 @@ import {
 } from 'lucide-react';
 
 export function MobileBottomNav() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const { isMobile } = useMobile();
   const location = useLocation();
 
-  if (!isMobile) return null;
+  if (!isMobile || !user) return null;
 
   const getNavigationItems = () => {
-    const commonItems = [
-      { title: 'Home', url: '/dashboard', icon: Home },
-      { title: 'Messages', url: '/messages', icon: MessageSquare },
-    ];
-
     if (profile?.role === 'client') {
       return [
-        ...commonItems,
+        { title: 'Home', url: '/dashboard', icon: Home },
         { title: 'Find', url: '/services', icon: Search },
         { title: 'Bookings', url: '/bookings', icon: Calendar },
         { title: 'Profile', url: '/profile', icon: User },
@@ -38,18 +33,27 @@ export function MobileBottomNav() {
 
     if (profile?.role === 'artisan') {
       return [
-        ...commonItems,
+        { title: 'Home', url: '/dashboard', icon: Home },
         { title: 'Jobs', url: '/jobs', icon: Briefcase },
+        { title: 'Messages', url: '/messages', icon: MessageSquare },
         { title: 'Verify', url: '/verification', icon: Shield },
         { title: 'Profile', url: '/profile', icon: User },
       ];
     }
 
-    // Admin items
+    if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+      return [
+        { title: 'Home', url: '/dashboard', icon: Home },
+        { title: 'Messages', url: '/messages', icon: MessageSquare },
+        { title: 'Settings', url: '/settings', icon: Settings },
+        { title: 'Admin', url: '/admin-dashboard', icon: Shield },
+      ];
+    }
+
+    // Default for authenticated users without specific role
     return [
-      ...commonItems,
-      { title: 'Settings', url: '/settings', icon: Settings },
-      { title: 'Admin', url: '/ojssytem-admin', icon: User },
+      { title: 'Home', url: '/dashboard', icon: Home },
+      { title: 'Profile', url: '/profile', icon: User },
     ];
   };
 
