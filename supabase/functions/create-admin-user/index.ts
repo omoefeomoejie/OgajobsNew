@@ -20,14 +20,8 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'No authorization header' }),
-        { status: 401, headers: corsHeaders }
-      );
-    }
-
-    // Create Supabase client for admin operations
+    
+    // Create Supabase clients
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -39,7 +33,6 @@ serve(async (req) => {
       }
     );
 
-    // Create regular Supabase client for validation
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -51,41 +44,98 @@ serve(async (req) => {
       }
     );
 
-    // Set auth header for regular client
-    supabase.auth.setSession({
-      access_token: authHeader.replace('Bearer ', ''),
-      refresh_token: '',
-    } as any);
-
     const { email, password, fullName, role = 'admin' }: CreateAdminRequest = await req.json();
 
     console.log('Creating admin user:', { email, role, fullName });
 
-    // Validate the request using our database function
-    const { data: validationResult, error: validationError } = await supabase.rpc(
-      'create_admin_user',
-      {
-        p_email: email,
-        p_password: password,
-        p_full_name: fullName,
-        p_role: role
-      }
-    );
+    // Check if this is the first admin user (no existing admins)
+    const { data: existingAdmins, error: adminCountError } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('role', 'admin')
+      .limit(1);
 
-    if (validationError) {
-      console.error('Validation error:', validationError);
+    if (adminCountError) {
+      console.error('Error checking existing admins:', adminCountError);
       return new Response(
-        JSON.stringify({ error: 'Validation failed: ' + validationError.message }),
-        { status: 400, headers: corsHeaders }
+        JSON.stringify({ error: 'Database error while checking admin status' }),
+        { status: 500, headers: corsHeaders }
       );
     }
 
-    if (!validationResult.success) {
-      console.error('Validation failed:', validationResult.error);
-      return new Response(
-        JSON.stringify({ error: validationResult.error }),
-        { status: 400, headers: corsHeaders }
+    const isFirstAdmin = !existingAdmins || existingAdmins.length === 0;
+    console.log('Is first admin:', isFirstAdmin);
+
+    // If not the first admin, require authentication
+    if (!isFirstAdmin) {
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ error: 'Authentication required to create additional admin users' }),
+          { status: 401, headers: corsHeaders }
+        );
+      }
+
+      // Set auth header for validation
+      supabase.auth.setSession({
+        access_token: authHeader.replace('Bearer ', ''),
+        refresh_token: '',
+      } as any);
+
+      // Validate the request using our database function
+      const { data: validationResult, error: validationError } = await supabase.rpc(
+        'create_admin_user',
+        {
+          p_email: email,
+          p_password: password,
+          p_full_name: fullName,
+          p_role: role
+        }
       );
+
+      if (validationError) {
+        console.error('Validation error:', validationError);
+        return new Response(
+          JSON.stringify({ error: 'Validation failed: ' + validationError.message }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      if (!validationResult.success) {
+        console.error('Validation failed:', validationResult.error);
+        return new Response(
+          JSON.stringify({ error: validationResult.error }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+    } else {
+      // For first admin, do basic validation
+      if (!email || !password) {
+        return new Response(
+          JSON.stringify({ error: 'Email and password are required' }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      if (password.length < 8) {
+        return new Response(
+          JSON.stringify({ error: 'Password must be at least 8 characters' }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      // Check if email already exists
+      const { data: existingUser } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
+
+      if (existingUser) {
+        return new Response(
+          JSON.stringify({ error: 'Email already exists' }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
     }
 
     // Create the user with Supabase Admin API

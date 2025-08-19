@@ -76,14 +76,26 @@ export function CreateAdminDialog({ open, onOpenChange, onSuccess }: CreateAdmin
     setIsSubmitting(true);
     
     try {
-      const { data: result, error } = await supabase.functions.invoke('create-admin-user', {
+      // Check if user is authenticated to decide whether to send auth header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const options: any = {
         body: {
           email: data.email,
           password: data.password,
           fullName: data.fullName || null,
           role: data.role,
         },
-      });
+      };
+
+      // Only add auth header if user is authenticated
+      if (session?.access_token) {
+        options.headers = {
+          Authorization: `Bearer ${session.access_token}`,
+        };
+      }
+
+      const { data: result, error } = await supabase.functions.invoke('create-admin-user', options);
 
       if (error) {
         console.error('Edge function error:', error);

@@ -6,9 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, Eye, EyeOff } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Shield, Eye, EyeOff, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/layout/PageWrapper';
+import { CreateAdminDialog } from '@/components/admin/CreateAdminDialog';
 import ogaJobsLogo from '@/assets/ogajobs-logo.png';
 
 export default function AdminLogin() {
@@ -17,6 +19,7 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [createAdminOpen, setCreateAdminOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -67,7 +70,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <PageWrapper title="Admin Login" showBackButton={true} showHomeButton={true}>
+    <PageWrapper title="Admin Access" showBackButton={true} showHomeButton={true}>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center space-y-4">
@@ -86,72 +89,98 @@ export default function AdminLogin() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSignIn} className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Admin Login</TabsTrigger>
+                <TabsTrigger value="create">Create Admin</TabsTrigger>
+              </TabsList>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Admin Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@ogajobs.com.ng"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
+              <TabsContent value="login" className="space-y-4">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter admin password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Admin Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="admin@ogajobs.com.ng"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter admin password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={loading}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                        disabled={loading}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
                     disabled={loading}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {loading ? 'Verifying...' : 'Access Admin Panel'}
                   </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="create" className="space-y-4">
+                <div className="text-center space-y-4">
+                  <div className="p-6 bg-muted rounded-lg">
+                    <UserPlus className="h-12 w-12 mx-auto mb-4 text-primary" />
+                    <h3 className="text-lg font-semibold mb-2">Create New Admin User</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Create a new administrator account with immediate access.
+                    </p>
+                    <Button 
+                      onClick={() => setCreateAdminOpen(true)}
+                      className="w-full"
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Create Admin User
+                    </Button>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground">
+                    <p>Note: Admin creation doesn't require authentication.</p>
+                    <p>Use this to create your first admin user or add new administrators.</p>
+                  </div>
                 </div>
-              </div>
+              </TabsContent>
+            </Tabs>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={loading}
-              >
-                {loading ? 'Verifying...' : 'Access Admin Panel'}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center space-y-2">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => navigate('/admin/users')}
-              >
-                Admin User Management
-              </Button>
+            <div className="mt-6 text-center">
               <Button
                 variant="link"
                 className="text-sm text-muted-foreground"
@@ -162,6 +191,18 @@ export default function AdminLogin() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Create Admin Dialog */}
+        <CreateAdminDialog
+          open={createAdminOpen}
+          onOpenChange={setCreateAdminOpen}
+          onSuccess={() => {
+            toast({
+              title: "Success",
+              description: "Admin user created successfully. You can now log in.",
+            });
+          }}
+        />
       </div>
     </PageWrapper>
   );
