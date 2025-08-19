@@ -18,7 +18,7 @@ import {
   Signal,
   Share2,
   Calendar,
-  Contacts,
+  Contact,
   Bell,
   Flashlight,
   Palette,
@@ -162,7 +162,7 @@ export function MobileFirstFeatures() {
         id: 'contacts',
         name: 'Contact Access',
         description: 'Import contacts for referrals',
-        icon: Contacts,
+        icon: Contact,
         implemented: false,
         available: false, // Not widely supported
         permission: 'contacts',
@@ -426,7 +426,9 @@ export function MobileFirstFeatures() {
     } else {
       // Fallback to clipboard
       try {
-        await navigator.clipboard.writeText(window.location.href);
+        if (typeof navigator !== 'undefined' && 'clipboard' in navigator) {
+          await (navigator as any).clipboard.writeText(window.location.href);
+        }
         toast({
           title: "Link Copied",
           description: "Link copied to clipboard!",

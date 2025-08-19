@@ -203,30 +203,16 @@ export function AIRecommendationEngine() {
       if (!user) return;
 
       try {
-      try {
-        // Mock user preferences for now - would use a proper table
-        const mockPreferences = {
-          preferences: {
-            preferredCategories: [],
-            preferredLocations: [],
-            budgetRange: { min: 5000, max: 50000 },
-            preferredTimes: ['morning', 'afternoon'],
-            communicationStyle: 'flexible',
-            qualityVsPrice: 'balanced'
-          }
+        // Set default preferences
+        const defaultPrefs: UserPreferences = {
+          preferredCategories: [],
+          preferredLocations: [],
+          budgetRange: { min: 5000, max: 50000 },
+          preferredTimes: ['morning', 'afternoon'],
+          communicationStyle: 'flexible',
+          qualityVsPrice: 'balanced'
         };
-        setUserPreferences(mockPreferences.preferences);
-          // Set default preferences
-          const defaultPrefs: UserPreferences = {
-            preferredCategories: [],
-            preferredLocations: [],
-            budgetRange: { min: 5000, max: 50000 },
-            preferredTimes: ['morning', 'afternoon'],
-            communicationStyle: 'flexible',
-            qualityVsPrice: 'balanced'
-          };
-          setUserPreferences(defaultPrefs);
-        }
+        setUserPreferences(defaultPrefs);
       } catch (error) {
         console.error('Error loading preferences:', error);
       }

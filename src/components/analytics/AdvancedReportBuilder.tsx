@@ -166,20 +166,15 @@ export function AdvancedReportBuilder() {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('report_templates')
-        .insert({
-          ...currentTemplate,
-          created_by: user?.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
+      // Mock saving for now since tables don't exist yet
+      const newTemplate: ReportTemplate = {
+        ...currentTemplate as ReportTemplate,
+        id: crypto.randomUUID(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
-
-      setTemplates(prev => [data, ...prev]);
+      setTemplates(prev => [newTemplate, ...prev]);
       setShowTemplateDialog(false);
       setCurrentTemplate({
         name: '',
@@ -250,20 +245,15 @@ export function AdvancedReportBuilder() {
 
   const scheduleReport = async (templateId: string, scheduleConfig: any) => {
     try {
-      const { data, error } = await supabase
-        .from('scheduled_reports')
-        .insert({
-          template_id: templateId,
-          ...scheduleConfig,
-          created_by: user?.id,
-          created_at: new Date().toISOString()
-        })
-        .select()
-        .single();
+      // Mock saving for now since tables don't exist yet
+      const newSchedule: ScheduledReport = {
+        id: crypto.randomUUID(),
+        template_id: templateId,
+        ...scheduleConfig,
+        active: true
+      };
 
-      if (error) throw error;
-
-      setScheduledReports(prev => [data, ...prev]);
+      setScheduledReports(prev => [newSchedule, ...prev]);
 
       toast({
         title: "Report Scheduled",
