@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import { serviceCategories } from '@/data/serviceCategories';
 export const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Lagos');
+  const navigate = useNavigate();
 
   const popularServices = [
     'Plumbing', 'Electrical', 'House Cleaning', 'AC Repair', 
@@ -89,11 +90,15 @@ export const HeroSection = () => {
                   placeholder="What service do you need? (e.g., plumbing, electrical, cleaning)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-12 text-base border-2 border-muted focus:border-primary"
+                  className="pl-12 h-12 text-base border-2 border-muted focus:border-primary text-foreground bg-background"
                 />
               </div>
 
-              <Button size="lg" className="px-8 h-12 bg-primary hover:bg-primary-dark" onClick={() => window.location.href = '/all-services'}>
+              <Button 
+                size="lg" 
+                className="px-8 h-12 bg-primary hover:bg-primary-dark text-primary-foreground" 
+                onClick={() => navigate(`/all-services?search=${encodeURIComponent(searchQuery)}&city=${encodeURIComponent(selectedCity)}`)}
+              >
                 <Search className="w-5 h-5 mr-2" />
                 Find Artisans
               </Button>
@@ -108,7 +113,7 @@ export const HeroSection = () => {
                     key={service}
                     variant="outline"
                     size="sm"
-                    className="rounded-full text-xs"
+                    className="rounded-full text-xs bg-background text-foreground border-border hover:bg-accent hover:text-accent-foreground"
                     onClick={() => setSearchQuery(service)}
                   >
                     {service}

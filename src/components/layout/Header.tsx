@@ -100,6 +100,11 @@ export const Header = () => {
                   <User className="w-4 h-4" />
                   <span className="capitalize">{profile?.role || 'User'}</span>
                 </div>
+                {profile?.role === 'admin' && (
+                  <Button variant="ghost" asChild>
+                    <Link to="/admin-dashboard">Admin</Link>
+                  </Button>
+                )}
                 <Button variant="outline" onClick={signOut}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
@@ -171,10 +176,7 @@ export const Header = () => {
               <div className="flex flex-col gap-3 mt-4">
                 {user ? (
                   <>
-                    <div className="flex items-center justify-between">
-                      <span>Notifications</span>
-                      <NotificationCenter />
-                    </div>
+                    <NotificationCenter />
                     <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
                       <Link to="/dashboard">Dashboard</Link>
                     </Button>
@@ -182,6 +184,11 @@ export const Header = () => {
                       <User className="w-4 h-4" />
                       <span className="capitalize">{profile?.role || 'User'}</span>
                     </div>
+                    {profile?.role === 'admin' && (
+                      <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/admin-dashboard">Admin</Link>
+                      </Button>
+                    )}
                     <Button variant="outline" onClick={() => { signOut(); setIsMenuOpen(false); }}>
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out

@@ -13,6 +13,9 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
 import ServiceDirectory from "./pages/ServiceDirectory";
 import BookingRequest from "./pages/BookingRequest";
 import MyBookings from "./pages/MyBookings";
@@ -90,6 +93,9 @@ const App = () => (
               <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
               <Route path="/dispute-resolution" element={<Disputes />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/cookie-policy" element={<CookiePolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             
