@@ -46,8 +46,8 @@ export class PaymentErrorBoundary extends Component<Props, State> {
     });
 
     // Send to monitoring service if available
-    if (window.gtag) {
-      window.gtag('event', 'exception', {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'exception', {
         description: `Payment Error: ${error.message}`,
         fatal: false,
         custom_map: { error_id: this.state.errorId }
