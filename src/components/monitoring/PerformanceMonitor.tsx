@@ -11,7 +11,7 @@ import {
   Clock, 
   Gauge, 
   Wifi, 
-  Memory, 
+  HardDrive, 
   AlertTriangle,
   CheckCircle,
   XCircle,
@@ -153,39 +153,37 @@ export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }
             </div>
           </div>
 
-          {metrics.memoryUsage && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
-              <div className="space-y-1">
-                <div className="flex items-center gap-1 text-sm">
-                  <Memory className="w-3 h-3" />
-                  <span>Used Memory</span>
-                </div>
-                <div className="text-sm font-medium">
-                  {formatBytes(metrics.memoryUsage.usedJSHeapSize)}
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1 text-sm">
+                <Clock className="w-3 h-3" />
+                <span>Load Complete</span>
               </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-1 text-sm">
-                  <Memory className="w-3 h-3" />
-                  <span>Total Memory</span>
-                </div>
-                <div className="text-sm font-medium">
-                  {formatBytes(metrics.memoryUsage.totalJSHeapSize)}
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-1 text-sm">
-                  <Wifi className="w-3 h-3" />
-                  <span>Connection</span>
-                </div>
-                <div className="text-sm font-medium">
-                  {metrics.networkInfo?.effectiveType || 'Unknown'}
-                </div>
+              <div className="text-sm font-medium">
+                {metrics.loadComplete ? `${metrics.loadComplete.toFixed(0)}ms` : 'N/A'}
               </div>
             </div>
-          )}
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-1 text-sm">
+                <HardDrive className="w-3 h-3" />
+                <span>TTFB</span>
+              </div>
+              <div className="text-sm font-medium">
+                {metrics.ttfb ? `${metrics.ttfb.toFixed(0)}ms` : 'N/A'}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-1 text-sm">
+                <Wifi className="w-3 h-3" />
+                <span>Status</span>
+              </div>
+              <div className="text-sm font-medium">
+                Online
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

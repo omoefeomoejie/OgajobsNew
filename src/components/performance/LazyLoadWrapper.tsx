@@ -88,7 +88,7 @@ export function withLazyLoading<P extends object>(
         fallback={options?.errorFallback}
       >
         <Suspense fallback={fallback}>
-          <LazyComponent {...props} />
+          <LazyComponent {...(props as any)} />
         </Suspense>
       </ComponentErrorBoundary>
     );

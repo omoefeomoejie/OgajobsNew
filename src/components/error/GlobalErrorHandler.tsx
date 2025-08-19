@@ -174,14 +174,14 @@ export function withErrorHandler<P extends object>(
 export function useApiCall() {
   const { reportError } = useErrorHandler();
 
-  return useCallback(async <T>(
+  return useCallback(async function <T>(
     apiCall: () => Promise<T>,
     options?: {
       context?: string;
       showToast?: boolean;
       retry?: () => void;
     }
-  ): Promise<T | null> => {
+  ): Promise<T | null> {
     try {
       return await apiCall();
     } catch (error) {

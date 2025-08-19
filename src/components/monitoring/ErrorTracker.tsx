@@ -49,16 +49,16 @@ export function ErrorTracker() {
   useEffect(() => {
     const errorLog: ErrorEvent[] = [];
     
-    const handleGlobalError = (event: ErrorEvent) => {
+    const handleGlobalError = (event: Event) => {
       const errorEvent: ErrorEvent = {
         id: Date.now().toString(36),
-        message: event.message || 'Unknown error',
-        stack: event.error?.stack,
+        message: (event as any).message || 'Unknown error',
+        stack: (event as any).error?.stack,
         timestamp: new Date(),
         url: window.location.href,
         userAgent: navigator.userAgent,
         count: 1,
-        severity: getSeverity(event.message || ''),
+        severity: getSeverity((event as any).message || ''),
       };
 
       // Check if this error already exists
