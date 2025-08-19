@@ -132,6 +132,13 @@ export type Database = {
             foreignKeyName: "agent_referrals_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
+            referencedRelation: "artisans_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_referrals_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
             referencedRelation: "mv_artisan_performance"
             referencedColumns: ["artisan_id"]
           },
@@ -415,6 +422,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_reviews_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -816,6 +830,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_transactions_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -1398,6 +1419,13 @@ export type Database = {
             foreignKeyName: "job_assignments_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
+            referencedRelation: "artisans_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_assignments_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
             referencedRelation: "mv_artisan_performance"
             referencedColumns: ["artisan_id"]
           },
@@ -1713,6 +1741,13 @@ export type Database = {
             foreignKeyName: "matches_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
+            referencedRelation: "artisans_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
             referencedRelation: "mv_artisan_performance"
             referencedColumns: ["artisan_id"]
           },
@@ -1900,6 +1935,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -3408,6 +3450,22 @@ export type Database = {
         }
         Relationships: []
       }
+      artisans_public_secure: {
+        Row: {
+          average_rating: number | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          photo_url: string | null
+          profile_url: string | null
+          skill: string | null
+          suspended: boolean | null
+          total_reviews: number | null
+        }
+        Relationships: []
+      }
       mv_artisan_performance: {
         Row: {
           artisan_id: string | null
@@ -3585,6 +3643,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_security_headers: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: string
@@ -3614,6 +3676,10 @@ export type Database = {
         }
         Returns: string
       }
+      mask_sensitive_data: {
+        Args: { input_text: string; mask_type?: string }
+        Returns: string
+      }
       notify_artisan_policy_update: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -3631,6 +3697,10 @@ export type Database = {
         Returns: Json
       }
       refresh_performance_views: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      refresh_performance_views_secure: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
@@ -3662,6 +3732,10 @@ export type Database = {
           error_message: string
           is_valid: boolean
         }[]
+      }
+      verify_admin_access: {
+        Args: { required_action?: string }
+        Returns: boolean
       }
     }
     Enums: {
