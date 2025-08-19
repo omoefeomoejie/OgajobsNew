@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { GlobalErrorHandler } from "@/components/error/GlobalErrorHandler";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import Index from "./pages/Index";
@@ -41,9 +42,10 @@ import CompetitiveAdvantages from "./pages/CompetitiveAdvantages";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+  <GlobalErrorHandler>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -100,6 +102,7 @@ const App = () => (
       </AuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>
+  </GlobalErrorHandler>
 );
 
 export default App;
