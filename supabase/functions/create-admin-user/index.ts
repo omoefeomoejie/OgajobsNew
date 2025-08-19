@@ -75,36 +75,29 @@ serve(async (req) => {
         );
       }
 
-      // Set auth header for validation
-      supabase.auth.setSession({
-        access_token: authHeader.replace('Bearer ', ''),
-        refresh_token: '',
-      } as any);
-
-      // Validate the request using our database function
-      const { data: validationResult, error: validationError } = await supabase.rpc(
-        'create_admin_user',
-        {
-          p_email: email,
-          p_password: password,
-          p_full_name: fullName,
-          p_role: role
-        }
-      );
-
-      if (validationError) {
-        console.error('Validation error:', validationError);
+      // Get the user from the auth header for validation
+      const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(authHeader.replace('Bearer ', ''));
+      
+      if (authError || !user) {
+        console.error('Auth validation error:', authError);
         return new Response(
-          JSON.stringify({ error: 'Validation failed: ' + validationError.message }),
-          { status: 400, headers: corsHeaders }
+          JSON.stringify({ error: 'Invalid authentication token' }),
+          { status: 401, headers: corsHeaders }
         );
       }
 
-      if (!validationResult.success) {
-        console.error('Validation failed:', validationResult.error);
+      // Check if the authenticated user is an admin
+      const { data: profile, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profile || profile.role !== 'admin') {
+        console.error('Authorization error:', profileError);
         return new Response(
-          JSON.stringify({ error: validationResult.error }),
-          { status: 400, headers: corsHeaders }
+          JSON.stringify({ error: 'Unauthorized: Only admins can create admin users' }),
+          { status: 403, headers: corsHeaders }
         );
       }
     } else {
