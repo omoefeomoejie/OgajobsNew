@@ -47,16 +47,16 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img 
               src="/lovable-uploads/13d79441-e3cc-4b39-8c69-2739fa495b9e.png" 
               alt="OgaJobs Logo" 
-              className="w-14 h-14 object-contain"
-              style={{ background: 'transparent' }}
+              className="w-20 h-20 object-contain filter drop-shadow-lg"
+              style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
             />
             <div>
-              <h1 className="text-3xl font-bold text-foreground">OgaJobs</h1>
-              <p className="text-xs text-muted-foreground font-medium">Nigeria's Trust Infrastructure</p>
+              <h1 className="text-4xl font-black text-foreground tracking-tight">OgaJobs</h1>
+              <p className="text-sm text-muted-foreground font-semibold">Nigeria's Trust Infrastructure</p>
             </div>
           </Link>
 

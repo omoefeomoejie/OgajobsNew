@@ -111,17 +111,17 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Logo Section */}
         <div className="p-4 border-b">
-          <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <NavLink to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img 
               src="/lovable-uploads/6ebf328d-8a3c-40db-9fb5-06ab2a52fc20.png" 
               alt="OgaJobs" 
-              className="w-12 h-12 object-contain"
-              style={{ background: 'transparent' }}
+              className="w-16 h-16 object-contain filter drop-shadow-md"
+              style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
             />
             {state !== "collapsed" && (
               <div>
-                <h2 className="font-bold text-xl">OgaJobs</h2>
-                <p className="text-xs text-muted-foreground capitalize">
+                <h2 className="font-black text-2xl tracking-tight">OgaJobs</h2>
+                <p className="text-sm text-muted-foreground capitalize font-semibold">
                   {profile?.role || 'User'} Dashboard
                 </p>
               </div>
