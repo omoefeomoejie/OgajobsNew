@@ -9,7 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Users, Shield, Search, Filter, MoreHorizontal } from 'lucide-react';
+import { User, Users, Shield, Search, Filter, MoreHorizontal, Plus } from 'lucide-react';
+import { CreateAdminDialog } from '@/components/admin/CreateAdminDialog';
 import { formatDistanceToNow } from 'date-fns';
 
 interface UserProfile {
@@ -32,6 +33,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
+  const [createAdminOpen, setCreateAdminOpen] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalClients: 0,
@@ -134,11 +136,17 @@ export default function AdminUsers() {
     <AppLayout>
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">
-            Manage all users, roles, and permissions across the platform
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">User Management</h1>
+            <p className="text-muted-foreground">
+              Manage all users, roles, and permissions across the platform
+            </p>
+          </div>
+          <Button onClick={() => setCreateAdminOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Admin
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -297,6 +305,13 @@ export default function AdminUsers() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Create Admin Dialog */}
+        <CreateAdminDialog
+          open={createAdminOpen}
+          onOpenChange={setCreateAdminOpen}
+          onSuccess={fetchUsers}
+        />
       </div>
     </AppLayout>
   );

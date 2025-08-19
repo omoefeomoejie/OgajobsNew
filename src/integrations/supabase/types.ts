@@ -3591,6 +3591,15 @@ export type Database = {
         Args: { booking_id_param: string; completed_by_param: string }
         Returns: Json
       }
+      create_admin_user: {
+        Args: {
+          p_email: string
+          p_full_name?: string
+          p_password: string
+          p_role?: string
+        }
+        Returns: Json
+      }
       delete_user: {
         Args: { uid: string }
         Returns: undefined

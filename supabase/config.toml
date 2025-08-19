@@ -74,3 +74,6 @@ verify_jwt = true
 
 [functions.process-withdrawal]
 verify_jwt = true
+
+[functions.create-admin-user]
+verify_jwt = true
