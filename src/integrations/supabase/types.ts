@@ -2527,6 +2527,7 @@ export type Database = {
           role: string | null
           skills_verified: boolean | null
           trust_score: number | null
+          updated_at: string | null
           verification_level: string | null
         }
         Insert: {
@@ -2537,6 +2538,7 @@ export type Database = {
           role?: string | null
           skills_verified?: boolean | null
           trust_score?: number | null
+          updated_at?: string | null
           verification_level?: string | null
         }
         Update: {
@@ -2547,6 +2549,7 @@ export type Database = {
           role?: string | null
           skills_verified?: boolean | null
           trust_score?: number | null
+          updated_at?: string | null
           verification_level?: string | null
         }
         Relationships: []
