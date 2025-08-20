@@ -1,0 +1,68 @@
+{
+  "hero": {
+    "title": "Book Awọn Oṣiṣẹ Ti A Gbẹkẹle",
+    "subtitle": "Laarin Iṣẹju Die",
+    "description": "So Pọ Pẹlu Awọn Alamọdaju Ti A Jẹri Fun Gbogbo Iṣẹ Rẹ",
+    "searchPlaceholder": "Iru Iṣẹ Wo Ni O Nilo?",
+    "searchButton": "Wa Oṣiṣẹ",
+    "trustStats": {
+      "artisans": "Awọn Oṣiṣẹ Ti A Jẹri",
+      "bookings": "Awọn Iṣẹ Ti A Pari",
+      "rating": "Iwọn Apapọ"
+    }
+  },
+  "howItWorks": {
+    "title": "Bi O Ṣe N Ṣiṣẹ",
+    "subtitle": "Pari Iṣẹ Rẹ Ni Igbesẹ Mẹta Rọrun",
+    "steps": {
+      "search": {
+        "title": "Wa & Fiwera",
+        "description": "Wa Awọn Oṣiṣẹ Ti A Jẹri Ni Agbegbe Rẹ Ki O Si Fiwera Iwọn, Owo & Awọn Igbelewọn"
+      },
+      "book": {
+        "title": "Book & Sanwo Lailewu",
+        "description": "Yan Oṣiṣẹ Ti O Fẹ Ki O Si Sanwo Lailewu Nipasẹ Eto Wa"
+      },
+      "enjoy": {
+        "title": "Gba Iṣẹ Didara",
+        "description": "Sinmi Lakoko Ti Oṣiṣẹ Rẹ N Ṣe Iṣẹ To Dara Pẹlu Ileri Wa"
+      }
+    }
+  },
+  "services": {
+    "title": "Awọn Iṣẹ Olokiki",
+    "subtitle": "Wa Iṣẹ Ti O Nilo",
+    "categories": {
+      "homeServices": "Awọn Iṣẹ Ile",
+      "construction": "Ikole & Atunkọ",
+      "personalServices": "Awọn Iṣẹ Eniyan",
+      "automotive": "Awọn Iṣẹ Ọkọ",
+      "technology": "Imọ-ẹrọ & Atunkọ",
+      "eventServices": "Awọn Iṣẹ Iṣẹlẹ",
+      "healthWellness": "Ilera & Alafia",
+      "businessServices": "Awọn Iṣẹ Iṣowo"
+    }
+  },
+  "trust": {
+    "title": "Kilode Ti O Fi Yẹ Ki O Yan OgaJobs?",
+    "subtitle": "A O Mu Inudidun Rẹ Ṣẹ",
+    "features": {
+      "verified": {
+        "title": "Awọn Oṣiṣẹ Ti A Jẹri",
+        "description": "Gbogbo Alamọdaju Ni A Ti Ṣayẹwo Itan Wọn & Ogbon Wọn"
+      },
+      "secure": {
+        "title": "Sisanwo Ailewu",
+        "description": "Owo Rẹ Wa Ni Aabo Pẹlu Eto Sisanwo Wa"
+      },
+      "support": {
+        "title": "Atilẹyin 24/7",
+        "description": "Gba Iranlọwọ Nigbakugba Pẹlu Ẹgbẹ Atilẹyin Alabara Wa"
+      },
+      "guarantee": {
+        "title": "Ileri Iṣẹ",
+        "description": "Ko Ni Inudidun? Gba Owo Rẹ Pada Tabi Iṣẹ Atunkọ Lọfẹ"
+      }
+    }
+  }
+}

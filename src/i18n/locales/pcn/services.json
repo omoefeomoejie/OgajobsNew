@@ -1,0 +1,112 @@
+{
+  "categories": {
+    "homeServices": {
+      "name": "House Work",
+      "description": "Professional House Work & Improvement",
+      "subcategories": {
+        "cleaning": "House Cleaning",
+        "plumbing": "Plumbing Work",
+        "electrical": "Light Work",
+        "painting": "Painting & Decoration",
+        "carpentry": "Carpentry",
+        "gardening": "Garden Work",
+        "airConditioning": "AC & Machine Repair",
+        "security": "House Security"
+      }
+    },
+    "construction": {
+      "name": "Building & Renovation",
+      "description": "Building Work & Construction",
+      "subcategories": {
+        "generalConstruction": "General Building",
+        "roofing": "Roof Work",
+        "flooring": "Floor Work",
+        "plasteringTiling": "Plastering & Tiles",
+        "welding": "Welding Work",
+        "interiorDesign": "House Design",
+        "realEstate": "Real Estate"
+      }
+    },
+    "personalServices": {
+      "name": "Personal Services",
+      "description": "Personal Care Services",
+      "subcategories": {
+        "beautyServices": "Beauty & Salon",
+        "tailoring": "Sewing & Fashion",
+        "laundryServices": "Washing & Dry Clean",
+        "personalTraining": "Body Training",
+        "tutoring": "Teaching & Lesson",
+        "childcare": "Childcare",
+        "petCare": "Pet Care"
+      }
+    },
+    "automotive": {
+      "name": "Car Work",
+      "description": "Car Repair & Maintenance",
+      "subcategories": {
+        "carRepair": "Car Repair",
+        "carWash": "Car Wash",
+        "tyreBattery": "Tyre & Battery",
+        "panelBeating": "Panel Beating",
+        "autoElectrical": "Car Electrical",
+        "motorcycleRepair": "Okada Repair"
+      }
+    },
+    "technology": {
+      "name": "Technology & Repair",
+      "description": "Tech Support & Electronic Repair",
+      "subcategories": {
+        "phoneRepair": "Phone & Tablet Repair",
+        "computerRepair": "Computer Repair",
+        "webDevelopment": "Website Building",
+        "graphicDesign": "Graphic Design",
+        "dataRecovery": "Data Recovery",
+        "networkSetup": "Network Setup"
+      }
+    },
+    "eventServices": {
+      "name": "Event Services",
+      "description": "Event Planning & Services",
+      "subcategories": {
+        "eventPlanning": "Event Planning",
+        "catering": "Food Service",
+        "photography": "Photo & Video",
+        "djServices": "DJ & Entertainment",
+        "decoration": "Event Decoration",
+        "masterCeremony": "Master of Ceremony"
+      }
+    },
+    "healthWellness": {
+      "name": "Health & Wellness",
+      "description": "Health & Body Wellness",
+      "subcategories": {
+        "massage": "Massage",
+        "physiotherapy": "Physiotherapy",
+        "nursing": "Home Nursing",
+        "fitness": "Fitness Training",
+        "nutrition": "Food Advice",
+        "mentalHealth": "Mind Health Support"
+      }
+    },
+    "businessServices": {
+      "name": "Business Services",
+      "description": "Business & Office Work",
+      "subcategories": {
+        "accounting": "Accounting",
+        "legalServices": "Legal Services",
+        "consultancy": "Business Advice",
+        "contentWriting": "Content Writing",
+        "translation": "Translation",
+        "virtualAssistant": "Virtual Assistant"
+      }
+    }
+  },
+  "pricing": {
+    "from": "From",
+    "per": "per",
+    "hour": "hour",
+    "service": "work",
+    "project": "project",
+    "day": "day"
+  }
+}

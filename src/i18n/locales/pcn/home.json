@@ -1,0 +1,68 @@
+{
+  "hero": {
+    "title": "Book Person Wey Sabi Work",
+    "subtitle": "For Few Minutes",
+    "description": "Connect With Confirmed Professionals For All Your Work",
+    "searchPlaceholder": "Wetin You Need?",
+    "searchButton": "Find Artisan",
+    "trustStats": {
+      "artisans": "Confirmed Artisans",
+      "bookings": "Finish Work",
+      "rating": "Average Rating"
+    }
+  },
+  "howItWorks": {
+    "title": "How E Dey Work",
+    "subtitle": "Finish Your Work With 3 Simple Steps",
+    "steps": {
+      "search": {
+        "title": "Search & Compare",
+        "description": "Look For Confirmed Artisans For Your Area, Compare Rating, Price & Reviews"
+      },
+      "book": {
+        "title": "Book & Pay Safe",
+        "description": "Choose Your Artisan & Pay Safe Through Our System"
+      },
+      "enjoy": {
+        "title": "Get Quality Work",
+        "description": "Relax While Your Artisan Do Good Work With Our Guarantee"
+      }
+    }
+  },
+  "services": {
+    "title": "Popular Services",
+    "subtitle": "Find The Work You Need",
+    "categories": {
+      "homeServices": "House Work",
+      "construction": "Building & Renovation",
+      "personalServices": "Personal Services",
+      "automotive": "Car Work",
+      "technology": "Technology & Repair",
+      "eventServices": "Event Services",
+      "healthWellness": "Health & Wellness",
+      "businessServices": "Business Services"
+    }
+  },
+  "trust": {
+    "title": "Why Choose OgaJobs?",
+    "subtitle": "We Go Satisfy You",
+    "features": {
+      "verified": {
+        "title": "Confirmed Artisans",
+        "description": "All Professionals Don Check Their Background & Skills"
+      },
+      "secure": {
+        "title": "Safe Payment",
+        "description": "Your Money Safe With Our Payment System"
+      },
+      "support": {
+        "title": "Help 24/7",
+        "description": "Get Help Anytime With Our Customer Support"
+      },
+      "guarantee": {
+        "title": "Work Guarantee",
+        "description": "You No Satisfy? Get Your Money Back or Free Rework"
+      }
+    }
+  }
+}

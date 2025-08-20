@@ -1,0 +1,65 @@
+{
+  "navigation": {
+    "findServices": "Chọọ Ọrụ",
+    "becomeArtisan": "Ghọọ Onye Ọrụ",
+    "howItWorks": "Otú Ọ Na-arụ Ọrụ",
+    "dashboard": "Dashboard M",
+    "profile": "Profile M",
+    "settings": "Ntọala",
+    "signOut": "Pụọ",
+    "login": "Banye",
+    "getStarted": "Malite Ugbu A"
+  },
+  "buttons": {
+    "submit": "Ziga",
+    "cancel": "Kagbuo",
+    "save": "Chekwaa",
+    "edit": "Dezie",
+    "delete": "Hichapụ",
+    "back": "Laghachi Azụ",
+    "next": "Osote",
+    "previous": "Nke Gara Aga",
+    "confirm": "Kwenye",
+    "close": "Mechie",
+    "viewAll": "Lee Ha Niile",
+    "learnMore": "Mụtakwuo",
+    "bookNow": "Debe Ugbu A",
+    "contactUs": "Kpọtụrụ Anyị"
+  },
+  "forms": {
+    "email": "Email",
+    "password": "Okwuntughe",
+    "fullName": "Aha Zuru Oke",
+    "phoneNumber": "Nọmba Ekwentị",
+    "location": "Ebe I Nọ",
+    "description": "Nkọwa",
+    "required": "Mkpa",
+    "optional": "Ọ Dịghị Mkpa"
+  },
+  "status": {
+    "loading": "Na-ebu...",
+    "error": "Ihe Mere",
+    "success": "Ihe Mere Nke Ọma!",
+    "noResults": "Enweghị Nsonaazụ",
+    "tryAgain": "Nwaa Ọzọ"
+  },
+  "trust": {
+    "verified": "Ekwenyere",
+    "trusted": "Ntụkwasị Obi",
+    "secure": "Nchekwa",
+    "guaranteed": "Anyị Na-ekwenye",
+    "support247": "Nkwado 24/7",
+    "moneyBack": "Ego Laghachi Nkwa",
+    "verifiedArtisans": "Ndị Ọrụ A Kwenyere",
+    "securePayments": "Ịkwụ Ụgwọ Nchekwa",
+    "customerSupport": "Nkwado Ndị Ahịa"
+  },
+  "footer": {
+    "aboutUs": "Maka Anyị",
+    "contactInfo": "Ozi Kọntaktị",
+    "privacyPolicy": "Usoro Nzuzo",
+    "termsOfService": "Usoro Ọrụ",
+    "followUs": "Soro Anyị",
+    "allRightsReserved": "Ikike niile echekwara"
+  }
+}

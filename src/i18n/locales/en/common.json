@@ -1,0 +1,65 @@
+{
+  "navigation": {
+    "findServices": "Find Services",
+    "becomeArtisan": "Become an Artisan",
+    "howItWorks": "How It Works",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "login": "Login",
+    "getStarted": "Get Started"
+  },
+  "buttons": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "close": "Close",
+    "viewAll": "View All",
+    "learnMore": "Learn More",
+    "bookNow": "Book Now",
+    "contactUs": "Contact Us"
+  },
+  "forms": {
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "location": "Location",
+    "description": "Description",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "status": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success!",
+    "noResults": "No results found",
+    "tryAgain": "Try Again"
+  },
+  "trust": {
+    "verified": "Verified",
+    "trusted": "Trusted",
+    "secure": "Secure",
+    "guaranteed": "Guaranteed",
+    "support247": "24/7 Support",
+    "moneyBack": "Money Back Guarantee",
+    "verifiedArtisans": "Verified Artisans",
+    "securePayments": "Secure Payments",
+    "customerSupport": "Customer Support"
+  },
+  "footer": {
+    "aboutUs": "About Us",
+    "contactInfo": "Contact Info",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "followUs": "Follow Us",
+    "allRightsReserved": "All rights reserved"
+  }
+}

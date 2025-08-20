@@ -1,0 +1,112 @@
+{
+  "categories": {
+    "homeServices": {
+      "name": "Ọrụ Ụlọ",
+      "description": "Ọrụ Nlekọta Ụlọ & Mmelite Ọkachamara",
+      "subcategories": {
+        "cleaning": "Ihicha Ụlọ",
+        "plumbing": "Ọrụ Mmiri",
+        "electrical": "Ọrụ Ọkụ",
+        "painting": "Nteaka & Ịchọ Mma",
+        "carpentry": "Ọrụ Osisi",
+        "gardening": "Ọrụ Ubi & Nhazi Ala",
+        "airConditioning": "AC & Mmezi Ngwá Ọrụ",
+        "security": "Nrụnye Nchekwa Ụlọ"
+      }
+    },
+    "construction": {
+      "name": "Iwu & Mmezi",
+      "description": "Iwu, Mmezi & Ọrụ Iwu",
+      "subcategories": {
+        "generalConstruction": "Iwu Izugbe",
+        "roofing": "Ọrụ Elu Ụlọ",
+        "flooring": "Ntinye Ala",
+        "plasteringTiling": "Ikpuchi & Taịlị",
+        "welding": "Welding & Ọrụ Ígwè",
+        "interiorDesign": "Nhazi Ime Ụlọ",
+        "realEstate": "Ọrụ Real Estate"
+      }
+    },
+    "personalServices": {
+      "name": "Ọrụ Onwe Onye",
+      "description": "Nlekọta Onwe Onye & Ọrụ Ndụ",
+      "subcategories": {
+        "beautyServices": "Ịma Mma & Ọrụ Salon",
+        "tailoring": "Ịkwa Akwa & Ejiji",
+        "laundryServices": "Ịsa Akwa & Ihicha Akwa",
+        "personalTraining": "Nkuzi Onwe Onye",
+        "tutoring": "Nkuzi & Agụmakwụkwọ",
+        "childcare": "Nlekọta Ụmụntakịrị",
+        "petCare": "Nlekọta Anụ Ụlọ"
+      }
+    },
+    "automotive": {
+      "name": "Ọrụ Ụgbọ Ala",
+      "description": "Nlekọta Ụgbọ Ala & Ọrụ Mmezi",
+      "subcategories": {
+        "carRepair": "Mmezi Ụgbọ Ala & Nlekọta",
+        "carWash": "Ịsa Ụgbọ Ala & Ihicha",
+        "tyreBattery": "Ọrụ Taya & Batrị",
+        "panelBeating": "Panel Beating",
+        "autoElectrical": "Ọkụ Ụgbọ Ala",
+        "motorcycleRepair": "Mmezi Ọgba Tum Tum"
+      }
+    },
+    "technology": {
+      "name": "Teknụzụ & Mmezi",
+      "description": "Nkwado Teknụzụ & Ọrụ Mmezi Eletrọnik",
+      "subcategories": {
+        "phoneRepair": "Mmezi Ekwentị & Taabụletị",
+        "computerRepair": "Mmezi Kọmpụta & Laptọọpụ",
+        "webDevelopment": "Mmepe Webụsaịtị",
+        "graphicDesign": "Nhazi Eserese",
+        "dataRecovery": "Nwetaghachi Data",
+        "networkSetup": "Nhazi Netwọkụ"
+      }
+    },
+    "eventServices": {
+      "name": "Ọrụ Mmemme",
+      "description": "Nhazi Mmemme Ọkachamara & Ọrụ",
+      "subcategories": {
+        "eventPlanning": "Nhazi Mmemme",
+        "catering": "Ọrụ Nri",
+        "photography": "Foto & Vidiyo",
+        "djServices": "DJ & Ntụrụndụ",
+        "decoration": "Ịchọ Mma Mmemme",
+        "masterCeremony": "Onye Ndu Emume"
+      }
+    },
+    "healthWellness": {
+      "name": "Ahụ Ike & Ọdịmma",
+      "description": "Ahụ Ike, Mgbatị Ahụ & Ọrụ Ọdịmma",
+      "subcategories": {
+        "massage": "Ịhịa Ahụ",
+        "physiotherapy": "Ọgwụgwọ Mgbatị Ahụ",
+        "nursing": "Nlekọta Ụlọ Ọgwụ",
+        "fitness": "Ọzụzụ Mgbatị Ahụ",
+        "nutrition": "Ndụmọdụ Nri",
+        "mentalHealth": "Nkwado Ahụ Ike Uche"
+      }
+    },
+    "businessServices": {
+      "name": "Ọrụ Azụmahịa",
+      "description": "Azụmahịa Ọkachamara & Ọrụ Nchịkwa",
+      "subcategories": {
+        "accounting": "Mgbakọ & Ndekọ Akwụkwọ",
+        "legalServices": "Ọrụ Iwu",
+        "consultancy": "Ndụmọdụ Azụmahịa",
+        "contentWriting": "Ide Ọdịnaya",
+        "translation": "Ntụgharị Asụsụ",
+        "virtualAssistant": "Enyemaka Dijitalụ"
+      }
+    }
+  },
+  "pricing": {
+    "from": "Site Na",
+    "per": "kwa",
+    "hour": "awa",
+    "service": "ọrụ",
+    "project": "ọrụ",
+    "day": "ụbọchị"
+  }
+}

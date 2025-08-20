@@ -1,0 +1,65 @@
+{
+  "navigation": {
+    "findServices": "Nemo Ayyuka",
+    "becomeArtisan": "Zama Maaiyen Sana'a",
+    "howItWorks": "Yadda Yake Aiki",
+    "dashboard": "Dashboard Na",
+    "profile": "Profile Na",
+    "settings": "Saitunan",
+    "signOut": "Fita",
+    "login": "Shiga",
+    "getStarted": "Fara Yanzu"
+  },
+  "buttons": {
+    "submit": "Aika",
+    "cancel": "Soke",
+    "save": "Ajiye",
+    "edit": "Shirya",
+    "delete": "Share",
+    "back": "Koma Baya",
+    "next": "Na Gaba",
+    "previous": "Na Baya",
+    "confirm": "Tabbatar",
+    "close": "Rufe",
+    "viewAll": "Duba Duka",
+    "learnMore": "Kara Koyo",
+    "bookNow": "Yi Booking Yanzu",
+    "contactUs": "Tuntube Mu"
+  },
+  "forms": {
+    "email": "Email",
+    "password": "Kalmar Sirri",
+    "fullName": "Cikakken Suna",
+    "phoneNumber": "Lambar Waya",
+    "location": "Wurin Da Kake",
+    "description": "Bayani",
+    "required": "Wajibi",
+    "optional": "Ba Wajibi Ba"
+  },
+  "status": {
+    "loading": "Ana Lodawa...",
+    "error": "Wani Abu Ya Faru",
+    "success": "Nasara!",
+    "noResults": "Babu Sakamakon",
+    "tryAgain": "Sake Gwadawa"
+  },
+  "trust": {
+    "verified": "An Tabbatar",
+    "trusted": "Amanar",
+    "secure": "Lafiya",
+    "guaranteed": "Mun Tabbatar",
+    "support247": "Taimako 24/7",
+    "moneyBack": "Mayar da Kudi Tabbatacce",
+    "verifiedArtisans": "Masu Sana'a Da Aka Tabbatar",
+    "securePayments": "Biyan Kudi Mai Lafiya",
+    "customerSupport": "Taimakon Abokin Ciniki"
+  },
+  "footer": {
+    "aboutUs": "Game Da Mu",
+    "contactInfo": "Bayanan Tuntubar",
+    "privacyPolicy": "Manufar Sirri",
+    "termsOfService": "Sharudan Hidima",
+    "followUs": "Bi Mu",
+    "allRightsReserved": "Dukan hakokin an ajiye su"
+  }
+}

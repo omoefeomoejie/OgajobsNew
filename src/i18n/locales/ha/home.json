@@ -1,0 +1,68 @@
+{
+  "hero": {
+    "title": "Yi Booking Masu Sana'a Masu Amana",
+    "subtitle": "Cikin Mintuna Kadan",
+    "description": "Hada Kai Da Kwararru Da Aka Tabbatar Don Dukan Bukatunku",
+    "searchPlaceholder": "Wane Irin Hidima Kake Bukata?",
+    "searchButton": "Nemo Mai Sana'a",
+    "trustStats": {
+      "artisans": "Masu Sana'a Da Aka Tabbatar",
+      "bookings": "Ayyukan Da Aka Kammala",
+      "rating": "Matsakaicin Daraja"
+    }
+  },
+  "howItWorks": {
+    "title": "Yadda Yake Aiki",
+    "subtitle": "Kammala Aikinka Da Matakai 3 Masu Sauki",
+    "steps": {
+      "search": {
+        "title": "Nema & Kwatanta",
+        "description": "Binciko Masu Sana'a Da Aka Tabbatar A Yankinku Kuma Ku Kwatanta Daraja, Farashi & Shawarwari"
+      },
+      "book": {
+        "title": "Yi Booking & Biya Lafiya",
+        "description": "Zabi Mai Sana'a Da Kake So Kuma Ka Biya Lafiya Ta Tsarinmu"
+      },
+      "enjoy": {
+        "title": "Samu Hidima Mai Kyau",
+        "description": "Huta Yayin Da Mai Sana'a Ya Yi Aiki Mai Kyau Da Guarantee Dinmu"
+      }
+    }
+  },
+  "services": {
+    "title": "Shahararrun Ayyuka",
+    "subtitle": "Nemo Hidimar Da Kake Bukata",
+    "categories": {
+      "homeServices": "Ayyukan Gida",
+      "construction": "Gini & Sabuntawa",
+      "personalServices": "Ayyukan Mutum",
+      "automotive": "Ayyukan Mota",
+      "technology": "Fasaha & Gyara",
+      "eventServices": "Ayyukan Taron",
+      "healthWellness": "Lafiya & Walwala",
+      "businessServices": "Ayyukan Kasuwanci"
+    }
+  },
+  "trust": {
+    "title": "Me Ya Sa Za Ka Zabi OgaJobs?",
+    "subtitle": "Gamsuwar Ka Tana Da Guarantee",
+    "features": {
+      "verified": {
+        "title": "Masu Sana'a Da Aka Tabbatar",
+        "description": "Dukan Kwararru An Bincike Tarihinsu Da Kwarewarsu"
+      },
+      "secure": {
+        "title": "Biyan Kudi Mai Lafiya",
+        "description": "Kudinka Suna Da Kariya Da Tsarin Biyan Kudinmu"
+      },
+      "support": {
+        "title": "Taimako 24/7",
+        "description": "Samu Taimako Koyaushe Da Tawagar Taimakon Abokan Ciniki"
+      },
+      "guarantee": {
+        "title": "Guarantee Hidima",
+        "description": "Ba Ka Gamsu? Karbi Kudinka Ko Sake Aiki Kyauta"
+      }
+    }
+  }
+}

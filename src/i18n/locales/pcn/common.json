@@ -1,0 +1,65 @@
+{
+  "navigation": {
+    "findServices": "Find Work",
+    "becomeArtisan": "Become Artisan",
+    "howItWorks": "How E Dey Work",
+    "dashboard": "My Dashboard",
+    "profile": "My Profile",
+    "settings": "Settings",
+    "signOut": "Comot",
+    "login": "Login",
+    "getStarted": "Start Now"
+  },
+  "buttons": {
+    "submit": "Send Am",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Go Back",
+    "next": "Next",
+    "previous": "Back",
+    "confirm": "Confirm",
+    "close": "Close",
+    "viewAll": "See All",
+    "learnMore": "Learn More",
+    "bookNow": "Book Now",
+    "contactUs": "Contact Us"
+  },
+  "forms": {
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Your Full Name",
+    "phoneNumber": "Phone Number",
+    "location": "Where You Dey",
+    "description": "Tell Us",
+    "required": "Important",
+    "optional": "No Must"
+  },
+  "status": {
+    "loading": "Dey Load...",
+    "error": "Something Wrong",
+    "success": "E Don Work!",
+    "noResults": "Nothing Dey Here",
+    "tryAgain": "Try Again"
+  },
+  "trust": {
+    "verified": "Confirmed",
+    "trusted": "Trusted",
+    "secure": "Safe",
+    "guaranteed": "We Promise",
+    "support247": "Help 24/7",
+    "moneyBack": "Money Back Sure",
+    "verifiedArtisans": "Confirmed Artisans",
+    "securePayments": "Safe Payment",
+    "customerSupport": "Customer Help"
+  },
+  "footer": {
+    "aboutUs": "About Us",
+    "contactInfo": "Contact Info",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "followUs": "Follow Us",
+    "allRightsReserved": "All rights reserved"
+  }
+}

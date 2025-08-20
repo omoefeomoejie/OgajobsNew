@@ -1,0 +1,68 @@
+{
+  "hero": {
+    "title": "Book Trusted Artisans",
+    "subtitle": "In Minutes",
+    "description": "Connect with verified professionals for all your service needs",
+    "searchPlaceholder": "What service do you need?",
+    "searchButton": "Find Artisans",
+    "trustStats": {
+      "artisans": "Verified Artisans",
+      "bookings": "Completed Bookings", 
+      "rating": "Average Rating"
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "Get your job done in 3 simple steps",
+    "steps": {
+      "search": {
+        "title": "Search & Compare",
+        "description": "Browse verified artisans in your area and compare ratings, prices, and reviews"
+      },
+      "book": {
+        "title": "Book & Pay Securely",
+        "description": "Choose your preferred artisan and make secure payments through our escrow system"
+      },
+      "enjoy": {
+        "title": "Get Quality Service",
+        "description": "Relax while your chosen artisan delivers excellent service with our guarantee"
+      }
+    }
+  },
+  "services": {
+    "title": "Popular Services",
+    "subtitle": "Find the service you need",
+    "categories": {
+      "homeServices": "Home Services",
+      "construction": "Construction & Renovation",
+      "personalServices": "Personal Services",
+      "automotive": "Automotive Services",
+      "technology": "Technology & Repair",
+      "eventServices": "Event Services",
+      "healthWellness": "Health & Wellness",
+      "businessServices": "Business Services"
+    }
+  },
+  "trust": {
+    "title": "Why Choose OgaJobs?",
+    "subtitle": "Your satisfaction is guaranteed",
+    "features": {
+      "verified": {
+        "title": "Verified Artisans",
+        "description": "All professionals are background-checked and skill-verified"
+      },
+      "secure": {
+        "title": "Secure Payments",
+        "description": "Your money is protected with our escrow payment system"
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Get help anytime with our dedicated customer support team"
+      },
+      "guarantee": {
+        "title": "Service Guarantee",
+        "description": "Not satisfied? Get your money back or free rework"
+      }
+    }
+  }
+}

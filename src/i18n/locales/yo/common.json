@@ -1,0 +1,65 @@
+{
+  "navigation": {
+    "findServices": "Wa Iṣẹ",
+    "becomeArtisan": "Di Oṣiṣẹ",
+    "howItWorks": "Bi O Ṣe N Ṣiṣẹ",
+    "dashboard": "Dashboard Mi",
+    "profile": "Profile Mi",
+    "settings": "Eto",
+    "signOut": "Jade Kuro",
+    "login": "Wọle",
+    "getStarted": "Bẹrẹ Nisiyi"
+  },
+  "buttons": {
+    "submit": "Fi Ranṣẹ",
+    "cancel": "Fagilee",
+    "save": "Fi Pamọ",
+    "edit": "Ṣatunkọ",
+    "delete": "Pa Rẹ",
+    "back": "Padà",
+    "next": "Tókàn",
+    "previous": "Tẹlẹ",
+    "confirm": "Jẹrisi",
+    "close": "Ti",
+    "viewAll": "Wo Gbogbo",
+    "learnMore": "Kọ Ẹkun",
+    "bookNow": "Book Nisiyi",
+    "contactUs": "Pe Wa"
+  },
+  "forms": {
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Orukọ Ni Kikun",
+    "phoneNumber": "Nọmba Foonu",
+    "location": "Ipo",
+    "description": "Apejuwe",
+    "required": "Pataki",
+    "optional": "Afiyan"
+  },
+  "status": {
+    "loading": "N Gbé...",
+    "error": "Nkan Kan Lọ Buru",
+    "success": "Aṣeyọri!",
+    "noResults": "Ko Si Esi",
+    "tryAgain": "Gbiyanju Lẹẹkansi"
+  },
+  "trust": {
+    "verified": "Ti Jẹri",
+    "trusted": "Ti A Gbẹkẹle",
+    "secure": "Ailewu",
+    "guaranteed": "A Ṣe Ileri",
+    "support247": "Atilẹyin 24/7",
+    "moneyBack": "Owo Pada Ileri",
+    "verifiedArtisans": "Awọn Oṣiṣẹ Ti A Jẹri",
+    "securePayments": "Sisanwo Ailewu",
+    "customerSupport": "Atilẹyin Alabara"
+  },
+  "footer": {
+    "aboutUs": "Nipa Wa",
+    "contactInfo": "Alaye Ikanni",
+    "privacyPolicy": "Eto Ikọkọ",
+    "termsOfService": "Awọn Ofin Iṣẹ",
+    "followUs": "Tẹle Wa",
+    "allRightsReserved": "Gbogbo ẹtọ ni a pa mọ"
+  }
+}

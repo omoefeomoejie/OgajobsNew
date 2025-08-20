@@ -1,0 +1,112 @@
+{
+  "categories": {
+    "homeServices": {
+      "name": "Home Services",
+      "description": "Professional home maintenance and improvement services",
+      "subcategories": {
+        "cleaning": "House Cleaning",
+        "plumbing": "Plumbing Services",
+        "electrical": "Electrical Work",
+        "painting": "Painting & Decoration",
+        "carpentry": "Carpentry",
+        "gardening": "Gardening & Landscaping",
+        "airConditioning": "AC & Appliance Repair",
+        "security": "Home Security Installation"
+      }
+    },
+    "construction": {
+      "name": "Construction & Renovation",
+      "description": "Building, renovation, and construction services",
+      "subcategories": {
+        "generalConstruction": "General Construction",
+        "roofing": "Roofing Services",
+        "flooring": "Flooring Installation",
+        "plasteringTiling": "Plastering & Tiling",
+        "welding": "Welding & Metalwork",
+        "interiorDesign": "Interior Design",
+        "realEstate": "Real Estate Services"
+      }
+    },
+    "personalServices": {
+      "name": "Personal Services",
+      "description": "Personal care and lifestyle services",
+      "subcategories": {
+        "beautyServices": "Beauty & Salon Services",
+        "tailoring": "Tailoring & Fashion Design",
+        "laundryServices": "Laundry & Dry Cleaning",
+        "personalTraining": "Personal Training",
+        "tutoring": "Tutoring & Education",
+        "childcare": "Childcare Services",
+        "petCare": "Pet Care Services"
+      }
+    },
+    "automotive": {
+      "name": "Automotive Services",
+      "description": "Vehicle maintenance and repair services",
+      "subcategories": {
+        "carRepair": "Car Repair & Servicing",
+        "carWash": "Car Wash & Detailing",
+        "tyreBattery": "Tyre & Battery Services",
+        "panelBeating": "Panel Beating",
+        "autoElectrical": "Auto Electrical",
+        "motorcycleRepair": "Motorcycle Repair"
+      }
+    },
+    "technology": {
+      "name": "Technology & Repair",
+      "description": "Tech support and electronic repair services",
+      "subcategories": {
+        "phoneRepair": "Phone & Tablet Repair",
+        "computerRepair": "Computer & Laptop Repair",
+        "webDevelopment": "Web Development",
+        "graphicDesign": "Graphic Design",
+        "dataRecovery": "Data Recovery",
+        "networkSetup": "Network Setup"
+      }
+    },
+    "eventServices": {
+      "name": "Event Services", 
+      "description": "Professional event planning and services",
+      "subcategories": {
+        "eventPlanning": "Event Planning",
+        "catering": "Catering Services",
+        "photography": "Photography & Videography",
+        "djServices": "DJ & Entertainment",
+        "decoration": "Event Decoration",
+        "masterCeremony": "Master of Ceremony"
+      }
+    },
+    "healthWellness": {
+      "name": "Health & Wellness",
+      "description": "Health, fitness, and wellness services",
+      "subcategories": {
+        "massage": "Massage Therapy",
+        "physiotherapy": "Physiotherapy",
+        "nursing": "Home Nursing Care",
+        "fitness": "Fitness Training",
+        "nutrition": "Nutrition Counseling",
+        "mentalHealth": "Mental Health Support"
+      }
+    },
+    "businessServices": {
+      "name": "Business Services",
+      "description": "Professional business and administrative services",
+      "subcategories": {
+        "accounting": "Accounting & Bookkeeping",
+        "legalServices": "Legal Services",
+        "consultancy": "Business Consultancy",
+        "contentWriting": "Content Writing",
+        "translation": "Translation Services",
+        "virtualAssistant": "Virtual Assistant"
+      }
+    }
+  },
+  "pricing": {
+    "from": "From",
+    "per": "per",
+    "hour": "hour",
+    "service": "service",
+    "project": "project",
+    "day": "day"
+  }
+}

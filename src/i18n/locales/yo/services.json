@@ -1,0 +1,112 @@
+{
+  "categories": {
+    "homeServices": {
+      "name": "Awọn Iṣẹ Ile",
+      "description": "Awọn Iṣẹ Itọju Ile Alamọdaju & Ilọsiwaju",
+      "subcategories": {
+        "cleaning": "Mimọ Ile",
+        "plumbing": "Iṣẹ Omi",
+        "electrical": "Iṣẹ Ina",
+        "painting": "Kikun & Ọṣọ",
+        "carpentry": "Iṣẹ Igi",
+        "gardening": "Iṣẹ Ọgba",
+        "airConditioning": "AC & Atunkọ Ẹrọ",
+        "security": "Fifi Aabo Ile"
+      }
+    },
+    "construction": {
+      "name": "Ikole & Atunkọ",
+      "description": "Ikole, Atunkọ & Awọn Iṣẹ Ikole",
+      "subcategories": {
+        "generalConstruction": "Ikole Gbogbogbo",
+        "roofing": "Awọn Iṣẹ Orule",
+        "flooring": "Fifi Ilẹ",
+        "plasteringTiling": "Lilikọ & Tiles",
+        "welding": "Welding & Iṣẹ Irin",
+        "interiorDesign": "Apẹrẹ Inu Ile",
+        "realEstate": "Awọn Iṣẹ Ohun-ini"
+      }
+    },
+    "personalServices": {
+      "name": "Awọn Iṣẹ Eniyan",
+      "description": "Itọju Eniyan & Awọn Iṣẹ Igbesi Aye",
+      "subcategories": {
+        "beautyServices": "Ẹwa & Awọn Iṣẹ Salon",
+        "tailoring": "Fifi Aṣọ & Aṣa Fashion",
+        "laundryServices": "Fifọ & Gbigbẹ",
+        "personalTraining": "Ikẹkọ Eniyan",
+        "tutoring": "Ikẹkọ & Eto",
+        "childcare": "Itọju Ọmọde",
+        "petCare": "Itọju Ẹranko"
+      }
+    },
+    "automotive": {
+      "name": "Awọn Iṣẹ Ọkọ",
+      "description": "Itọju Ọkọ & Awọn Iṣẹ Atunkọ",
+      "subcategories": {
+        "carRepair": "Atunkọ & Iṣẹ Ọkọ",
+        "carWash": "Fifọ Ọkọ & Ilana",
+        "tyreBattery": "Awọn Iṣẹ Taya & Batiri",
+        "panelBeating": "Panel Beating",
+        "autoElectrical": "Ina Ọkọ",
+        "motorcycleRepair": "Atunkọ Motorcycle"
+      }
+    },
+    "technology": {
+      "name": "Imọ-ẹrọ & Atunkọ",
+      "description": "Atilẹyin Imọ-ẹrọ & Awọn Iṣẹ Atunkọ Ẹrọ Itanna",
+      "subcategories": {
+        "phoneRepair": "Atunkọ Foonu & Tablet",
+        "computerRepair": "Atunkọ Kọnputa & Laptop",
+        "webDevelopment": "Idagbasoke Ayelujara",
+        "graphicDesign": "Apẹrẹ Aworan",
+        "dataRecovery": "Ipadabọ Data",
+        "networkSetup": "Iṣeto Network"
+      }
+    },
+    "eventServices": {
+      "name": "Awọn Iṣẹ Iṣẹlẹ",
+      "description": "Igbero Iṣẹlẹ Alamọdaju & Awọn Iṣẹ",
+      "subcategories": {
+        "eventPlanning": "Igbero Iṣẹlẹ",
+        "catering": "Awọn Iṣẹ Ounjẹ",
+        "photography": "Fọto & Fidio",
+        "djServices": "DJ & Ere Idaraya",
+        "decoration": "Ọṣọ Iṣẹlẹ",
+        "masterCeremony": "Oga Ayẹyẹ"
+      }
+    },
+    "healthWellness": {
+      "name": "Ilera & Alafia",
+      "description": "Ilera, Amọdaju & Awọn Iṣẹ Alafia",
+      "subcategories": {
+        "massage": "Ifọwọkan",
+        "physiotherapy": "Physiotherapy",
+        "nursing": "Itọju Ile Iwosan",
+        "fitness": "Ikẹkọ Amọdaju",
+        "nutrition": "Imọran Ounjẹ",
+        "mentalHealth": "Atilẹyin Ilera Ọkan"
+      }
+    },
+    "businessServices": {
+      "name": "Awọn Iṣẹ Iṣowo",
+      "description": "Iṣowo Alamọdaju & Awọn Iṣẹ Iṣakoso",
+      "subcategories": {
+        "accounting": "Iṣiro & Ifọwọsi Iwe",
+        "legalServices": "Awọn Iṣẹ Ofin",
+        "consultancy": "Imọran Iṣowo",
+        "contentWriting": "Kikọ Akoonu",
+        "translation": "Itumo",
+        "virtualAssistant": "Oluranlọwọ Foju"
+      }
+    }
+  },
+  "pricing": {
+    "from": "Lati",
+    "per": "fun",
+    "hour": "wakati",
+    "service": "iṣẹ",
+    "project": "project",
+    "day": "ọjọ"
+  }
+}

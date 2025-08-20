@@ -1,0 +1,112 @@
+{
+  "categories": {
+    "homeServices": {
+      "name": "Ayyukan Gida",
+      "description": "Ayyukan Kula Da Gida & Ci Gaba Na Kwararru",
+      "subcategories": {
+        "cleaning": "Tsabtace Gida",
+        "plumbing": "Ayyukan Ruwa",
+        "electrical": "Ayyukan Wuta",
+        "painting": "Fenti & Ado",
+        "carpentry": "Ayyukan Katako",
+        "gardening": "Lambun & Landscape",
+        "airConditioning": "AC & Gyaran Kayayyaki",
+        "security": "Shigar Security Gida"
+      }
+    },
+    "construction": {
+      "name": "Gini & Sabuntawa",
+      "description": "Gini, Sabuntawa & Ayyukan Gini",
+      "subcategories": {
+        "generalConstruction": "Ginin Gaba Daya",
+        "roofing": "Ayyukan Rufi",
+        "flooring": "Shigar Bene",
+        "plasteringTiling": "Yumbu & Tiles",
+        "welding": "Welding & Ayyukan Karfe",
+        "interiorDesign": "Zane Ciki Gida",
+        "realEstate": "Ayyukan Real Estate"
+      }
+    },
+    "personalServices": {
+      "name": "Ayyukan Mutum",
+      "description": "Kula Da Mutum & Ayyukan Rayuwa",
+      "subcategories": {
+        "beautyServices": "Kyau & Ayyukan Salon",
+        "tailoring": "Dinki & Zanen Tufafi",
+        "laundryServices": "Wanki & Busawa",
+        "personalTraining": "Horon Mutum",
+        "tutoring": "Koyarwa & Ilimi",
+        "childcare": "Kula Da Yara",
+        "petCare": "Kula Da Dabbobi"
+      }
+    },
+    "automotive": {
+      "name": "Ayyukan Mota",
+      "description": "Kula Da Mota & Ayyukan Gyara",
+      "subcategories": {
+        "carRepair": "Gyaran Mota & Kula",
+        "carWash": "Wankan Mota & Tsabtacewa",
+        "tyreBattery": "Ayyukan Taya & Baturi",
+        "panelBeating": "Panel Beating",
+        "autoElectrical": "Wutar Mota",
+        "motorcycleRepair": "Gyaran Babur"
+      }
+    },
+    "technology": {
+      "name": "Fasaha & Gyara",
+      "description": "Tallafin Fasaha & Ayyukan Gyaran Kayan Lantarki",
+      "subcategories": {
+        "phoneRepair": "Gyaran Waya & Tablet",
+        "computerRepair": "Gyaran Kwamfuta & Laptop",
+        "webDevelopment": "Gina Gidan Yanar Gizo",
+        "graphicDesign": "Zane Hoto",
+        "dataRecovery": "Dawo Da Data",
+        "networkSetup": "Kafa Network"
+      }
+    },
+    "eventServices": {
+      "name": "Ayyukan Taron",
+      "description": "Shirya Taron Na Kwararru & Ayyuka",
+      "subcategories": {
+        "eventPlanning": "Shirya Taron",
+        "catering": "Ayyukan Abinci",
+        "photography": "Daukar Hoto & Bidiyo",
+        "djServices": "DJ & Nishaɗi",
+        "decoration": "Ado Taron",
+        "masterCeremony": "Shugaban Bikin"
+      }
+    },
+    "healthWellness": {
+      "name": "Lafiya & Walwala",
+      "description": "Lafiya, Motsa Jiki & Ayyukan Walwala",
+      "subcategories": {
+        "massage": "Massage",
+        "physiotherapy": "Physiotherapy",
+        "nursing": "Kula Gida Asibiti",
+        "fitness": "Horon Motsa Jiki",
+        "nutrition": "Shawara Abinci",
+        "mentalHealth": "Tallafin Lafiyar Hankali"
+      }
+    },
+    "businessServices": {
+      "name": "Ayyukan Kasuwanci",
+      "description": "Kasuwanci Na Kwararru & Ayyukan Gudanarwa",
+      "subcategories": {
+        "accounting": "Lissafi & Ajiyar Littattafai",
+        "legalServices": "Ayyukan Doka",
+        "consultancy": "Shawarar Kasuwanci",
+        "contentWriting": "Rubuta Abun Ciki",
+        "translation": "Fassara",
+        "virtualAssistant": "Mataimaki Na Yanar Gizo"
+      }
+    }
+  },
+  "pricing": {
+    "from": "Daga",
+    "per": "kowane",
+    "hour": "awa",
+    "service": "hidima",
+    "project": "aiki",
+    "day": "rana"
+  }
+}

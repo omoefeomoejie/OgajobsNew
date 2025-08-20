@@ -1,0 +1,68 @@
+{
+  "hero": {
+    "title": "Debe Ndị Ọrụ A Tụkwasịrị Obi",
+    "subtitle": "Na Nkeji Ole Na Ole",
+    "description": "Jikọọ Na Ndị Ọkachamara A Kwenyere Maka Mkpa Ọrụ Gị Niile",
+    "searchPlaceholder": "Kedụ Ọrụ I Chọrọ?",
+    "searchButton": "Chọta Onye Ọrụ",
+    "trustStats": {
+      "artisans": "Ndị Ọrụ A Kwenyere",
+      "bookings": "Ọrụ A Rụchara",
+      "rating": "Nha Nkezi"
+    }
+  },
+  "howItWorks": {
+    "title": "Otú Ọ Na-arụ Ọrụ",
+    "subtitle": "Rụchaa Ọrụ Gị Site Na Usoro Atọ Dị Mfe",
+    "steps": {
+      "search": {
+        "title": "Chọọ & Tụnyere",
+        "description": "Chọgharịa Ndị Ọrụ A Kwenyere Na Mpaghara Gị Ma Tụnyere Ọkwa, Ọnụ Ahịa & Nyocha"
+      },
+      "book": {
+        "title": "Debe & Kwụọ Nke Ọma",
+        "description": "Họrọ Onye Ọrụ I Chọrọ Ma Kwụọ Ụgwọ Nke Ọma Site Na Usoro Anyị"
+      },
+      "enjoy": {
+        "title": "Nweta Ọrụ Dị Mma",
+        "description": "Nọọ Jụụ Mgbe Onye Ọrụ Gị Na-enye Ọrụ Magburu Onwe Ya Na Nkwa Anyị"
+      }
+    }
+  },
+  "services": {
+    "title": "Ọrụ Ndị A Ma Ama",
+    "subtitle": "Chọta Ọrụ I Chọrọ",
+    "categories": {
+      "homeServices": "Ọrụ Ụlọ",
+      "construction": "Iwu & Mmezi",
+      "personalServices": "Ọrụ Onwe Onye",
+      "automotive": "Ọrụ Ụgbọ Ala",
+      "technology": "Teknụzụ & Mmezi",
+      "eventServices": "Ọrụ Mmemme",
+      "healthWellness": "Ahụ Ike & Ọdịmma",
+      "businessServices": "Ọrụ Azụmahịa"
+    }
+  },
+  "trust": {
+    "title": "Gịnị Mere I Ga-eji Họrọ OgaJobs?",
+    "subtitle": "Afọ Ojuju Gị Enwere Nkwa",
+    "features": {
+      "verified": {
+        "title": "Ndị Ọrụ A Kwenyere",
+        "description": "A Na-enyocha Ndị Ọkachamara Niile Ọdịnala Ha Na Nkà Ha"
+      },
+      "secure": {
+        "title": "Ịkwụ Ụgwọ Nchekwa",
+        "description": "Ego Gị Nwere Nchekwa Na Usoro Ịkwụ Ụgwọ Anyị"
+      },
+      "support": {
+        "title": "Nkwado 24/7",
+        "description": "Nweta Enyemaka Mgbe Ọ Bụla Na Ndị Ọrụ Nkwado Ndị Ahịa Anyị"
+      },
+      "guarantee": {
+        "title": "Nkwa Ọrụ",
+        "description": "Obi Adịghị Gị Mma? Nweta Ego Gị Azụ Ma Ọ Bụ Nrụzi Efu"
+      }
+    }
+  }
+}
