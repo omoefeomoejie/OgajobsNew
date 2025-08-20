@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 export const HowItWorksSection = () => {
+  const { t } = useTranslation('home');
   const clientSteps = [
     {
       step: 1,
@@ -95,10 +97,10 @@ export const HowItWorksSection = () => {
             Simple Process
           </Badge>
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            How OgaJobs Works
+            {t('howItWorks.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            We've made hiring services as simple as ordering food. Here's how it works for both clients and artisans.
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 

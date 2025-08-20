@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,7 @@ export const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Lagos');
   const navigate = useNavigate();
+  const { t } = useTranslation('home');
 
   const popularServices = [
     'Plumbing', 'Electrical', 'House Cleaning', 'AC Repair', 
@@ -25,10 +27,10 @@ export const HeroSection = () => {
   ];
 
   const trustStats = [
-    { label: 'Verified Artisans', value: '5,000+', icon: Shield },
-    { label: 'Jobs Completed', value: '50,000+', icon: CheckCircle },
+    { label: t('hero.trustStats.artisans'), value: '5,000+', icon: Shield },
+    { label: t('hero.trustStats.bookings'), value: '50,000+', icon: CheckCircle },
     { label: 'Average Response', value: '< 5 mins', icon: Clock },
-    { label: 'Trust Score', value: '4.9/5', icon: Star }
+    { label: t('hero.trustStats.rating'), value: '4.9/5', icon: Star }
   ];
 
   return (
@@ -51,19 +53,18 @@ export const HeroSection = () => {
 
           {/* Main Headline */}
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Book Trusted Artisans
+            {t('hero.title')}
             <br />
-            <span className="text-accent">In Minutes</span>
+            <span className="text-accent">{t('hero.subtitle')}</span>
           </h1>
 
           <p className="text-xl md:text-2xl mb-4 text-white/90 max-w-3xl mx-auto">
-            Nigeria's instant trust infrastructure for services. 
-            <strong> Pay only when you're satisfied.</strong>
+            {t('hero.description')}
           </p>
 
           <p className="text-lg mb-12 text-white/80 max-w-2xl mx-auto">
-            Eliminating anxiety, price gouging, and trust issues. 
-            Making it as easy as ordering food.
+            Nigeria's instant trust infrastructure for services. 
+            <strong> Pay only when you're satisfied.</strong>
           </p>
 
           {/* Search Section */}
@@ -87,7 +88,7 @@ export const HeroSection = () => {
               <div className="flex-1 relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
-                  placeholder="What service do you need? (e.g., plumbing, electrical, cleaning)"
+                  placeholder={t('hero.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-12 h-12 text-base border-2 border-muted focus:border-primary text-foreground bg-background"
@@ -100,7 +101,7 @@ export const HeroSection = () => {
                 onClick={() => navigate(`/all-services?search=${encodeURIComponent(searchQuery)}&city=${encodeURIComponent(selectedCity)}`)}
               >
                 <Search className="w-5 h-5 mr-2" />
-                Find Artisans
+                {t('hero.searchButton')}
               </Button>
             </div>
 

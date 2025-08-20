@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +29,7 @@ export default function Auth() {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/';
+  const { t } = useTranslation('auth');
 
   useEffect(() => {
     // Check if user is already logged in
@@ -117,7 +119,7 @@ export default function Auth() {
         }
 
         toast({
-          title: "Account created successfully!",
+          title: t('messages.signUpSuccess'),
           description: "Please check your email to verify your account.",
         });
       }
@@ -149,7 +151,7 @@ export default function Auth() {
           .single();
 
         toast({
-          title: "Welcome back!",
+          title: t('messages.signInSuccess'),
           description: "You have been signed in successfully.",
         });
 
@@ -236,16 +238,16 @@ export default function Auth() {
               />
             </Link>
           </div>
-          <CardTitle className="text-2xl font-bold">Welcome to OgaJobs</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('signIn.subtitle')}</CardTitle>
           <CardDescription>
-            Nigeria's most trusted platform for artisan services
+            {t('signIn.subtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="signin">{t('signIn.title')}</TabsTrigger>
+              <TabsTrigger value="signup">{t('signUp.title')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signin">
@@ -262,22 +264,22 @@ export default function Auth() {
               >
                 <ValidatedInput
                   name="email"
-                  label="Email"
+                  label={t('signIn.emailPlaceholder')}
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder={t('signIn.emailPlaceholder')}
                   required
                 />
                 <ValidatedInput
                   name="password"
-                  label="Password"
+                  label={t('signIn.passwordPlaceholder')}
                   type="password"
-                  placeholder="Your password"
+                  placeholder={t('signIn.passwordPlaceholder')}
                   required
                   minLength={6}
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Sign In
+                  {t('signIn.signInButton')}
                 </Button>
               </SecureForm>
             </TabsContent>
@@ -316,37 +318,37 @@ export default function Auth() {
               >
                 <ValidatedInput
                   name="fullName"
-                  label="Full Name"
+                  label={t('signUp.fullNamePlaceholder')}
                   type="text"
-                  placeholder="Your full name"
+                  placeholder={t('signUp.fullNamePlaceholder')}
                   required
                   minLength={2}
                 />
                 <ValidatedInput
                   name="email"
-                  label="Email"
+                  label={t('signUp.emailPlaceholder')}
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder={t('signUp.emailPlaceholder')}
                   required
                 />
                 <ValidatedInput
                   name="phone"
-                  label="Phone Number"
+                  label={t('signUp.phonePlaceholder')}
                   type="tel"
-                  placeholder="+234 XXX XXX XXXX"
+                  placeholder={t('signUp.phonePlaceholder')}
                   required
                   pattern="^(\+234|0)[789][01]\d{8}$"
                 />
                 <ValidatedInput
                   name="password"
-                  label="Password"
+                  label={t('signUp.passwordPlaceholder')}
                   type="password"
-                  placeholder="Create a strong password"
+                  placeholder={t('signUp.passwordPlaceholder')}
                   required
                   minLength={6}
                 />
                 <div className="space-y-3">
-                  <Label>I want to:</Label>
+                  <Label>{t('signUp.roleLabel')}</Label>
                   <input type="hidden" name="role" value={role} />
                   <RadioGroup value={role} onValueChange={(value: 'client' | 'artisan') => setRole(value)}>
                     <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted transition-colors">
@@ -354,7 +356,7 @@ export default function Auth() {
                       <Label htmlFor="client" className="flex items-center gap-2 cursor-pointer flex-1">
                         <Users className="w-4 h-4 text-primary" />
                         <div>
-                          <div className="font-medium">Find Services</div>
+                          <div className="font-medium">{t('signUp.roleClient')}</div>
                           <div className="text-sm text-muted-foreground">I need to hire skilled artisans</div>
                         </div>
                       </Label>
@@ -364,7 +366,7 @@ export default function Auth() {
                       <Label htmlFor="artisan" className="flex items-center gap-2 cursor-pointer flex-1">
                         <Briefcase className="w-4 h-4 text-primary" />
                         <div>
-                          <div className="font-medium">Offer Services</div>
+                          <div className="font-medium">{t('signUp.roleArtisan')}</div>
                           <div className="text-sm text-muted-foreground">I'm a skilled artisan looking for work</div>
                         </div>
                       </Label>
@@ -378,7 +380,7 @@ export default function Auth() {
                 )}
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Account
+                  {t('signUp.signUpButton')}
                 </Button>
               </SecureForm>
             </TabsContent>
@@ -387,14 +389,14 @@ export default function Auth() {
           <div className="mt-6 pt-6 border-t space-y-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="w-4 h-4" />
-              <span>100% secure and verified platform</span>
+              <span>{t('security.description')}</span>
             </div>
             
             <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-2">Want to become a POS Agent?</p>
+              <p className="text-sm text-muted-foreground mb-2">{t('security.posAgent')}</p>
               <Button variant="outline" size="sm" asChild>
                 <Link to="/agent-registration">
-                  Join as POS Agent
+                  {t('security.posRegister')}
                 </Link>
               </Button>
             </div>

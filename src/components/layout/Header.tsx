@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { LanguageSelector } from './LanguageSelector';
 import { 
   Shield, 
   Phone, 
@@ -20,6 +22,7 @@ import ogaJobsLogo from '@/assets/ogajobs-new-logo.png';
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, profile, signOut, loading } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm">
@@ -29,7 +32,7 @@ export const Header = () => {
           <div className="flex items-center justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
-              <span>100% Verified Artisans</span>
+              <span>{t('trust.verifiedArtisans')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
@@ -37,7 +40,7 @@ export const Header = () => {
             </div>
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4" />
-              <span>24/7 Customer Support</span>
+              <span>{t('trust.support247')}</span>
             </div>
           </div>
         </div>
@@ -73,13 +76,13 @@ export const Header = () => {
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors">
-              Find Services
+              {t('navigation.findServices')}
             </Link>
             <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors">
-              Become an Artisan
+              {t('navigation.becomeArtisan')}
             </Link>
             <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
-              How It Works
+              {t('navigation.howItWorks')}
             </Link>
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-xs">
@@ -91,11 +94,12 @@ export const Header = () => {
 
           {/* Auth Buttons - Desktop */}
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSelector />
             {user ? (
               <>
                 <NotificationCenter />
                 <Button variant="ghost" asChild>
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                 </Button>
                 <div className="flex items-center gap-2 text-sm">
                   <User className="w-4 h-4" />
@@ -108,16 +112,16 @@ export const Header = () => {
                 )}
                 <Button variant="outline" onClick={signOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  {t('navigation.signOut')}
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="ghost" asChild>
-                  <Link to="/auth">Login</Link>
+                  <Link to="/auth">{t('navigation.login')}</Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/auth">Get Started</Link>
+                  <Link to="/auth">{t('navigation.getStarted')}</Link>
                 </Button>
               </>
             )}
@@ -150,21 +154,21 @@ export const Header = () => {
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Find Services
+                {t('navigation.findServices')}
               </Link>
               <Link 
                 to="/become-artisan" 
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Become an Artisan
+                {t('navigation.becomeArtisan')}
               </Link>
               <Link 
                 to="/how-it-works" 
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                How It Works
+                {t('navigation.howItWorks')}
               </Link>
               
               <div className="flex items-center gap-2 py-2">
@@ -175,11 +179,12 @@ export const Header = () => {
               </div>
 
               <div className="flex flex-col gap-3 mt-4">
+                <LanguageSelector />
                 {user ? (
                   <>
                     <NotificationCenter />
                     <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
-                      <Link to="/dashboard">Dashboard</Link>
+                      <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                     </Button>
                     <div className="flex items-center gap-2 text-sm py-2">
                       <User className="w-4 h-4" />
@@ -192,16 +197,16 @@ export const Header = () => {
                     )}
                     <Button variant="outline" onClick={() => { signOut(); setIsMenuOpen(false); }}>
                       <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      {t('navigation.signOut')}
                     </Button>
                   </>
                 ) : (
                   <>
                     <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
-                      <Link to="/auth">Login</Link>
+                      <Link to="/auth">{t('navigation.login')}</Link>
                     </Button>
                     <Button asChild onClick={() => setIsMenuOpen(false)}>
-                      <Link to="/auth">Get Started</Link>
+                      <Link to="/auth">{t('navigation.getStarted')}</Link>
                     </Button>
                   </>
                 )}
