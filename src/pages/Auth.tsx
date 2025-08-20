@@ -40,23 +40,30 @@ export default function Auth() {
     checkUser();
   }, [navigate, redirectTo]);
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent, formData?: any) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      // Use form data if provided (from SecureForm), otherwise use state
+      const signupEmail = formData?.email || email;
+      const signupPassword = formData?.password || password;
+      const signupFullName = formData?.fullName || fullName;
+      const signupPhone = formData?.phone || phone;
+      const signupRole = formData?.role || role;
+
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
+        email: signupEmail,
+        password: signupPassword,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            full_name: fullName,
-            phone,
-            role
+            full_name: signupFullName,
+            phone: signupPhone,
+            role: signupRole
           }
         }
       });
@@ -79,13 +86,17 @@ export default function Auth() {
         }
 
         // Insert into appropriate table based on role
-        if (role === 'artisan') {
+        const finalRole = formData?.role || role;
+        const finalFullName = formData?.fullName || fullName;
+        const finalPhone = formData?.phone || phone;
+        
+        if (finalRole === 'artisan') {
           const { error: artisanError } = await supabase
             .from('artisans')
             .insert({
               email: data.user.email,
-              full_name: fullName,
-              phone
+              full_name: finalFullName,
+              phone: finalPhone
             });
           
           if (artisanError) {
@@ -96,8 +107,8 @@ export default function Auth() {
             .from('clients')
             .insert({
               email: data.user.email,
-              full_name: fullName,
-              phone
+              full_name: finalFullName,
+              phone: finalPhone
             });
           
           if (clientError) {
@@ -272,53 +283,71 @@ export default function Auth() {
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Full Name</Label>
-                  <Input
-                    id="signup-name"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Your full name"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-phone">Phone Number</Label>
-                  <Input
-                    id="signup-phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+234 XXX XXX XXXX"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Create a password"
-                    required
-                  />
-                </div>
+              <SecureForm
+                onSubmit={async (data) => {
+                  // Transform the form data to include role and other fields
+                  const signupData = {
+                    ...data,
+                    role: data.role || role
+                  };
+                  await handleSignUp({ preventDefault: () => {} } as React.FormEvent, signupData);
+                }}
+                rateLimitKey="auth-signup"
+                validationSchema={(data) => {
+                  const errors: string[] = [];
+                  if (!data.fullName || data.fullName.length < 2) {
+                    errors.push('Full name is required (minimum 2 characters)');
+                  }
+                  if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+                    errors.push('Valid email is required');
+                  }
+                  if (!data.phone || !/^(\+234|0)[789][01]\d{8}$/.test(data.phone.replace(/\s/g, ''))) {
+                    errors.push('Valid Nigerian phone number is required');
+                  }
+                  if (!data.password || data.password.length < 6) {
+                    errors.push('Password must be at least 6 characters');
+                  }
+                  if (!data.role) {
+                    errors.push('Please select your role');
+                  }
+                  return { valid: errors.length === 0, errors };
+                }}
+                className="space-y-4"
+              >
+                <ValidatedInput
+                  name="fullName"
+                  label="Full Name"
+                  type="text"
+                  placeholder="Your full name"
+                  required
+                  minLength={2}
+                />
+                <ValidatedInput
+                  name="email"
+                  label="Email"
+                  type="email"
+                  placeholder="your@email.com"
+                  required
+                />
+                <ValidatedInput
+                  name="phone"
+                  label="Phone Number"
+                  type="tel"
+                  placeholder="+234 XXX XXX XXXX"
+                  required
+                  pattern="^(\+234|0)[789][01]\d{8}$"
+                />
+                <ValidatedInput
+                  name="password"
+                  label="Password"
+                  type="password"
+                  placeholder="Create a strong password"
+                  required
+                  minLength={6}
+                />
                 <div className="space-y-3">
                   <Label>I want to:</Label>
+                  <input type="hidden" name="role" value={role} />
                   <RadioGroup value={role} onValueChange={(value: 'client' | 'artisan') => setRole(value)}>
                     <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted transition-colors">
                       <RadioGroupItem value="client" id="client" />
@@ -351,7 +380,7 @@ export default function Auth() {
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Account
                 </Button>
-              </form>
+              </SecureForm>
             </TabsContent>
           </Tabs>
 
