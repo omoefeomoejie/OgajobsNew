@@ -62,7 +62,7 @@ export const mockSupabaseClient = {
     onAuthStateChange: vi.fn(),
     getUser: vi.fn(),
   },
-  from: vi.fn(() => ({
+  from: vi.fn((tableName?: string) => ({
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
@@ -75,5 +75,6 @@ export const mockSupabaseClient = {
 
 // Re-export everything
 export * from '@testing-library/react';
+export * from '@testing-library/dom';
 export { default as userEvent } from '@testing-library/user-event';
 export { customRender as render };

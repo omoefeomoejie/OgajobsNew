@@ -235,7 +235,7 @@ describe('Integration Tests', () => {
       render(
         <QueryClientProvider client={queryClient}>
         <button onClick={async () => {
-          await mockSupabaseClient.from('booking_requests').insert({
+          mockSupabaseClient.from('booking_requests').insert({
             user_id: 'user-123',
             service_type: 'Plumbing', 
             description: 'Fix leaky faucet',
