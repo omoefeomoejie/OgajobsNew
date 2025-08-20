@@ -46,71 +46,71 @@ import Calendar from "./pages/Calendar";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <GlobalErrorHandler>
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-          <div className="relative min-h-screen">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/login" element={<Auth />} />
-              <Route path="/register" element={<Auth />} />
-              <Route path="/ojssytem-admin" element={<AdminLogin />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-              <Route path="/services" element={<ServiceDirectory />} />
-              <Route path="/service-directory" element={<ServiceDirectory />} />
-              <Route path="/book" element={<BookingRequest />} />
-              <Route path="/bookings" element={<MyBookings />} />
-              <Route path="/my-bookings" element={<MyBookings />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              <Route path="/verification" element={<Verification />} />
-              <Route path="/agent-registration" element={<AgentRegistration />} />
-              <Route path="/agent-dashboard" element={<AgentDashboard />} />
-              <Route path="/portfolio" element={<Portfolio />} />
-              <Route path="/portfolio/:portfolioId" element={<PortfolioView />} />
-              <Route path="/disputes" element={<Disputes />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/agent-chat" element={<AgentChatDashboardPage />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/become-artisan" element={<BecomeArtisan />} />
-              <Route path="/all-services" element={<Services />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/help-center" element={<HelpCenter />} />
-              <Route path="/help" element={<HelpCenter />} />
-              <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
-              <Route path="/safety" element={<SafetyGuidelines />} />
-              <Route path="/pos-partnership" element={<POSPartnership />} />
-              <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
-              <Route path="/dispute-resolution" element={<Disputes />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/cookie-policy" element={<CookiePolicy />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            
-            {/* Mobile-specific components */}
-            <MobileBottomNav />
-            <InstallPrompt />
-          </div>
-          </BrowserRouter>
-        </TooltipProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <GlobalErrorHandler>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+            <div className="relative min-h-screen">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/login" element={<Auth />} />
+                <Route path="/register" element={<Auth />} />
+                <Route path="/ojssytem-admin" element={<AdminLogin />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/services" element={<ServiceDirectory />} />
+                <Route path="/service-directory" element={<ServiceDirectory />} />
+                <Route path="/book" element={<BookingRequest />} />
+                <Route path="/bookings" element={<MyBookings />} />
+                <Route path="/my-bookings" element={<MyBookings />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/reviews" element={<Reviews />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/verification" element={<Verification />} />
+                <Route path="/agent-registration" element={<AgentRegistration />} />
+                <Route path="/agent-dashboard" element={<AgentDashboard />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/portfolio/:portfolioId" element={<PortfolioView />} />
+                <Route path="/disputes" element={<Disputes />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/agent-chat" element={<AgentChatDashboardPage />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/become-artisan" element={<BecomeArtisan />} />
+                <Route path="/all-services" element={<Services />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/help-center" element={<HelpCenter />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
+                <Route path="/safety" element={<SafetyGuidelines />} />
+                <Route path="/pos-partnership" element={<POSPartnership />} />
+                <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
+                <Route path="/dispute-resolution" element={<Disputes />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/cookie-policy" element={<CookiePolicy />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              
+              {/* Mobile-specific components */}
+              <MobileBottomNav />
+              <InstallPrompt />
+            </div>
+            </BrowserRouter>
+          </TooltipProvider>
+        </GlobalErrorHandler>
       </AuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>
-  </GlobalErrorHandler>
 );
 
 export default App;
