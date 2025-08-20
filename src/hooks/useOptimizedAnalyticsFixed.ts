@@ -224,7 +224,7 @@ export function useOptimizedAnalytics(options: UseOptimizedAnalyticsOptions = {}
 export function usePaginatedAnalytics(
   tableName: 'bookings' | 'artisans' | 'payment_transactions',
   pageSize = 50,
-  filters?: Record<string, any>
+  filters?: any
 ) {
   return useQuery({
     queryKey: [tableName, 'paginated', filters, pageSize],
@@ -233,7 +233,7 @@ export function usePaginatedAnalytics(
       
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
-          query = query.eq(key, value);
+          query = (query as any).eq(key, value);
         });
       }
       
@@ -249,7 +249,8 @@ export function usePaginatedAnalytics(
         hasMore: (count || 0) > pageSize,
       };
     },
-    ...cacheConfig.analytics,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
     retry: 2,
   });
 }

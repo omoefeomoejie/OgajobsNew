@@ -47,22 +47,22 @@ export function PerformanceProvider({
     }
     
     // Check FCP timing instead of load time
-    if (metrics.firstContentfulPaint && metrics.firstContentfulPaint > performanceBudget.maxLoadTime) {
+    if (metrics.fcp && metrics.fcp > performanceBudget.maxLoadTime) {
       recommendations.push('First Contentful Paint is slow. Consider optimizing critical resources.');
     }
     
     // Check LCP
-    if (metrics.largestContentfulPaint > 4000) {
+    if (metrics.lcp && metrics.lcp > 4000) {
       recommendations.push('Largest Contentful Paint is slow. Optimize largest elements and images.');
     }
     
     // Check CLS
-    if (metrics.cumulativeLayoutShift > 0.25) {
+    if (metrics.cls && metrics.cls > 0.25) {
       recommendations.push('High Cumulative Layout Shift detected. Fix layout shifts in components.');
     }
     
     // Check memory usage
-    if (metrics.memoryUsage?.usedJSHeapSize && metrics.memoryUsage.usedJSHeapSize > 50 * 1024 * 1024) {
+    if (metrics.usedJSHeapSize && metrics.usedJSHeapSize > 50 * 1024 * 1024) {
       recommendations.push('High memory usage detected. Consider implementing memory optimization.');
     }
     
@@ -105,10 +105,10 @@ export function PerformanceProvider({
     if (typeof window !== 'undefined' && 'gtag' in window) {
       (window as any).gtag('event', 'performance_report', {
         performance_score: performanceScore,
-        fcp: metrics.firstContentfulPaint,
-        lcp: metrics.largestContentfulPaint,
-        cls: metrics.cumulativeLayoutShift,
-        memory_usage: metrics.memoryUsage?.usedJSHeapSize || 0,
+        fcp: metrics.fcp,
+        lcp: metrics.lcp,
+        cls: metrics.cls,
+        memory_usage: metrics.usedJSHeapSize || 0,
       });
     }
 
