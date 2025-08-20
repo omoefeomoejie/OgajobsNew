@@ -121,27 +121,6 @@ export type Database = {
             referencedRelation: "artisans_public"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "agent_referrals_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "agent_referrals_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_secure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "agent_referrals_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_performance"
-            referencedColumns: ["artisan_id"]
-          },
         ]
       }
       ai_chat_config: {
@@ -416,27 +395,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "artisans_public"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artisan_reviews_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artisan_reviews_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_secure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artisan_reviews_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_performance"
-            referencedColumns: ["artisan_id"]
           },
         ]
       }
@@ -824,27 +782,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "artisans_public"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_transactions_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_transactions_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_secure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_transactions_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_performance"
-            referencedColumns: ["artisan_id"]
           },
           {
             foreignKeyName: "commission_transactions_booking_id_fkey"
@@ -1409,27 +1346,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "job_assignments_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "job_assignments_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_secure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "job_assignments_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_performance"
-            referencedColumns: ["artisan_id"]
-          },
-          {
             foreignKeyName: "job_assignments_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1731,27 +1647,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "matches_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "matches_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_secure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "matches_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_performance"
-            referencedColumns: ["artisan_id"]
-          },
-          {
             foreignKeyName: "matches_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1929,27 +1824,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "artisans_public"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_secure"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_performance"
-            referencedColumns: ["artisan_id"]
           },
         ]
       }
@@ -3401,130 +3275,6 @@ export type Database = {
           slug: string | null
           suspended: boolean | null
           total_reviews: number | null
-          verification_level: string | null
-        }
-        Insert: {
-          average_rating?: never
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-          suspended?: boolean | null
-          total_reviews?: never
-          verification_level?: never
-        }
-        Update: {
-          average_rating?: never
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-          suspended?: boolean | null
-          total_reviews?: never
-          verification_level?: never
-        }
-        Relationships: []
-      }
-      artisans_public_safe: {
-        Row: {
-          average_rating: number | null
-          category: string | null
-          city: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          photo_url: string | null
-          profile_url: string | null
-          skill: string | null
-          slug: string | null
-          suspended: boolean | null
-          total_reviews: number | null
-          verification_level: string | null
-        }
-        Relationships: []
-      }
-      artisans_public_secure: {
-        Row: {
-          average_rating: number | null
-          category: string | null
-          city: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          photo_url: string | null
-          profile_url: string | null
-          skill: string | null
-          suspended: boolean | null
-          total_reviews: number | null
-        }
-        Relationships: []
-      }
-      mv_artisan_performance: {
-        Row: {
-          artisan_id: string | null
-          average_rating: number | null
-          avg_completion_days: number | null
-          cancelled_jobs: number | null
-          category: string | null
-          city: string | null
-          completed_jobs: number | null
-          email: string | null
-          full_name: string | null
-          last_job_date: string | null
-          total_earnings: number | null
-          total_jobs: number | null
-          total_reviews: number | null
-        }
-        Relationships: []
-      }
-      mv_client_analytics: {
-        Row: {
-          average_booking_value: number | null
-          cancelled_bookings: number | null
-          client_email: string | null
-          completed_bookings: number | null
-          first_booking_date: string | null
-          last_booking_date: string | null
-          service_types_used: number | null
-          total_bookings: number | null
-          total_spent: number | null
-          unique_artisans_worked_with: number | null
-        }
-        Relationships: []
-      }
-      mv_monthly_metrics: {
-        Row: {
-          average_rating: number | null
-          completed_bookings: number | null
-          month: string | null
-          platform_fees: number | null
-          total_bookings: number | null
-          total_revenue: number | null
-          unique_artisans: number | null
-          unique_clients: number | null
-        }
-        Relationships: []
-      }
-      mv_service_category_stats: {
-        Row: {
-          average_budget: number | null
-          average_rating: number | null
-          completion_rate: number | null
-          service_category: string | null
-          total_bookings: number | null
-          total_revenue: number | null
-          unique_artisans: number | null
-          unique_clients: number | null
         }
         Relationships: []
       }
@@ -3585,6 +3335,14 @@ export type Database = {
       calculate_trust_score: {
         Args: { artisan_user_id: string }
         Returns: number
+      }
+      check_rate_limit: {
+        Args: {
+          max_attempts?: number
+          operation_type: string
+          window_minutes?: number
+        }
+        Returns: boolean
       }
       cleanup_old_typing_indicators: {
         Args: Record<PropertyKey, never>
@@ -3706,6 +3464,10 @@ export type Database = {
           p_severity?: string
         }
         Returns: string
+      }
+      log_security_violation: {
+        Args: { details?: Json; violation_type: string }
+        Returns: undefined
       }
       mask_sensitive_data: {
         Args: { input_text: string; mask_type?: string }
