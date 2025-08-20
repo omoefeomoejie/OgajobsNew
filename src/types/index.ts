@@ -55,6 +55,7 @@ export interface Artisan {
   experience: string;
   availability: ArtisanAvailability[];
   verificationStatus: 'pending' | 'verified' | 'rejected';
+  verification_level?: 'basic' | 'standard' | 'premium' | 'unverified';
   trustScore: number;
   completedJobs: number;
   averageRating: number;
@@ -64,6 +65,19 @@ export interface Artisan {
   pricing: ServicePricing[];
   isActive: boolean;
   referredBy?: string; // POS agent ID
+}
+
+// Extended interface for public artisan data
+export interface ArtisanProfile extends Artisan {
+  average_rating: number;
+  total_reviews: number;
+  category: string;
+  suspended: boolean;
+  created_at: string;
+  photo_url: string;
+  profile_url: string;
+  skill: string;
+  slug: string;
 }
 
 export interface ArtisanAvailability {

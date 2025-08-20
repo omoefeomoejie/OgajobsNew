@@ -91,7 +91,8 @@ export default function ServiceDirectory() {
       const artisansWithRatings = (data || []).map(artisan => ({
         ...artisan,
         averageRating: artisan.average_rating,
-        reviewCount: artisan.total_reviews
+        reviewCount: artisan.total_reviews,
+        verification_level: 'unverified' // Default value since DB doesn't have this field yet
       }));
 
       setArtisans(artisansWithRatings);

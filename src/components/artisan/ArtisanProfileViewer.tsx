@@ -65,7 +65,10 @@ export const ArtisanProfileViewer = ({ artisanId, showContactInfo = false }: Art
         .single();
 
       if (error) throw error;
-      setArtisan(data);
+      setArtisan({
+        ...data,
+        verification_level: 'unverified' // Default value since DB doesn't have this field yet
+      });
     } catch (error) {
       console.error('Error fetching artisan profile:', error);
       toast.error('Failed to load artisan profile');
