@@ -2,8 +2,23 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { cacheUtils } from '@/lib/queryClient';
 
+interface PerformanceMetrics {
+  fcp: number | null;
+  lcp: number | null;
+  fid: number | null;
+  cls: number | null;
+  ttfb: number | null;
+  domContentLoaded: number | null;
+  loadComplete: number | null;
+  usedJSHeapSize: number | null;
+  totalJSHeapSize: number | null;
+  connectionType: string | null;
+  effectiveType: string | null;
+  bundleSize: number | null;
+}
+
 interface PerformanceContextType {
-  metrics: any;
+  metrics: PerformanceMetrics | null;
   performanceScore: number;
   optimizationRecommendations: string[];
   clearCache: () => void;

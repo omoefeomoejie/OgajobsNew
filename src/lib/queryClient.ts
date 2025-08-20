@@ -48,7 +48,7 @@ export const queryKeys = {
   // Artisan queries - medium cache times
   artisans: {
     all: ['artisans'] as const,
-    list: (filters?: Record<string, any>) => ['artisans', 'list', filters] as const,
+    list: (filters?: Record<string, string | number | boolean>) => ['artisans', 'list', filters] as const,
     profile: (id: string) => ['artisans', 'profile', id] as const,
     portfolio: (id: string) => ['artisans', 'portfolio', id] as const,
     reviews: (id: string) => ['artisans', 'reviews', id] as const,

@@ -70,14 +70,14 @@ export function useOptimizedAnalytics(options: UseOptimizedAnalyticsOptions = {}
           const processedData: AnalyticsOverview = {
             totalBookings: bookingsCount.status === 'fulfilled' ? bookingsCount.value.count || 0 : 0,
             completedBookings: completedBookings.status === 'fulfilled' ? (completedBookings.value.data?.length || 0) : 0,
-            totalRevenue: totalRevenue.status === 'fulfilled' 
-              ? (totalRevenue.value.data?.reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0) || 0)
+            totalRevenue: totalRevenue.status === 'fulfilled' && totalRevenue.value.data
+              ? totalRevenue.value.data.reduce((sum, transaction) => sum + (Number(transaction.amount) || 0), 0)
               : 0,
-            platformFees: platformFees.status === 'fulfilled'
-              ? (platformFees.value.data?.reduce((sum: number, t: any) => sum + (Number(t.platform_fee) || 0), 0) || 0)
+            platformFees: platformFees.status === 'fulfilled' && platformFees.value.data
+              ? platformFees.value.data.reduce((sum, transaction) => sum + (Number(transaction.platform_fee) || 0), 0)
               : 0,
             averageRating: averageRatings.status === 'fulfilled' && averageRatings.value.data?.length
-              ? averageRatings.value.data.reduce((sum: number, r: any) => sum + r.rating, 0) / averageRatings.value.data.length
+              ? averageRatings.value.data.reduce((sum, review) => sum + review.rating, 0) / averageRatings.value.data.length
               : 0,
           };
 
@@ -129,16 +129,16 @@ export function useOptimizedAnalytics(options: UseOptimizedAnalyticsOptions = {}
             const date = new Date(thirtyDaysAgo.getTime() + i * 24 * 60 * 60 * 1000);
             const dateStr = date.toISOString().split('T')[0];
             
-            const dayBookings = bookingsData?.filter(b => 
-              b?.created_at?.startsWith(dateStr)
+            const dayBookings = bookingsData?.filter(booking => 
+              booking.created_at?.startsWith(dateStr)
             ) || [];
             
             return {
               date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
               bookings: dayBookings.length,
-              revenue: dayBookings.reduce((sum, b) => sum + (Number(b?.budget) || 0), 0),
-              completed: dayBookings.filter(b => b?.status === 'completed').length,
-              cancelled: dayBookings.filter(b => b?.status === 'cancelled').length,
+              revenue: dayBookings.reduce((sum, booking) => sum + (Number(booking.budget) || 0), 0),
+              completed: dayBookings.filter(booking => booking.status === 'completed').length,
+              cancelled: dayBookings.filter(booking => booking.status === 'cancelled').length,
               users: 0, // Mock data
             };
           });
@@ -220,37 +220,5 @@ export function useOptimizedAnalytics(options: UseOptimizedAnalyticsOptions = {}
   };
 }
 
-// Hook for paginated analytics data
-export function usePaginatedAnalytics(
-  tableName: 'bookings' | 'artisans' | 'payment_transactions',
-  pageSize = 50,
-  filters?: any
-) {
-  return useQuery({
-    queryKey: [tableName, 'paginated', filters, pageSize],
-    queryFn: async () => {
-      let query = supabase.from(tableName).select('*', { count: 'exact' });
-      
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          query = (query as any).eq(key, value);
-        });
-      }
-      
-      const { data, count, error } = await query
-        .range(0, pageSize - 1)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      
-      return {
-        data: data || [],
-        totalCount: count || 0,
-        hasMore: (count || 0) > pageSize,
-      };
-    },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
-    retry: 2,
-  });
-}
+// Re-export the simple paginated analytics hook
+export { usePaginatedAnalytics } from './useSimplePaginatedAnalytics';
