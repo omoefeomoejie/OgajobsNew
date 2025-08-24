@@ -59,16 +59,29 @@ export const ArtisanProfileViewer = ({ artisanId, showContactInfo = false }: Art
     try {
       // Get public artisan info first
       const { data, error } = await supabase
-        .from('artisans_public')
+        .from('artisans_directory')
         .select('*')
         .eq('id', artisanId)
         .single();
 
       if (error) throw error;
-      setArtisan({
-        ...data,
-        verification_level: 'unverified' // Default value since DB doesn't have this field yet
-      });
+      
+      if (data) {
+        setArtisan({
+          id: data.id,
+          full_name: data.full_name,
+          city: data.city,
+          category: data.category,
+          skill: data.skill || data.category,
+          photo_url: data.photo_url,
+          profile_url: data.profile_url,
+          slug: data.slug,
+          created_at: data.created_at,
+          average_rating: data.average_rating || 0,
+          total_reviews: data.total_reviews || 0,
+          verification_level: 'unverified' // Default value since DB doesn't have this field yet
+        });
+      }
     } catch (error) {
       console.error('Error fetching artisan profile:', error);
       toast.error('Failed to load artisan profile');

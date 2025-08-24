@@ -175,7 +175,7 @@ export function UserBehaviorAnalytics() {
         supabase.from('profiles').select('*').gte('created_at', startDate.toISOString()),
         supabase.from('bookings').select('*').gte('created_at', startDate.toISOString()),
         supabase.from('messages').select('*').gte('created_at', startDate.toISOString()),
-        supabase.from('artisans_public').select('*').gte('created_at', startDate.toISOString()),
+        supabase.from('artisans_directory').select('*').gte('created_at', startDate.toISOString()),
         supabase.from('clients').select('*').gte('created_at', startDate.toISOString())
       ]);
 

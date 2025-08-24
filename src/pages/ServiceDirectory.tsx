@@ -81,18 +81,27 @@ export default function ServiceDirectory() {
     try {
       // Use the secure public view instead of direct table access
       const { data, error } = await supabase
-        .from('artisans_public')
+        .from('artisans_directory')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       // The public view already includes ratings, so we can use them directly
-      const artisansWithRatings = (data || []).map(artisan => ({
-        ...artisan,
-        averageRating: artisan.average_rating,
-        reviewCount: artisan.total_reviews,
-        verification_level: 'unverified' // Default value since DB doesn't have this field yet
+      const artisansWithRatings: Artisan[] = (data || []).map(artisan => ({
+        id: String(artisan.id || ''),
+        full_name: String(artisan.full_name || ''),
+        skill: String(artisan.skill || artisan.category || ''),
+        category: String(artisan.category || ''),
+        city: String(artisan.city || ''),
+        profile_url: String(artisan.profile_url || ''),
+        photo_url: String(artisan.photo_url || ''),
+        created_at: String(artisan.created_at || ''),
+        average_rating: Number(artisan.average_rating || 0),
+        total_reviews: Number(artisan.total_reviews || 0),
+        verification_level: 'unverified', // Default value since DB doesn't have this field yet
+        averageRating: Number(artisan.average_rating || 0),
+        reviewCount: Number(artisan.total_reviews || 0),
       }));
 
       setArtisans(artisansWithRatings);
