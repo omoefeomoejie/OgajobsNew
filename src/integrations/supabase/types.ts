@@ -3651,6 +3651,15 @@ export type Database = {
         Args: { artisan_user_id: string }
         Returns: string
       }
+      validate_security_compliance: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_name: string
+          details: string
+          severity: string
+          status: string
+        }[]
+      }
       validate_withdrawal_request_v2: {
         Args: { amount_param: number; artisan_id_param: string }
         Returns: {
