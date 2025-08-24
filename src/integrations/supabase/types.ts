@@ -3336,10 +3336,8 @@ export type Database = {
           category: string | null
           city: string | null
           created_at: string | null
-          email: string | null
           full_name: string | null
           id: string | null
-          phone: string | null
           photo_url: string | null
           profile_url: string | null
           skill: string | null
@@ -3422,6 +3420,10 @@ export type Database = {
           window_minutes?: number
         }
         Returns: boolean
+      }
+      cleanup_old_security_events: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_old_typing_indicators: {
         Args: Record<PropertyKey, never>
@@ -3513,6 +3515,28 @@ export type Database = {
           completion_rate: number
           response_time_hours: number
           total_jobs: number
+        }[]
+      }
+      get_artisans_directory: {
+        Args: {
+          p_category?: string
+          p_city?: string
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          average_rating: number
+          category: string
+          city: string
+          created_at: string
+          full_name: string
+          id: string
+          photo_url: string
+          profile_url: string
+          skill: string
+          slug: string
+          suspended: boolean
+          total_reviews: number
         }[]
       }
       get_current_user_role: {
