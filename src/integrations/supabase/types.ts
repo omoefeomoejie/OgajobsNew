@@ -2506,6 +2506,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_compliance: {
+        Row: {
+          compliance_status: string | null
+          created_at: string | null
+          id: string
+          last_audit_at: string | null
+          policies_count: number | null
+          rls_enabled: boolean | null
+          table_name: string
+        }
+        Insert: {
+          compliance_status?: string | null
+          created_at?: string | null
+          id?: string
+          last_audit_at?: string | null
+          policies_count?: number | null
+          rls_enabled?: boolean | null
+          table_name: string
+        }
+        Update: {
+          compliance_status?: string | null
+          created_at?: string | null
+          id?: string
+          last_audit_at?: string | null
+          policies_count?: number | null
+          rls_enabled?: boolean | null
+          table_name?: string
+        }
+        Relationships: []
+      }
       security_events: {
         Row: {
           created_at: string | null
@@ -3267,14 +3297,48 @@ export type Database = {
           category: string | null
           city: string | null
           created_at: string | null
+          email: string | null
           full_name: string | null
           id: string | null
+          phone: string | null
           photo_url: string | null
           profile_url: string | null
           skill: string | null
           slug: string | null
           suspended: boolean | null
           total_reviews: number | null
+        }
+        Insert: {
+          average_rating?: never
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          email?: never
+          full_name?: string | null
+          id?: string | null
+          phone?: never
+          photo_url?: string | null
+          profile_url?: string | null
+          skill?: string | null
+          slug?: string | null
+          suspended?: boolean | null
+          total_reviews?: never
+        }
+        Update: {
+          average_rating?: never
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          email?: never
+          full_name?: string | null
+          id?: string | null
+          phone?: never
+          photo_url?: string | null
+          profile_url?: string | null
+          skill?: string | null
+          slug?: string | null
+          suspended?: boolean | null
+          total_reviews?: never
         }
         Relationships: []
       }
