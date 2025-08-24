@@ -813,6 +813,45 @@ export type Database = {
         }
         Relationships: []
       }
+      data_access_logs: {
+        Row: {
+          access_type: string
+          accessed_record_id: string | null
+          accessed_table: string
+          authorized: boolean | null
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          sensitive_fields: string[] | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_record_id?: string | null
+          accessed_table: string
+          authorized?: boolean | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          sensitive_fields?: string[] | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_record_id?: string | null
+          accessed_table?: string
+          authorized?: boolean | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          sensitive_fields?: string[] | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       demand_analytics: {
         Row: {
           average_budget: number
@@ -3297,48 +3336,14 @@ export type Database = {
           category: string | null
           city: string | null
           created_at: string | null
-          email: string | null
           full_name: string | null
           id: string | null
-          phone: string | null
           photo_url: string | null
           profile_url: string | null
           skill: string | null
           slug: string | null
           suspended: boolean | null
           total_reviews: number | null
-        }
-        Insert: {
-          average_rating?: never
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          email?: never
-          full_name?: string | null
-          id?: string | null
-          phone?: never
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-          suspended?: boolean | null
-          total_reviews?: never
-        }
-        Update: {
-          average_rating?: never
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          email?: never
-          full_name?: string | null
-          id?: string | null
-          phone?: never
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-          suspended?: boolean | null
-          total_reviews?: never
         }
         Relationships: []
       }
@@ -3473,6 +3478,14 @@ export type Database = {
           phone: string
         }[]
       }
+      get_artisan_contact_secure: {
+        Args: { p_artisan_id: string }
+        Returns: {
+          email: string
+          full_name: string
+          phone: string
+        }[]
+      }
       get_artisan_performance_secure: {
         Args: { p_artisan_id?: string }
         Returns: {
@@ -3531,6 +3544,15 @@ export type Database = {
       }
       log_security_violation: {
         Args: { details?: Json; violation_type: string }
+        Returns: undefined
+      }
+      log_sensitive_data_access: {
+        Args: {
+          p_access_type?: string
+          p_record_id: string
+          p_sensitive_fields?: string[]
+          p_table_name: string
+        }
         Returns: undefined
       }
       mask_sensitive_data: {
