@@ -11,7 +11,7 @@ import { Shield, Eye, EyeOff, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { CreateAdminDialog } from '@/components/admin/CreateAdminDialog';
-import ogaJobsLogo from '@/assets/ogajobs-logo.png';
+import ogaJobsLogo from '@/assets/ogajobs-new-logo.png';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -76,7 +76,14 @@ export default function AdminLogin() {
           <CardHeader className="text-center space-y-4">
             <div className="flex justify-center">
               <div className="flex items-center gap-2">
-                <img src={ogaJobsLogo} alt="OgaJobs" className="w-10 h-10" />
+                <img 
+                  src={ogaJobsLogo} 
+                  alt="OgaJobs" 
+                  className="w-10 h-10" 
+                  onError={(e) => {
+                    e.currentTarget.src = '/assets/ogajobs-new-logo.png';
+                  }}
+                />
                 <Shield className="w-8 h-8 text-primary" />
               </div>
             </div>

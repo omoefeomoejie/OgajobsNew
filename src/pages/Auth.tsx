@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import LiveChatWidget from '@/components/chat/LiveChatWidget';
-import ogaJobsLogo from '@/assets/ogajobs-logo.png';
+import ogaJobsLogo from '@/assets/ogajobs-new-logo.png';
 import { SecureForm } from '@/components/security/SecureForm';
 import { ValidatedInput } from '@/components/security/InputValidator';
 

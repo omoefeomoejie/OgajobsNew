@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# Handle client-side routing for React app
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/assets/
+RewriteCond %{REQUEST_URI} !^/lovable-uploads/
+RewriteRule . /index.html [L]
+
+# Specific admin route handling
+RewriteRule ^ojssytem-admin$ /index.html [L]
+RewriteRule ^admin-login$ /index.html [L]
+RewriteRule ^admin-dashboard$ /index.html [L]
+
+# Cache static assets
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+  ExpiresActive On
+  ExpiresDefault "access plus 1 year"
+</FilesMatch>

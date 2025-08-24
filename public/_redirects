@@ -1,0 +1,11 @@
+# Redirect all non-asset requests to index.html for client-side routing
+/*    /index.html   200
+
+# Specific redirects for admin routes
+/ojssytem-admin /index.html 200
+/admin-login /index.html 200
+/admin-dashboard /index.html 200
+
+# Asset handling
+/assets/*  /assets/:splat  200
+/lovable-uploads/*  /lovable-uploads/:splat  200
