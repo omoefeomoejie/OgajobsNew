@@ -118,7 +118,7 @@ export type Database = {
             foreignKeyName: "agent_referrals_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "artisans_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -393,7 +393,7 @@ export type Database = {
             foreignKeyName: "artisan_reviews_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "artisans_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -780,7 +780,7 @@ export type Database = {
             foreignKeyName: "commission_transactions_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "artisans_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1381,7 +1381,7 @@ export type Database = {
             foreignKeyName: "job_assignments_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "artisans_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1682,7 +1682,7 @@ export type Database = {
             foreignKeyName: "matches_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "artisans_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1861,7 +1861,7 @@ export type Database = {
             foreignKeyName: "messages_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "artisans_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -3330,14 +3330,16 @@ export type Database = {
       }
     }
     Views: {
-      artisans_public: {
+      artisans_directory: {
         Row: {
           average_rating: number | null
           category: string | null
           city: string | null
           created_at: string | null
+          email: string | null
           full_name: string | null
           id: string | null
+          phone: string | null
           photo_url: string | null
           profile_url: string | null
           skill: string | null
@@ -3406,6 +3408,14 @@ export type Database = {
         Returns: number
       }
       check_rate_limit: {
+        Args: {
+          max_attempts?: number
+          operation_type: string
+          window_minutes?: number
+        }
+        Returns: boolean
+      }
+      check_rate_limit_secure: {
         Args: {
           max_attempts?: number
           operation_type: string
@@ -3486,6 +3496,15 @@ export type Database = {
           phone: string
         }[]
       }
+      get_artisan_contact_secure_v2: {
+        Args: { p_artisan_id: string }
+        Returns: {
+          authorized: boolean
+          email: string
+          full_name: string
+          phone: string
+        }[]
+      }
       get_artisan_performance_secure: {
         Args: { p_artisan_id?: string }
         Returns: {
@@ -3501,6 +3520,10 @@ export type Database = {
         Returns: string
       }
       get_security_headers: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_security_headers_v2: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
@@ -3614,6 +3637,10 @@ export type Database = {
       }
       verify_admin_access: {
         Args: { required_action?: string }
+        Returns: boolean
+      }
+      verify_admin_access_v2: {
+        Args: { additional_context?: Json; required_action?: string }
         Returns: boolean
       }
     }
