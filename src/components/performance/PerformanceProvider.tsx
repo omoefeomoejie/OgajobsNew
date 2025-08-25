@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { cacheUtils } from '@/lib/queryClient';
+import { configManager } from '@/lib/config';
+import { sentryManager } from '@/lib/monitoring/sentry';
 
 interface PerformanceMetrics {
   fcp: number | null;
@@ -94,6 +96,19 @@ export function PerformanceProvider({
   // Report slow component renders
   const reportSlowComponent = (componentName: string, renderTime: number) => {
     setSlowComponents(prev => new Map(prev.set(componentName, renderTime)));
+    
+    // Report to monitoring in production
+    if (configManager.isProduction() && renderTime > 100) {
+      sentryManager.captureMessage(
+        `Slow component render detected: ${componentName}`, 
+        'warning'
+      );
+      sentryManager.addBreadcrumb(
+        `Component ${componentName} took ${renderTime}ms to render`,
+        'performance',
+        { componentName, renderTime }
+      );
+    }
   };
 
   // Clear caches and report performance impact
@@ -107,6 +122,11 @@ export function PerformanceProvider({
         queries_cleared: beforeClear.totalQueries,
         memory_freed: beforeClear.memoryUsage,
       });
+    }
+
+    // Log performance optimization action in production
+    if (configManager.isProduction()) {
+      sentryManager.captureMessage('Cache cleared for performance optimization', 'info');
     }
   };
 
