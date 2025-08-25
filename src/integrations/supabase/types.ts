@@ -3518,12 +3518,14 @@ export type Database = {
         }[]
       }
       get_artisans_directory: {
-        Args: {
-          p_category?: string
-          p_city?: string
-          p_limit?: number
-          p_offset?: number
-        }
+        Args:
+          | Record<PropertyKey, never>
+          | {
+              p_category?: string
+              p_city?: string
+              p_limit?: number
+              p_offset?: number
+            }
         Returns: {
           average_rating: number
           category: string
