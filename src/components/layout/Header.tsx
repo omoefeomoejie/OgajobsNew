@@ -48,22 +48,22 @@ export const Header = () => {
 
       {/* Main Header */}
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity flex-shrink-0">
             <img 
               src={ogaJobsLogo}
               alt="OgaJobs Logo" 
               className="w-12 h-12 md:w-14 md:h-14 object-contain aspect-square"
             />
-            <div className="flex-shrink-0">
-              <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">OgaJobs</h1>
-              <p className="text-sm text-muted-foreground font-semibold whitespace-nowrap">Nigeria's Trust Infrastructure</p>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">OgaJobs</h1>
+              <p className="text-xs md:text-sm text-muted-foreground font-semibold whitespace-nowrap">Nigeria's Trust Infrastructure</p>
             </div>
           </Link>
 
           {/* Location Selector */}
-          <div className="hidden md:flex items-center gap-2 bg-muted px-3 py-2 rounded-lg flex-shrink-0 ml-4">
+          <div className="hidden md:flex items-center gap-2 bg-muted px-3 py-2 rounded-lg flex-shrink-0">
             <MapPin className="w-4 h-4 text-muted-foreground" />
             <select className="bg-transparent border-none outline-none text-sm">
               <option>Lagos</option>
@@ -73,7 +73,7 @@ export const Header = () => {
           </div>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center gap-6 flex-grow justify-center">
+          <nav className="hidden md:flex items-center gap-6 flex-1 justify-center">
             <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors">
               {t('navigation.findServices')}
             </Link>
