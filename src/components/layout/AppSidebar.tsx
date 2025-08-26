@@ -113,7 +113,7 @@ export function AppSidebar() {
         <div className="p-4 border-b">
           <NavLink to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img 
-              src="/lovable-uploads/6ebf328d-8a3c-40db-9fb5-06ab2a52fc20.png" 
+              src="/ogajobs-new-logo.png" 
               alt="OgaJobs" 
               className="w-16 h-16 object-contain filter drop-shadow-md"
               style={{ background: 'transparent', imageRendering: 'crisp-edges' }}

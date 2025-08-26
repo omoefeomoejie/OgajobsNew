@@ -4,7 +4,7 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/assets/
-RewriteCond %{REQUEST_URI} !^/lovable-uploads/
+RewriteCond %{REQUEST_URI} !^/ogajobs-assets/
 RewriteRule . /index.html [L]
 
 # Specific admin route handling

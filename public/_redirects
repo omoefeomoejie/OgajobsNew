@@ -9,4 +9,4 @@
 
 # Asset handling
 /assets/*  /assets/:splat  200
-/lovable-uploads/*  /lovable-uploads/:splat  200
+/ogajobs-assets/*  /ogajobs-assets/:splat  200
