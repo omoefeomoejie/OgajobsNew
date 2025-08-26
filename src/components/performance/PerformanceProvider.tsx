@@ -52,45 +52,49 @@ export function PerformanceProvider({
   const [slowComponents, setSlowComponents] = useState<Map<string, number>>(new Map());
   const [optimizationRecommendations, setOptimizationRecommendations] = useState<string[]>([]);
 
-  // Monitor performance budget violations
+  // Monitor performance budget violations (debounced to prevent spam)
   useEffect(() => {
     if (!metrics || !enableMonitoring) return;
 
-    const recommendations: string[] = [];
-    
-    // Check bundle size (estimated)
-    if (metrics.bundleSize && metrics.bundleSize > performanceBudget.maxBundleSize) {
-      recommendations.push(`Bundle size (${(metrics.bundleSize / 1024).toFixed(0)}KB) exceeds budget (${(performanceBudget.maxBundleSize / 1024).toFixed(0)}KB)`);
-    }
-    
-    // Check FCP timing instead of load time
-    if (metrics.fcp && metrics.fcp > performanceBudget.maxLoadTime) {
-      recommendations.push('First Contentful Paint is slow. Consider optimizing critical resources.');
-    }
-    
-    // Check LCP
-    if (metrics.lcp && metrics.lcp > 4000) {
-      recommendations.push('Largest Contentful Paint is slow. Optimize largest elements and images.');
-    }
-    
-    // Check CLS
-    if (metrics.cls && metrics.cls > 0.25) {
-      recommendations.push('High Cumulative Layout Shift detected. Fix layout shifts in components.');
-    }
-    
-    // Check memory usage
-    if (metrics.usedJSHeapSize && metrics.usedJSHeapSize > 50 * 1024 * 1024) {
-      recommendations.push('High memory usage detected. Consider implementing memory optimization.');
-    }
-    
-    // Check slow components
-    Array.from(slowComponents.entries()).forEach(([component, time]) => {
-      if (time > performanceBudget.maxRenderTime) {
-        recommendations.push(`Component "${component}" is slow (${time.toFixed(1)}ms). Consider memoization.`);
+    const timeoutId = setTimeout(() => {
+      const recommendations: string[] = [];
+      
+      // Check bundle size (estimated)
+      if (metrics.bundleSize && metrics.bundleSize > performanceBudget.maxBundleSize) {
+        recommendations.push(`Bundle size (${(metrics.bundleSize / 1024).toFixed(0)}KB) exceeds budget (${(performanceBudget.maxBundleSize / 1024).toFixed(0)}KB)`);
       }
-    });
-    
-    setOptimizationRecommendations(recommendations);
+      
+      // Check FCP timing instead of load time
+      if (metrics.fcp && metrics.fcp > performanceBudget.maxLoadTime) {
+        recommendations.push('First Contentful Paint is slow. Consider optimizing critical resources.');
+      }
+      
+      // Check LCP
+      if (metrics.lcp && metrics.lcp > 4000) {
+        recommendations.push('Largest Contentful Paint is slow. Optimize largest elements and images.');
+      }
+      
+      // Check CLS
+      if (metrics.cls && metrics.cls > 0.25) {
+        recommendations.push('High Cumulative Layout Shift detected. Fix layout shifts in components.');
+      }
+      
+      // Check memory usage
+      if (metrics.usedJSHeapSize && metrics.usedJSHeapSize > 50 * 1024 * 1024) {
+        recommendations.push('High memory usage detected. Consider implementing memory optimization.');
+      }
+      
+      // Check slow components
+      Array.from(slowComponents.entries()).forEach(([component, time]) => {
+        if (time > performanceBudget.maxRenderTime) {
+          recommendations.push(`Component "${component}" is slow (${time.toFixed(1)}ms). Consider memoization.`);
+        }
+      });
+      
+      setOptimizationRecommendations(recommendations);
+    }, 1000); // Debounce for 1 second
+
+    return () => clearTimeout(timeoutId);
   }, [metrics, enableMonitoring, performanceBudget, slowComponents]);
 
   // Report slow component renders
@@ -130,7 +134,7 @@ export function PerformanceProvider({
     }
   };
 
-  // Monitor and report performance metrics to analytics
+  // Monitor and report performance metrics to analytics (throttled)
   useEffect(() => {
     if (!metrics || !enableMonitoring) return;
 
@@ -147,11 +151,16 @@ export function PerformanceProvider({
       });
     }
 
-    // Log performance issues to console in development
+    // Log performance issues to console in development (only once per session)
     if (process.env.NODE_ENV === 'development' && optimizationRecommendations.length > 0) {
-      console.group('🚀 Performance Optimization Recommendations');
-      optimizationRecommendations.forEach(rec => console.warn('⚠️', rec));
-      console.groupEnd();
+      const sessionKey = 'performance_warnings_shown';
+      if (!sessionStorage.getItem(sessionKey)) {
+        console.group('🚀 Performance Optimization Recommendations');
+        optimizationRecommendations.forEach(rec => console.warn('⚠️', rec));
+        console.log('💡 These warnings will only show once per session to prevent spam.');
+        console.groupEnd();
+        sessionStorage.setItem(sessionKey, 'true');
+      }
     }
   }, [metrics, performanceScore, getPerformanceReport, optimizationRecommendations, enableMonitoring]);
 
