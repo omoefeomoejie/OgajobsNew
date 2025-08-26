@@ -239,19 +239,24 @@ export function usePerformanceMonitor() {
     measureWebVitals();
     
     // Report metrics after page load
-    window.addEventListener('load', () => {
+    const handleLoad = () => {
       setTimeout(() => {
         reportToAnalytics(metrics);
       }, 1000);
-    });
+    };
+    
+    window.addEventListener('load', handleLoad);
 
     // Periodic monitoring every 30 seconds
     const interval = setInterval(() => {
       measureWebVitals();
     }, 30000);
 
-    return () => clearInterval(interval);
-  }, [measureWebVitals, reportToAnalytics, metrics]);
+    return () => {
+      window.removeEventListener('load', handleLoad);
+      clearInterval(interval);
+    };
+  }, [measureWebVitals, reportToAnalytics]); // Removed metrics from dependencies to prevent infinite loop
 
   // Update performance score when metrics change
   useEffect(() => {

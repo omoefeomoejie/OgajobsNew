@@ -36,7 +36,7 @@ createRoot(document.getElementById("root")!).render(
       <PerformanceProvider enableMonitoring={enablePerformanceMonitoring}>
         <App />
         {/* React Query DevTools - only in development, hidden by default */}
-        {process.env.NODE_ENV === 'development' && (
+        {false && process.env.NODE_ENV === 'development' && (
           <ReactQueryDevtools 
             initialIsOpen={false} 
             buttonPosition="bottom-left"
