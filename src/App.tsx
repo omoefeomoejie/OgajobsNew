@@ -34,6 +34,7 @@ import Profile from "./pages/Profile";
 import AgentChatDashboardPage from "./pages/AgentChatDashboard";
 import HowItWorks from "./pages/HowItWorks";
 import AdminUsers from "./pages/AdminUsers";
+import FinancialReports from "./pages/FinancialReports";
 import Favorites from "./pages/Favorites";
 import BecomeArtisan from "./pages/BecomeArtisan";
 import Services from "./pages/Services";
@@ -97,6 +98,7 @@ const App = () => (
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/monitoring-dashboard" element={<MonitoringDashboard />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/financial-reports" element={<FinancialReports />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
