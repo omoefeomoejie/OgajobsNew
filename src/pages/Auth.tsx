@@ -187,43 +187,28 @@ export default function Auth() {
       </Button>
 
       {/* Floating watermark logos */}
-      <div className="absolute inset-0 pointer-events-none">
-        <img 
-          src="/ogajobs-logo.png" 
-          alt="" 
-          className="absolute w-24 h-24 opacity-5 top-10 left-10 rotate-12 animate-pulse filter drop-shadow-sm" 
-          style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
-        />
-        <img 
-          src="/ogajobs-logo.png" 
-          alt="" 
-          className="absolute w-20 h-20 opacity-5 top-32 right-20 -rotate-12 animate-pulse delay-1000 filter drop-shadow-sm" 
-          style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
-        />
-        <img 
-          src="/ogajobs-logo.png" 
-          alt="" 
-          className="absolute w-28 h-28 opacity-5 bottom-20 left-20 rotate-45 animate-pulse delay-2000 filter drop-shadow-sm" 
-          style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
-        />
-        <img 
-          src="/ogajobs-logo.png" 
-          alt="" 
-          className="absolute w-22 h-22 opacity-5 bottom-32 right-10 -rotate-6 animate-pulse delay-3000 filter drop-shadow-sm" 
-          style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
-        />
-        <img 
-          src="/ogajobs-logo.png" 
-          alt="" 
-          className="absolute w-18 h-18 opacity-5 top-1/2 left-5 rotate-90 animate-pulse delay-4000 filter drop-shadow-sm" 
-          style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
-        />
-        <img 
-          src="/ogajobs-logo.png" 
-          alt="" 
-          className="absolute w-26 h-26 opacity-5 top-1/3 right-5 -rotate-45 animate-pulse delay-5000 filter drop-shadow-sm" 
-          style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
-        />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute w-32 h-32 opacity-3 top-10 left-10 rotate-12 animate-pulse">
+          <img 
+            src={ogaJobsLogo}
+            alt="" 
+            className="w-full h-full object-contain aspect-square"
+          />
+        </div>
+        <div className="absolute w-24 h-24 opacity-3 top-32 right-20 -rotate-12 animate-pulse delay-1000">
+          <img 
+            src={ogaJobsLogo}
+            alt="" 
+            className="w-full h-full object-contain aspect-square"
+          />
+        </div>
+        <div className="absolute w-28 h-28 opacity-3 bottom-20 left-20 rotate-45 animate-pulse delay-2000">
+          <img 
+            src={ogaJobsLogo}
+            alt="" 
+            className="w-full h-full object-contain aspect-square"
+          />
+        </div>
       </div>
       
       <Card className="w-full max-w-md relative z-10">
@@ -231,10 +216,9 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <Link to="/" className="hover:opacity-80 transition-opacity">
               <img 
-                src="/ogajobs-logo.png" 
+                src={ogaJobsLogo}
                 alt="OgaJobs Logo" 
-                className="w-32 h-32 filter drop-shadow-lg" 
-                style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
+                className="w-24 h-24 md:w-32 md:h-32 object-contain aspect-square"
               />
             </Link>
           </div>

@@ -52,10 +52,9 @@ export const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img 
-              src="/ogajobs-new-logo.png" 
+              src={ogaJobsLogo}
               alt="OgaJobs Logo" 
-              className="w-20 h-20 object-contain filter drop-shadow-lg"
-              style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
+              className="w-12 h-12 md:w-14 md:h-14 object-contain aspect-square"
             />
             <div>
               <h1 className="text-4xl font-black text-foreground tracking-tight">OgaJobs</h1>

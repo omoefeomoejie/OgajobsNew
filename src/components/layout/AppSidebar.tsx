@@ -113,10 +113,9 @@ export function AppSidebar() {
         <div className="p-4 border-b">
           <NavLink to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img 
-              src="/ogajobs-new-logo.png" 
+              src={ogaJobsLogo}
               alt="OgaJobs" 
-              className="w-16 h-16 object-contain filter drop-shadow-md"
-              style={{ background: 'transparent', imageRendering: 'crisp-edges' }}
+              className="w-10 h-10 object-contain aspect-square"
             />
             {state !== "collapsed" && (
               <div>

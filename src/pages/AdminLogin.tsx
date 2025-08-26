@@ -79,10 +79,7 @@ export default function AdminLogin() {
                 <img 
                   src={ogaJobsLogo} 
                   alt="OgaJobs" 
-                  className="w-10 h-10" 
-                  onError={(e) => {
-                    e.currentTarget.src = '/assets/ogajobs-new-logo.png';
-                  }}
+                  className="w-10 h-10 object-contain aspect-square"
                 />
                 <Shield className="w-8 h-8 text-primary" />
               </div>
