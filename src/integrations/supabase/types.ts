@@ -121,6 +121,13 @@ export type Database = {
             referencedRelation: "artisans_directory"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "agent_referrals_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ai_chat_config: {
@@ -394,6 +401,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_reviews_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
             referencedColumns: ["id"]
           },
         ]
@@ -781,6 +795,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_transactions_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
             referencedColumns: ["id"]
           },
           {
@@ -1385,6 +1406,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "job_assignments_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "job_assignments_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1686,6 +1714,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "matches_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "matches_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1862,6 +1897,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_public"
             referencedColumns: ["id"]
           },
         ]
@@ -3344,6 +3386,45 @@ export type Database = {
           slug: string | null
           suspended: boolean | null
           total_reviews: number | null
+        }
+        Relationships: []
+      }
+      artisans_public: {
+        Row: {
+          category: string | null
+          city: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          photo_url: string | null
+          profile_url: string | null
+          skill: string | null
+          slug: string | null
+          suspended: boolean | null
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          photo_url?: string | null
+          profile_url?: string | null
+          skill?: string | null
+          slug?: string | null
+          suspended?: boolean | null
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          photo_url?: string | null
+          profile_url?: string | null
+          skill?: string | null
+          slug?: string | null
+          suspended?: boolean | null
         }
         Relationships: []
       }
