@@ -139,18 +139,19 @@ export const cacheUtils = {
   
   // Prefetch critical data
   prefetchCriticalData: async () => {
+    const { serviceCategories } = await import('@/data/serviceCategories');
     const promises = [
       // Prefetch service categories
       queryClient.prefetchQuery({
         queryKey: queryKeys.static.categories,
-        queryFn: () => import('@/data/serviceCategories').then(m => m.serviceCategories),
+        queryFn: () => Promise.resolve(serviceCategories),
         ...cacheConfig.static,
       }),
       
       // Prefetch cities
       queryClient.prefetchQuery({
         queryKey: queryKeys.static.cities,
-        queryFn: () => ['Lagos', 'Abuja', 'Port Harcourt', 'Kano', 'Ibadan'],
+        queryFn: () => Promise.resolve(['Lagos', 'Abuja', 'Port Harcourt', 'Kano', 'Ibadan']),
         ...cacheConfig.static,
       }),
     ];
