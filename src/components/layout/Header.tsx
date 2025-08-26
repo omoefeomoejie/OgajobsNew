@@ -56,35 +56,43 @@ export const Header = () => {
               alt="OgaJobs Logo" 
               className="w-12 h-12 md:w-14 md:h-14 object-contain aspect-square"
             />
-            <div>
-              <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">OgaJobs</h1>
-              <p className="text-xs md:text-sm text-muted-foreground font-medium">Nigeria's #1 Trust Platform</p>
+            <div className="flex-shrink-0">
+              <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">OgaJobs</h1>
+              <p className="text-sm text-muted-foreground font-semibold whitespace-nowrap">Nigeria's Trust Infrastructure</p>
             </div>
           </Link>
 
-          {/* Navigation - Desktop */}
-          <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
-            <Link to="/all-services" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {t('navigation.findServices')}
-            </Link>
-            <Link to="/become-artisan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {t('navigation.becomeArtisan')}
-            </Link>
-            <Link to="/how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {t('navigation.howItWorks')}
-            </Link>
-          </nav>
-
-          {/* Trust Badge - Desktop */}
-          <div className="hidden md:flex items-center">
-            <Badge variant="secondary" className="text-xs">
-              <Star className="w-3 h-3 mr-1" />
-              4.9/5
-            </Badge>
+          {/* Location Selector */}
+          <div className="hidden md:flex items-center gap-2 bg-muted px-3 py-2 rounded-lg flex-shrink-0 ml-4">
+            <MapPin className="w-4 h-4 text-muted-foreground" />
+            <select className="bg-transparent border-none outline-none text-sm">
+              <option>Lagos</option>
+              <option>Abuja</option>
+              <option>Benin City</option>
+            </select>
           </div>
 
+          {/* Navigation - Desktop */}
+          <nav className="hidden md:flex items-center gap-6 flex-grow justify-center">
+            <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors">
+              {t('navigation.findServices')}
+            </Link>
+            <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors">
+              {t('navigation.becomeArtisan')}
+            </Link>
+            <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
+              {t('navigation.howItWorks')}
+            </Link>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">
+                <Star className="w-3 h-3 mr-1" />
+                4.9/5 Trust Score
+              </Badge>
+            </div>
+          </nav>
+
           {/* Auth Buttons - Desktop */}
-          <div className="hidden md:flex items-center gap-2 lg:gap-3">
+          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
             <LanguageSelector />
             {user ? (
               <>
@@ -120,7 +128,7 @@ export const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2"
+            className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -129,8 +137,17 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden mt-4 py-4 border-t border-border">
+          <div className="md:hidden mt-4 py-4 border-t border-border">
             <nav className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg mb-4">
+                <MapPin className="w-4 h-4 text-muted-foreground" />
+                <select className="bg-transparent border-none outline-none text-sm flex-1">
+                  <option>Lagos</option>
+                  <option>Abuja</option>
+                  <option>Benin City</option>
+                </select>
+              </div>
+              
               <Link 
                 to="/all-services" 
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
