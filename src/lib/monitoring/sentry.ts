@@ -2,28 +2,23 @@
  * Sentry integration for production error tracking
  */
 
+import * as Sentry from '@sentry/react';
+import { supabase } from '@/integrations/supabase/client';
 import { configManager } from '@/lib/config';
 
 interface SentryConfig {
-  dsn?: string;
-  environment: string;
-  sampleRate: number;
-  beforeSend?: (event: any) => any;
+  dsn: string | null;
+  enabled: boolean;
+  environment?: string;
 }
 
 class SentryManager {
   private static instance: SentryManager;
   private initialized = false;
-  private config: SentryConfig;
+  private enabled = false;
+  private config: SentryConfig | null = null;
 
-  private constructor() {
-    const appConfig = configManager.getConfig();
-    this.config = {
-      environment: appConfig.environment,
-      sampleRate: appConfig.monitoring.performance.sampleRate,
-      beforeSend: this.filterEvent.bind(this),
-    };
-  }
+  private constructor() {}
 
   public static getInstance(): SentryManager {
     if (!SentryManager.instance) {
@@ -33,34 +28,54 @@ class SentryManager {
   }
 
   public async initialize(): Promise<void> {
-    if (this.initialized || !configManager.isProduction()) {
-      return;
-    }
+    if (this.initialized) return;
 
     try {
-      // In production, DSN will come from Supabase secrets via edge function
-      const sentryDsn = await this.getSentryDsn();
-      if (!sentryDsn) {
-        console.warn('Sentry DSN not available, skipping initialization');
-        return;
+      this.config = await this.getSentryConfig();
+      
+      if (this.config.enabled && this.config.dsn) {
+        // Initialize real Sentry
+        Sentry.init({
+          dsn: this.config.dsn,
+          environment: this.config.environment || configManager.getConfig().environment,
+          tracesSampleRate: configManager.getConfig().monitoring.performance.sampleRate,
+          replaysSessionSampleRate: 0.1,
+          replaysOnErrorSampleRate: 1.0,
+          integrations: [
+            Sentry.browserTracingIntegration(),
+            Sentry.replayIntegration(),
+          ],
+          beforeSend: this.filterEvent.bind(this),
+        });
+        
+        this.enabled = true;
+        console.log('Sentry initialized successfully');
+      } else {
+        console.log('Sentry disabled - no DSN configured');
+        this.enabled = false;
       }
-
-      // Mock Sentry initialization (in real app, you'd use @sentry/react)
-      console.log('Sentry initialized for production monitoring');
+      
       this.initialized = true;
     } catch (error) {
       console.error('Failed to initialize Sentry:', error);
+      this.enabled = false;
+      this.initialized = true;
     }
   }
 
-  private async getSentryDsn(): Promise<string | null> {
+  private async getSentryConfig(): Promise<SentryConfig> {
     try {
-      // This would call an edge function to get the secret
-      // For now, we'll simulate this
-      return null; // Would be populated by edge function
+      const { data, error } = await supabase.functions.invoke('get-sentry-dsn');
+      
+      if (error) {
+        console.error('Error fetching Sentry config:', error);
+        return { dsn: null, enabled: false };
+      }
+      
+      return data || { dsn: null, enabled: false };
     } catch (error) {
-      console.error('Failed to get Sentry DSN:', error);
-      return null;
+      console.error('Failed to get Sentry config:', error);
+      return { dsn: null, enabled: false };
     }
   }
 
@@ -73,52 +88,85 @@ class SentryManager {
       }
     }
 
-    // Remove sensitive data
+    // Remove sensitive data but keep user ID for tracking
     if (event.user) {
-      delete event.user.email;
-      delete event.user.id;
+      const userContext = { ...event.user };
+      if (userContext.email) {
+        userContext.email = userContext.email.replace(/(.{2}).*@/, '$1***@');
+      }
+      event.user = userContext;
     }
 
     return event;
   }
 
   public captureError(error: Error, context?: Record<string, any>): void {
-    if (!this.initialized && configManager.isProduction()) {
-      console.error('Sentry not initialized, logging error:', error, context);
+    if (!this.enabled) {
+      // Fallback to console logging
+      console.error('Error (Sentry disabled):', error, context);
       return;
     }
-
-    // In development, just log to console
-    if (!configManager.isProduction()) {
-      console.error('Development Error:', error, context);
-      return;
+    
+    if (context) {
+      Sentry.withScope((scope) => {
+        Object.entries(context).forEach(([key, value]) => {
+          scope.setContext(key, value);
+        });
+        Sentry.captureException(error);
+      });
+    } else {
+      Sentry.captureException(error);
     }
-
-    // In production, this would send to Sentry
-    console.error('Production Error (would send to Sentry):', error, context);
   }
 
-  public captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info'): void {
-    if (!configManager.isProduction()) {
-      console.log(`Development ${level}:`, message);
+  public captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info', context?: Record<string, any>): void {
+    if (!this.enabled) {
+      console.log(`Message (Sentry disabled) [${level}]:`, message, context);
       return;
     }
-
-    console.log(`Production ${level} (would send to Sentry):`, message);
+    
+    if (context) {
+      Sentry.withScope((scope) => {
+        Object.entries(context).forEach(([key, value]) => {
+          scope.setContext(key, value);
+        });
+        Sentry.captureMessage(message, level);
+      });
+    } else {
+      Sentry.captureMessage(message, level);
+    }
   }
 
-  public setUserContext(user: { id: string; email?: string }): void {
-    if (configManager.isProduction()) {
-      // Would set user context in Sentry
-      console.log('Setting user context for monitoring');
-    }
+  public setUserContext(user: { id: string; email?: string; username?: string }): void {
+    if (!this.enabled) return;
+    
+    Sentry.setUser({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    });
   }
 
   public addBreadcrumb(message: string, category: string, data?: Record<string, any>): void {
-    if (configManager.isProduction()) {
-      // Would add breadcrumb to Sentry
-      console.log('Adding breadcrumb:', { message, category, data });
-    }
+    if (!this.enabled) return;
+    
+    Sentry.addBreadcrumb({
+      message,
+      category,
+      level: 'info',
+      data,
+    });
+  }
+
+  public isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  // Add method to manually flush events (useful for critical errors)
+  public async flush(timeout = 2000): Promise<boolean> {
+    if (!this.enabled) return true;
+    
+    return await Sentry.flush(timeout);
   }
 }
 

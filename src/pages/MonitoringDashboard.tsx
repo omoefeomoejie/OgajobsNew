@@ -3,6 +3,7 @@ import { PerformanceMonitor } from '@/components/monitoring/PerformanceMonitor';
 import { ProductionMonitor } from '@/components/monitoring/ProductionMonitor';
 import { ErrorTracker } from '@/components/monitoring/ErrorTracker';
 import { TestHelper } from '@/components/testing/TestHelper';
+import { SentryTestComponent } from '@/components/testing/SentryTestComponent';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Activity, Bug, TestTube, Server, Shield } from 'lucide-react';
@@ -44,7 +45,10 @@ export default function MonitoringDashboard() {
         </TabsContent>
         
         <TabsContent value="testing">
-          <TestHelper />
+          <div className="space-y-6">
+            <SentryTestComponent />
+            <TestHelper />
+          </div>
         </TabsContent>
 
         <TabsContent value="config">

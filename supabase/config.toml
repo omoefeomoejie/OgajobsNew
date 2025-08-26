@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.monitoring-alerts]
 verify_jwt = false
+
+[functions.get-sentry-dsn]
+verify_jwt = false

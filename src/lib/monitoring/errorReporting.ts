@@ -141,8 +141,8 @@ class ErrorReportingManager {
     // Add to queue for batch processing
     this.errorQueue.push(report);
 
-    // Send to Sentry in production
-    if (configManager.isProduction()) {
+    // Send to Sentry in production and development (if configured)
+    if (sentryManager.isEnabled()) {
       sentryManager.captureError(errorObj, context);
     }
 
@@ -169,11 +169,12 @@ class ErrorReportingManager {
     severity: ErrorReport['severity'] = 'low',
     context: Partial<ErrorReport['context']> = {}
   ): void {
-    if (configManager.isProduction()) {
-      const sentryLevel = severity === 'critical' ? 'error' : 
-                          severity === 'high' ? 'error' :
-                          severity === 'medium' ? 'warning' : 'info';
-      sentryManager.captureMessage(message, sentryLevel);
+    const sentryLevel = severity === 'critical' ? 'error' : 
+                        severity === 'high' ? 'error' :
+                        severity === 'medium' ? 'warning' : 'info';
+    
+    if (sentryManager.isEnabled()) {
+      sentryManager.captureMessage(message, sentryLevel, context);
     } else {
       console.log(`[${severity.toUpperCase()}] ${message}`, context);
     }
@@ -202,7 +203,27 @@ class ErrorReportingManager {
 
   private async sendToMonitoringService(errors: ErrorReport[]): Promise<void> {
     try {
-      // Send to monitoring alerts edge function
+      // Send to Sentry for each error if enabled
+      if (sentryManager.isEnabled()) {
+        errors.forEach(errorReport => {
+          const error = new Error(errorReport.error.message);
+          error.name = errorReport.error.name;
+          if (errorReport.error.stack) {
+            error.stack = errorReport.error.stack;
+          }
+          
+          sentryManager.captureError(error, {
+            component: errorReport.context.component,
+            action: errorReport.context.action,
+            severity: errorReport.severity,
+            userId: errorReport.context.userId,
+            url: errorReport.context.url,
+            sessionId: errorReport.context.sessionId
+          });
+        });
+      }
+
+      // Send to monitoring alerts edge function as backup/additional logging
       const { error } = await supabase.functions.invoke('monitoring-alerts', {
         body: {
           action: 'report_errors',
