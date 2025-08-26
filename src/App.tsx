@@ -42,6 +42,7 @@ import SafetyGuidelines from "./pages/SafetyGuidelines";
 import POSPartnership from "./pages/POSPartnership";
 import CompetitiveAdvantages from "./pages/CompetitiveAdvantages";
 import Calendar from "./pages/Calendar";
+import MonitoringDashboard from "./pages/MonitoringDashboard";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => (
                 <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
                 <Route path="/dispute-resolution" element={<Disputes />} />
                 <Route path="/calendar" element={<Calendar />} />
+                <Route path="/monitoring-dashboard" element={<MonitoringDashboard />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />

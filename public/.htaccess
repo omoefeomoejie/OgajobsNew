@@ -11,6 +11,7 @@ RewriteRule . /index.html [L]
 RewriteRule ^ojssytem-admin$ /index.html [L]
 RewriteRule ^admin-login$ /index.html [L]
 RewriteRule ^admin-dashboard$ /index.html [L]
+RewriteRule ^monitoring-dashboard$ /index.html [L]
 
 # Cache static assets
 <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
