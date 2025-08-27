@@ -42,16 +42,6 @@ export function AppSidebar() {
 
   // Different navigation items based on user role
   const getNavigationItems = () => {
-    // Base items for regular users (clients and artisans)
-    const userBaseItems = [
-      { title: 'Dashboard', url: '/dashboard', icon: Home },
-      { title: 'Messages', url: '/messages', icon: MessageSquare },
-      { title: 'Reviews', url: '/reviews', icon: Star },
-      { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
-      { title: 'Verification', url: '/verification', icon: Shield },
-      { title: 'Settings', url: '/settings', icon: Settings },
-    ];
-
     if (profile?.role === 'client') {
       return [
         { title: 'Dashboard', url: '/dashboard', icon: Home },
@@ -60,6 +50,7 @@ export function AppSidebar() {
         { title: 'Messages', url: '/messages', icon: MessageSquare },
         { title: 'Favorites', url: '/favorites', icon: Star },
         { title: 'Reviews', url: '/reviews', icon: Star },
+        { title: 'Verification', url: '/verification', icon: Shield },
         { title: 'Profile', url: '/profile', icon: User },
         { title: 'Settings', url: '/settings', icon: Settings },
       ];
@@ -82,7 +73,11 @@ export function AppSidebar() {
       return [
         { title: 'Agent Dashboard', url: '/agent-dashboard', icon: Briefcase },
         { title: 'Live Chat', url: '/agent-chat', icon: Headphones },
-        ...userBaseItems,
+        { title: 'Dashboard', url: '/dashboard', icon: Home },
+        { title: 'Messages', url: '/messages', icon: MessageSquare },
+        { title: 'Reviews', url: '/reviews', icon: Star },
+        { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
+        { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
 
@@ -100,7 +95,12 @@ export function AppSidebar() {
     }
 
     // Default fallback for any other roles
-    return userBaseItems;
+    return [
+      { title: 'Dashboard', url: '/dashboard', icon: Home },
+      { title: 'Messages', url: '/messages', icon: MessageSquare },
+      { title: 'Reviews', url: '/reviews', icon: Star },
+      { title: 'Settings', url: '/settings', icon: Settings },
+    ];
   };
 
   const navigationItems = getNavigationItems();

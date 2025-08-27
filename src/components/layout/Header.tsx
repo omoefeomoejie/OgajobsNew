@@ -97,12 +97,13 @@ export const Header = () => {
             {user ? (
               <>
                 <NotificationCenter />
-                <Button variant="ghost" asChild>
-                  <Link to="/dashboard">{t('navigation.dashboard')}</Link>
-                </Button>
-                {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
+                {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
                   <Button variant="ghost" asChild>
                     <Link to="/admin-dashboard">Admin</Link>
+                  </Button>
+                ) : (
+                  <Button variant="ghost" asChild>
+                    <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                   </Button>
                 )}
                 <Button variant="outline" onClick={signOut}>
@@ -178,12 +179,13 @@ export const Header = () => {
                 {user ? (
                   <>
                     <NotificationCenter />
-                    <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
-                      <Link to="/dashboard">{t('navigation.dashboard')}</Link>
-                    </Button>
-                    {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
+                    {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
                       <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
                         <Link to="/admin-dashboard">Admin</Link>
+                      </Button>
+                    ) : (
+                      <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                       </Button>
                     )}
                     <Button variant="outline" onClick={() => { signOut(); setIsMenuOpen(false); }}>
