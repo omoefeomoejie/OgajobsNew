@@ -28,7 +28,7 @@ import {
   Headphones,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ogaJobsLogo from '@/assets/ogajobs-new-logo.png';
+import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
 
 export function AppSidebar() {
   const { profile, signOut } = useAuth();
@@ -95,7 +95,6 @@ export function AppSidebar() {
         { title: 'Messages', url: '/messages', icon: MessageSquare },
         { title: 'Reviews', url: '/reviews', icon: Star },
         { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
-        { title: 'Verification', url: '/verification', icon: Shield },
         { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }

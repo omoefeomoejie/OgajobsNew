@@ -17,7 +17,7 @@ import {
   User
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import ogaJobsLogo from '@/assets/ogajobs-new-logo.png';
+import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -100,10 +100,6 @@ export const Header = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                 </Button>
-                <div className="flex items-center gap-2 text-sm">
-                  <User className="w-4 h-4" />
-                  <span className="capitalize">{profile?.role || 'User'}</span>
-                </div>
                 {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                   <Button variant="ghost" asChild>
                     <Link to="/admin-dashboard">Admin</Link>
@@ -185,10 +181,6 @@ export const Header = () => {
                     <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
                       <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                     </Button>
-                    <div className="flex items-center gap-2 text-sm py-2">
-                      <User className="w-4 h-4" />
-                      <span className="capitalize">{profile?.role || 'User'}</span>
-                    </div>
                     {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                       <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
                         <Link to="/admin-dashboard">Admin</Link>
