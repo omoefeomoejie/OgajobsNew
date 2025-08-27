@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import LiveChatWidget from '@/components/chat/LiveChatWidget';
-import ogaJobsLogo from '@/assets/ogajobs-new-logo.png';
+import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
 import { SecureForm } from '@/components/security/SecureForm';
 import { ValidatedInput } from '@/components/security/InputValidator';
 
@@ -192,21 +192,24 @@ export default function Auth() {
           <img 
             src={ogaJobsLogo}
             alt="" 
-            className="w-full h-full object-contain aspect-square"
+            className="w-full h-full object-contain aspect-square bg-transparent"
+            style={{ background: 'transparent' }}
           />
         </div>
         <div className="absolute w-24 h-24 opacity-3 top-32 right-20 -rotate-12 animate-pulse delay-1000">
           <img 
             src={ogaJobsLogo}
             alt="" 
-            className="w-full h-full object-contain aspect-square"
+            className="w-full h-full object-contain aspect-square bg-transparent"
+            style={{ background: 'transparent' }}
           />
         </div>
         <div className="absolute w-28 h-28 opacity-3 bottom-20 left-20 rotate-45 animate-pulse delay-2000">
           <img 
             src={ogaJobsLogo}
             alt="" 
-            className="w-full h-full object-contain aspect-square"
+            className="w-full h-full object-contain aspect-square bg-transparent"
+            style={{ background: 'transparent' }}
           />
         </div>
       </div>
@@ -218,7 +221,8 @@ export default function Auth() {
               <img 
                 src={ogaJobsLogo}
                 alt="OgaJobs Logo" 
-                className="w-24 h-24 md:w-32 md:h-32 object-contain aspect-square"
+                className="w-24 h-24 md:w-32 md:h-32 object-contain aspect-square bg-transparent"
+                style={{ background: 'transparent' }}
               />
             </Link>
           </div>

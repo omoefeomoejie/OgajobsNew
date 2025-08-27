@@ -54,7 +54,8 @@ export const Header = () => {
             <img 
               src={ogaJobsLogo}
               alt="OgaJobs Logo" 
-              className="w-12 h-12 md:w-14 md:h-14 object-contain aspect-square"
+              className="w-12 h-12 md:w-14 md:h-14 object-contain aspect-square bg-transparent"
+              style={{ background: 'transparent' }}
             />
             <div>
               <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">OgaJobs</h1>

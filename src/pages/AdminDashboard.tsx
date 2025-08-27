@@ -75,5 +75,39 @@ export default function AdminDashboard() {
     );
   }
 
-  return <AdminDashboardComponent />;
+  return (
+    <AppLayout>
+      <div className="space-y-6">
+        <div className="border-b pb-4">
+          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Welcome to the admin dashboard. Use the navigation menu to access different sections.
+          </p>
+        </div>
+        
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle>Admin Control Panel</CardTitle>
+              <CardDescription>Main administrative controls and settings</CardDescription>
+            </CardHeader>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle>User Management</CardTitle>
+              <CardDescription>Manage users, roles, and permissions</CardDescription>
+            </CardHeader>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle>Live Chat Support</CardTitle>
+              <CardDescription>Monitor and assist with customer support</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    </AppLayout>
+  );
 }

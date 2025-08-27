@@ -83,7 +83,7 @@ export function AppSidebar() {
 
     if (profile?.role === 'admin') {
       return [
-        { title: 'Admin Panel', url: '/admin-dashboard', icon: Shield },
+        { title: 'Admin Panel', url: '/admin-control-panel', icon: Shield },
         { title: 'User Management', url: '/admin/users', icon: Users },
         { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
         { title: 'Dashboard', url: '/dashboard', icon: Home },
@@ -114,7 +114,8 @@ export function AppSidebar() {
             <img 
               src={ogaJobsLogo}
               alt="OgaJobs" 
-              className="w-10 h-10 object-contain aspect-square"
+              className="w-10 h-10 object-contain aspect-square bg-transparent"
+              style={{ background: 'transparent' }}
             />
             {state !== "collapsed" && (
               <div>

@@ -8,6 +8,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { GlobalErrorHandler } from "@/components/error/GlobalErrorHandler";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { AdminDashboard as AdminDashboardComponent } from "@/components/admin/AdminDashboard";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/admin-control-panel" element={<AdminDashboardComponent />} />
                 <Route path="/services" element={<ServiceDirectory />} />
                 <Route path="/service-directory" element={<ServiceDirectory />} />
                 <Route path="/book" element={<BookingRequest />} />
