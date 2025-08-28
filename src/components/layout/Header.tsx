@@ -64,7 +64,7 @@ export const Header = () => {
           </Link>
 
           {/* Center Navigation */}
-          <div className="hidden lg:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6">
             {/* Location Selector */}
             <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
               <MapPin className="w-4 h-4 text-muted-foreground" />
