@@ -11,7 +11,8 @@ import {
   Settings,
   TrendingUp,
   Award,
-  Search
+  Search,
+  LogOut
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EarningsOverview } from '@/components/dashboard/EarningsOverview';
@@ -29,16 +30,22 @@ interface Assignment {
 }
 
 export default function ArtisanDashboard() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Your Business Dashboard</h1>
-        <p className="text-muted-foreground">
-          Earnings, Jobs, Reputation - Your business in a box
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Your Business Dashboard</h1>
+          <p className="text-muted-foreground">
+            Earnings, Jobs, Reputation - Your business in a box
+          </p>
+        </div>
+        <Button variant="outline" onClick={signOut}>
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
 
       {/* Quick Actions */}

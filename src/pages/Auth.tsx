@@ -130,14 +130,15 @@ export default function Auth() {
     }
   };
 
-  const handleSignIn = async (data: any) => {
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
+        email,
+        password,
       });
 
       if (signInError) throw signInError;
@@ -159,13 +160,22 @@ export default function Auth() {
         if (profile?.role === 'pos_agent') {
           navigate('/agent-dashboard');
         } else if (profile?.role === 'admin') {
-          navigate('/admin');
+          navigate('/admin-dashboard');
+        } else if (profile?.role === 'artisan') {
+          navigate('/artisan-dashboard');
+        } else if (profile?.role === 'client') {
+          navigate('/client-dashboard');
         } else {
-          navigate(redirectTo);
+          navigate('/dashboard');
         }
       }
     } catch (error: any) {
       setError(error.message || 'An error occurred during sign in');
+      toast({
+        title: "Sign In Failed",
+        description: error.message || 'An error occurred during sign in',
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -239,37 +249,40 @@ export default function Auth() {
             </TabsList>
 
             <TabsContent value="signin">
-              <SecureForm
-                onSubmit={async (data) => await handleSignIn(data)}
-                rateLimitKey="auth-signin"
-                validationSchema={(data) => {
-                  const errors: string[] = [];
-                  if (!data.email) errors.push('Email is required');
-                  if (!data.password) errors.push('Password is required');
-                  return { valid: errors.length === 0, errors };
-                }}
-                className="space-y-4"
-              >
-                <ValidatedInput
-                  name="email"
-                  label={t('signIn.emailPlaceholder')}
-                  type="email"
-                  placeholder={t('signIn.emailPlaceholder')}
-                  required
-                />
-                <ValidatedInput
-                  name="password"
-                  label={t('signIn.passwordPlaceholder')}
-                  type="password"
-                  placeholder={t('signIn.passwordPlaceholder')}
-                  required
-                  minLength={6}
-                />
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t('signIn.emailPlaceholder')}</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder={t('signIn.emailPlaceholder')}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">{t('signIn.passwordPlaceholder')}</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder={t('signIn.passwordPlaceholder')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {t('signIn.signInButton')}
                 </Button>
-              </SecureForm>
+              </form>
             </TabsContent>
 
             <TabsContent value="signup">

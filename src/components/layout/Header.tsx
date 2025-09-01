@@ -63,36 +63,34 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Center Navigation - Compact responsive layout */}
-          <div className="hidden lg:flex items-center gap-3 xl:gap-4 flex-1 justify-center max-w-2xl mx-4">
-            {/* Compact Location Selector */}
-            <div className="flex items-center gap-1 bg-muted px-2 py-1.5 rounded-md">
-              <MapPin className="w-3 h-3 text-muted-foreground" />
-              <select className="bg-transparent border-none outline-none text-xs max-w-20">
+          {/* Center Navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            {/* Location Selector */}
+            <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <select className="bg-transparent border-none outline-none text-sm">
                 <option>Lagos</option>
                 <option>Abuja</option>
-                <option>Benin</option>
+                <option>Benin City</option>
               </select>
             </div>
 
-            {/* Compact Navigation Links */}
-            <nav className="flex items-center gap-2 xl:gap-3">
-              <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-xs xl:text-sm whitespace-nowrap">
+            {/* Navigation Links */}
+            <nav className="flex items-center gap-4">
+              <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
                 Find Services
               </Link>
-              <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-xs xl:text-sm whitespace-nowrap">
+              <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
                 Become Artisan
               </Link>
-              <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-xs xl:text-sm whitespace-nowrap">
+              <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
                 How It Works
               </Link>
+              <Badge variant="secondary" className="text-xs">
+                <Star className="w-3 h-3 mr-1" />
+                4.9/5
+              </Badge>
             </nav>
-
-            {/* Compact Trust Badge */}
-            <Badge variant="secondary" className="text-xs hidden xl:flex">
-              <Star className="w-3 h-3 mr-1" />
-              4.9/5
-            </Badge>
           </div>
 
           {/* Auth Buttons - Desktop */}
@@ -110,10 +108,6 @@ export const Header = () => {
                     <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                   </Button>
                 )}
-                <Button variant="outline" onClick={signOut}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  {t('navigation.signOut')}
-                </Button>
               </>
             ) : (
               <>
@@ -192,10 +186,6 @@ export const Header = () => {
                         <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                       </Button>
                     )}
-                    <Button variant="outline" onClick={() => { signOut(); setIsMenuOpen(false); }}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      {t('navigation.signOut')}
-                    </Button>
                   </>
                 ) : (
                   <>

@@ -2,22 +2,28 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Calendar, MessageSquare, TrendingUp } from 'lucide-react';
+import { Search, Calendar, MessageSquare, TrendingUp, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BookingTimeline } from '@/components/dashboard/BookingTimeline';
 import { PaymentOverview } from '@/components/dashboard/PaymentOverview';
 
 export default function ClientDashboard() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Welcome back!</h1>
-        <p className="text-muted-foreground">
-          Book, track, and trust - your control center for all services
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Welcome back!</h1>
+          <p className="text-muted-foreground">
+            Book, track, and trust - your control center for all services
+          </p>
+        </div>
+        <Button variant="outline" onClick={signOut}>
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
 
       {/* Quick Actions */}
