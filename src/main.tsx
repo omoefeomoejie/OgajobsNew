@@ -2,6 +2,8 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { FeedbackContainer } from '@/components/feedback/UserFeedback';
+import { NetworkErrorBoundary } from '@/components/feedback/OfflineIndicator';
 import App from './App.tsx'
 import './index.css'
 import './i18n/config'
@@ -34,15 +36,18 @@ createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <PerformanceProvider enableMonitoring={enablePerformanceMonitoring}>
-        <App />
-        {/* React Query DevTools - only in development, hidden by default */}
-        {false && process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools 
-            initialIsOpen={false} 
-            buttonPosition="bottom-left"
-            position="bottom"
-          />
-        )}
+        <NetworkErrorBoundary>
+          <App />
+          <FeedbackContainer />
+          {/* React Query DevTools - only in development, hidden by default */}
+          {false && process.env.NODE_ENV === 'development' && (
+            <ReactQueryDevtools 
+              initialIsOpen={false} 
+              buttonPosition="bottom-left"
+              position="bottom"
+            />
+          )}
+        </NetworkErrorBoundary>
       </PerformanceProvider>
     </QueryClientProvider>
   </React.StrictMode>
