@@ -164,7 +164,7 @@ export function PerformanceProvider({
       if (!sessionStorage.getItem(sessionKey)) {
         console.group('🚀 Performance Optimization Recommendations');
         optimizationRecommendations.forEach(rec => console.warn('⚠️', rec));
-        console.log('💡 These warnings will only show once per session to prevent spam.');
+        // Performance warnings shown once per session
         console.groupEnd();
         sessionStorage.setItem(sessionKey, 'true');
       }

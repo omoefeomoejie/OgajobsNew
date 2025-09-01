@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,23 @@ import {
 } from 'lucide-react';
 import { serviceCategories } from '@/data/serviceCategories';
 
-export const HeroSection = () => {
+export const HeroSection = memo(() => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Lagos');
   const navigate = useNavigate();
   const { t } = useTranslation('home');
+
+  const handleSearch = useCallback(() => {
+    navigate(`${ROUTES.SERVICES}?search=${encodeURIComponent(searchQuery)}&city=${encodeURIComponent(selectedCity)}`);
+  }, [navigate, searchQuery, selectedCity]);
+
+  const handleServiceClick = useCallback((service: string) => {
+    setSearchQuery(service);
+  }, []);
+
+  const handleCityChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCity(e.target.value);
+  }, []);
 
   const popularServices = [
     'Plumbing', 'Electrical', 'House Cleaning', 'AC Repair', 
@@ -76,7 +88,7 @@ export const HeroSection = () => {
                 <MapPin className="w-5 h-5 text-muted-foreground" />
                 <select 
                   value={selectedCity} 
-                  onChange={(e) => setSelectedCity(e.target.value)}
+                  onChange={handleCityChange}
                   className="bg-transparent border-none outline-none text-foreground flex-1"
                 >
                   <option value="Lagos">Lagos</option>
@@ -99,7 +111,7 @@ export const HeroSection = () => {
               <Button 
                 size="lg" 
                 className="px-8 h-12 bg-primary hover:bg-primary-dark text-primary-foreground" 
-                onClick={() => navigate(`${ROUTES.SERVICES}?search=${encodeURIComponent(searchQuery)}&city=${encodeURIComponent(selectedCity)}`)}
+                onClick={handleSearch}
               >
                 <Search className="w-5 h-5 mr-2" />
                 {t('hero.searchButton')}
@@ -116,7 +128,7 @@ export const HeroSection = () => {
                     variant="outline"
                     size="sm"
                     className="rounded-full text-xs bg-background text-foreground border-border hover:bg-accent hover:text-accent-foreground"
-                    onClick={() => setSearchQuery(service)}
+                    onClick={() => handleServiceClick(service)}
                   >
                     {service}
                   </Button>
@@ -178,4 +190,4 @@ export const HeroSection = () => {
       </div>
     </section>
   );
-};
+});

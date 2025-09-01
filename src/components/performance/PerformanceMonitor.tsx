@@ -44,7 +44,7 @@ export function PerformanceMonitor() {
     const channel = supabase
       .channel('performance-monitoring')
       .on('broadcast', { event: 'performance-update' }, (payload) => {
-        console.log('Performance update received:', payload);
+        // Performance update received
         collectPerformanceMetrics();
       })
       .subscribe();

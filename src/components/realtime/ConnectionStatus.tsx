@@ -18,7 +18,7 @@ export function ConnectionStatus() {
     
     channel
       .on('system', {}, (payload) => {
-        console.log('Supabase connection status:', payload);
+        // Connection status updated
       })
       .subscribe((status) => {
         setConnectionState(status as ConnectionState);

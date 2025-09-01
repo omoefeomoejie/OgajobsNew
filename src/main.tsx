@@ -19,7 +19,7 @@ registerServiceWorker();
 // Prefetch critical data immediately
 cacheUtils.prefetchCriticalData();
 
-// Enable performance monitoring for production insights
+// Enable performance monitoring for production insights (enabled for production)
 const enablePerformanceMonitoring = true;
 
 // Report bundle metrics in development

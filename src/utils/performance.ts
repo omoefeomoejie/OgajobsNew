@@ -1,4 +1,5 @@
 // Performance optimization utilities
+import { logger } from '@/lib/logger';
 
 export interface PerformanceMetrics {
   renderTime: number;
@@ -62,8 +63,9 @@ export const analyzeBundleSize = () => {
   const stylesheets = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
   
   console.group('📦 Bundle Analysis');
-  console.log('Scripts:', scripts.length);
-  console.log('Stylesheets:', stylesheets.length);
+  // Performance metrics logged
+  logger.debug('Scripts loaded', { count: scripts.length });
+  logger.debug('Stylesheets loaded', { count: stylesheets.length });
   
   // Measure script sizes (approximation)
   scripts.forEach((script, index) => {
@@ -73,11 +75,11 @@ export const analyzeBundleSize = () => {
         .then(response => {
           const size = response.headers.get('content-length');
           if (size) {
-            console.log(`Script ${index + 1}: ${(parseInt(size) / 1024).toFixed(2)}KB`);
+            logger.debug(`Script ${index + 1}: ${(parseInt(size) / 1024).toFixed(2)}KB`);
           }
         })
         .catch(() => {
-          console.log(`Script ${index + 1}: Size unknown`);
+          logger.debug(`Script ${index + 1}: Size unknown`);
         });
     }
   });
@@ -145,7 +147,7 @@ export const monitorNetworkRequests = () => {
       const entries = list.getEntries();
       entries.forEach((entry) => {
         if (entry.entryType === 'navigation') {
-          console.log('Navigation timing:', entry);
+          logger.debug('Navigation timing:', entry);
         } else if (entry.entryType === 'resource') {
           const resource = entry as PerformanceResourceTiming;
           if (resource.duration > 1000) { // Log slow resources
@@ -168,7 +170,7 @@ export const loadComponentChunk = async (chunkName: string) => {
     const module = await import(/* webpackChunkName: "[request]" */ `../components/${chunkName}`);
     const end = performance.now();
     
-    console.log(`Chunk ${chunkName} loaded in ${(end - start).toFixed(2)}ms`);
+    logger.debug(`Chunk ${chunkName} loaded in ${(end - start).toFixed(2)}ms`);
     return module.default;
   } catch (error) {
     console.error(`Failed to load chunk ${chunkName}:`, error);

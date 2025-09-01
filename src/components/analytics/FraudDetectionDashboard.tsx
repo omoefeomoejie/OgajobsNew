@@ -113,7 +113,7 @@ export default function FraudDetectionDashboard() {
   const updateAlertStatus = async (alertId: string, status: string) => {
     try {
       // Mock implementation until database types are updated
-      console.log('Updating alert status:', alertId, status);
+      // Alert status updated
 
       toast({
         title: "Success",

@@ -214,7 +214,7 @@ export default function Messages() {
           filter: `receiver_email=eq.${user?.email}`
         },
         (payload) => {
-          console.log('New message received:', payload);
+          // New message received
           if (selectedConversation?.id === payload.new.conversation_id) {
             fetchMessages(selectedConversation.id);
           }

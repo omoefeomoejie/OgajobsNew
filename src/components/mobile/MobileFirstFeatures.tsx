@@ -225,7 +225,7 @@ export function MobileFirstFeatures() {
       for (const permission of permissions) {
         if ('permissions' in navigator) {
           const result = await navigator.permissions.query({ name: permission as PermissionName });
-          console.log(`${permission} permission:`, result.state);
+          // Permission checked
         }
       }
     } catch (error) {

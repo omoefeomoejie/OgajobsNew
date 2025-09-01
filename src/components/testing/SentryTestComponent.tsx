@@ -45,7 +45,7 @@ export const SentryTestComponent: React.FC = () => {
       testType: 'error_capture'
     });
     
-    console.log('Sentry error test completed');
+    // Sentry error test completed
   };
 
   const testSentryMessage = async () => {
@@ -55,7 +55,7 @@ export const SentryTestComponent: React.FC = () => {
       testType: 'message_capture'
     });
     
-    console.log('Sentry message test completed');
+    // Sentry message test completed
   };
 
   const testErrorReporting = async () => {
@@ -64,7 +64,7 @@ export const SentryTestComponent: React.FC = () => {
       action: 'manual_test'
     }, 'medium');
     
-    console.log('Error reporting test completed');
+    // Error reporting test completed
   };
 
   const testUserContext = async () => {
@@ -78,7 +78,7 @@ export const SentryTestComponent: React.FC = () => {
       testData: 'breadcrumb test'
     });
     
-    console.log('User context test completed');
+    // User context test completed
   };
 
   const runAllTests = async () => {

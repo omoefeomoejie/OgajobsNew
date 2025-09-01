@@ -66,7 +66,7 @@ export function NotificationCenter() {
           table: 'notifications',
         },
         (payload) => {
-          console.log('New notification received:', payload);
+          // New notification received
           fetchNotifications(); // Refresh notifications
         }
       )

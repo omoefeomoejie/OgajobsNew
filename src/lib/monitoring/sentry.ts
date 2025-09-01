@@ -49,9 +49,9 @@ class SentryManager {
         });
         
         this.enabled = true;
-        console.log('Sentry initialized successfully');
+        // Sentry initialized successfully
       } else {
-        console.log('Sentry disabled - no DSN configured');
+        // Sentry disabled - no DSN configured
         this.enabled = false;
       }
       
@@ -121,7 +121,7 @@ class SentryManager {
 
   public captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info', context?: Record<string, any>): void {
     if (!this.enabled) {
-      console.log(`Message (Sentry disabled) [${level}]:`, message, context);
+      // Message logged (Sentry disabled)
       return;
     }
     

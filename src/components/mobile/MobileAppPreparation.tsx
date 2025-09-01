@@ -154,7 +154,7 @@ export function MobileAppPreparation() {
       });
 
       // In real implementation, this would trigger Capacitor build
-      console.log(`Building ${platform} app with Capacitor...`);
+      // Building app with Capacitor
       
     } catch (error) {
       toast({

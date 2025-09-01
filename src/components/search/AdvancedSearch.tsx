@@ -331,7 +331,7 @@ export function AdvancedSearch() {
       timestamp: new Date().toISOString()
     };
 
-    console.log('Search Analytics:', analytics);
+    // Search analytics tracked
     // In a real app, this would be saved to a database
   };
 

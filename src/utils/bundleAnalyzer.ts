@@ -1,4 +1,5 @@
 // Bundle analysis and monitoring utilities
+import { logger } from '@/lib/logger';
 
 export interface BundleAnalysis {
   totalSize: number;
@@ -47,8 +48,9 @@ export const logBundleAnalysis = async () => {
   const analysis = await analyzeBundleSize();
   
   console.group('📦 Bundle Analysis');
-  console.log(`Total JS Size: ${(analysis.totalSize / 1024).toFixed(2)} KB`);
-  console.log('Chunk Breakdown:', analysis.chunkSizes
+  // Bundle analysis completed
+  logger.info(`Total JS Size: ${(analysis.totalSize / 1024).toFixed(2)} KB`);
+  logger.info('Chunk Breakdown:', analysis.chunkSizes
     .sort((a, b) => b.size - a.size)
     .slice(0, 10)
     .map(chunk => `${chunk.name}: ${(chunk.size / 1024).toFixed(2)} KB`)

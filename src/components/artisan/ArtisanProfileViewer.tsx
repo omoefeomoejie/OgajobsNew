@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,18 +44,14 @@ interface ArtisanProfileViewerProps {
   showContactInfo?: boolean;
 }
 
-export const ArtisanProfileViewer = ({ artisanId, showContactInfo = false }: ArtisanProfileViewerProps) => {
+export const ArtisanProfileViewer = memo(({ artisanId, showContactInfo = false }: ArtisanProfileViewerProps) => {
   const { user } = useAuth();
   const [artisan, setArtisan] = useState<ArtisanProfile | null>(null);
   const [contactInfo, setContactInfo] = useState<ArtisanContact | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingContact, setLoadingContact] = useState(false);
 
-  useEffect(() => {
-    fetchArtisanProfile();
-  }, [artisanId]);
-
-  const fetchArtisanProfile = async () => {
+  const fetchArtisanProfile = useCallback(async () => {
     try {
       // Get public artisan info first
       const { data, error } = await supabase
@@ -88,9 +84,13 @@ export const ArtisanProfileViewer = ({ artisanId, showContactInfo = false }: Art
     } finally {
       setLoading(false);
     }
-  };
+  }, [artisanId]);
 
-  const fetchContactInfo = async () => {
+  useEffect(() => {
+    fetchArtisanProfile();
+  }, [fetchArtisanProfile]);
+
+  const fetchContactInfo = useCallback(async () => {
     if (!user) {
       toast.error('Please log in to view contact information');
       return;
@@ -120,7 +120,7 @@ export const ArtisanProfileViewer = ({ artisanId, showContactInfo = false }: Art
     } finally {
       setLoadingContact(false);
     }
-  };
+  }, [user, artisanId]);
 
   const getVerificationColor = (level: string) => {
     switch (level) {
@@ -285,4 +285,4 @@ export const ArtisanProfileViewer = ({ artisanId, showContactInfo = false }: Art
       </CardContent>
     </Card>
   );
-};
+});

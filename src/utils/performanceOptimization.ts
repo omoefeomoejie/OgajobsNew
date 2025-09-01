@@ -1,4 +1,5 @@
 // Bundle size monitoring and optimization utilities
+import { logger } from '@/lib/logger';
 
 export const reportBundleSize = () => {
   if (typeof window !== 'undefined' && 'performance' in window) {
@@ -7,9 +8,16 @@ export const reportBundleSize = () => {
     
     if (navigationEntry) {
       console.group('📊 Bundle Performance Metrics');
-      console.log('DOM Content Loaded:', `${navigationEntry.domContentLoadedEventEnd - navigationEntry.domContentLoadedEventStart}ms`);
-      console.log('Load Complete:', `${navigationEntry.loadEventEnd - navigationEntry.loadEventStart}ms`);
-      console.log('Transfer Size:', `${navigationEntry.transferSize} bytes`);
+      // Performance metrics logged
+      logger.debug('DOM Content Loaded', { 
+        duration: `${navigationEntry.domContentLoadedEventEnd - navigationEntry.domContentLoadedEventStart}ms`
+      });
+      logger.debug('Load Complete', { 
+        duration: `${navigationEntry.loadEventEnd - navigationEntry.loadEventStart}ms`
+      });
+      logger.debug('Transfer Size', { 
+        size: `${navigationEntry.transferSize} bytes`
+      });
       console.groupEnd();
     }
   }
@@ -82,10 +90,10 @@ export const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('SW registered: ', registration);
+      // SW registered successfully
       return registration;
     } catch (registrationError) {
-      console.log('SW registration failed: ', registrationError);
+      // SW registration failed
     }
   }
 };
@@ -97,14 +105,14 @@ export const observeWebVitals = () => {
   // Observe CLS (Cumulative Layout Shift)
   const clsObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      console.log('CLS:', entry);
+      // CLS observed
     }
   });
   
   // Observe LCP (Largest Contentful Paint)
   const lcpObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      console.log('LCP:', entry);
+      // LCP observed
     }
   });
   
