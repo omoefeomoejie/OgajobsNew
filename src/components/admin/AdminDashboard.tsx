@@ -6,6 +6,8 @@ import { FinancialReporting } from '@/components/admin/FinancialReporting';
 import { AdvancedPerformanceMetrics } from '@/components/analytics/AdvancedPerformanceMetrics';
 import { UserBehaviorAnalytics } from '@/components/analytics/UserBehaviorAnalytics';
 import { SecurityDashboard } from './SecurityDashboard';
+import { SystemHealthDashboard } from './SystemHealthDashboard';
+import { DisputeResolutionCenter } from './DisputeResolutionCenter';
 import { DemandPredictionDashboard } from '@/components/analytics/DemandPredictionDashboard';
 import DynamicPricingDashboard from '@/components/analytics/DynamicPricingDashboard';
 import FraudDetectionDashboard from '@/components/analytics/FraudDetectionDashboard';
@@ -55,7 +57,9 @@ const adminMenuItems = [
   { title: "Mission Control", url: "#control", icon: Activity },
   { title: "User Queue", url: "#users", icon: Users },
   { title: "Booking Control", url: "#bookings", icon: Briefcase },
+  { title: "Disputes", url: "#disputes", icon: AlertTriangle },
   { title: "Financial Hub", url: "#finance", icon: DollarSign },
+  { title: "System Health", url: "#health", icon: Zap },
   { title: "Analytics", url: "#analytics", icon: TrendingUp },
   { title: "Demand Prediction", url: "#demand", icon: Brain },
   { title: "Dynamic Pricing", url: "#pricing", icon: DollarSign },
@@ -66,7 +70,6 @@ const adminMenuItems = [
   { title: "Performance Metrics", url: "#performance", icon: Target },
   { title: "User Behavior", url: "#behavior", icon: BarChart3 },
   { title: "Trust & Safety", url: "#safety", icon: Shield },
-  { title: "System Health", url: "#health", icon: Zap },
 ];
 
 function AdminSidebar({ activeSection, setActiveSection }: { 
@@ -103,7 +106,7 @@ function AdminSidebar({ activeSection, setActiveSection }: {
 }
 
 // Mission Control Overview
-function MissionControl() {
+function MissionControl({ setActiveSection }: { setActiveSection: (section: string) => void }) {
   const [stats, setStats] = useState({
     pendingVerifications: 0,
     activeBookings: 0,
@@ -161,7 +164,10 @@ function MissionControl() {
 
       {/* Critical Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-orange-200 bg-orange-50">
+        <Card 
+          className="border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setActiveSection('users')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Verification Queue</CardTitle>
             <Clock className="h-4 w-4 text-orange-600" />
@@ -172,7 +178,10 @@ function MissionControl() {
           </CardContent>
         </Card>
         
-        <Card className="border-blue-200 bg-blue-50">
+        <Card 
+          className="border-blue-200 bg-blue-50 cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setActiveSection('bookings')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
             <Activity className="h-4 w-4 text-blue-600" />
@@ -183,7 +192,10 @@ function MissionControl() {
           </CardContent>
         </Card>
 
-        <Card className="border-red-200 bg-red-50">
+        <Card 
+          className="border-red-200 bg-red-50 cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setActiveSection('disputes')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Risk Alerts</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -194,7 +206,10 @@ function MissionControl() {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200 bg-green-50">
+        <Card 
+          className="border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setActiveSection('finance')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Escrow Held</CardTitle>
             <DollarSign className="h-4 w-4 text-green-600" />
@@ -215,11 +230,23 @@ function MissionControl() {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center p-3 bg-red-50 rounded">
               <span className="text-sm">2 artisans need verification</span>
-              <Button size="sm" variant="destructive">Review</Button>
+              <Button 
+                size="sm" 
+                variant="destructive"
+                onClick={() => setActiveSection('users')}
+              >
+                Review
+              </Button>
             </div>
             <div className="flex justify-between items-center p-3 bg-orange-50 rounded">
               <span className="text-sm">1 payment dispute escalated</span>
-              <Button size="sm" variant="outline">Handle</Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => setActiveSection('disputes')}
+              >
+                Handle
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -244,7 +271,10 @@ function MissionControl() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setActiveSection('health')}
+        >
           <CardHeader>
             <CardTitle className="text-lg">⚡ System Health</CardTitle>
           </CardHeader>
@@ -261,6 +291,17 @@ function MissionControl() {
               <span className="text-sm">Notifications:</span>
               <Badge variant="secondary">⚠️ Degraded</Badge>
             </div>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="w-full mt-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveSection('health');
+              }}
+            >
+              View Details
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -650,13 +691,17 @@ export function AdminDashboard() {
   const renderContent = () => {
     switch (activeSection) {
       case 'control':
-        return <MissionControl />;
+        return <MissionControl setActiveSection={setActiveSection} />;
       case 'users':
         return <UserQueue />;
       case 'bookings':
         return <BookingControl />;
+      case 'disputes':
+        return <DisputeResolutionCenter />;
       case 'finance':
         return <FinancialReporting />;
+      case 'health':
+        return <SystemHealthDashboard />;
       case 'analytics':
         return <AnalyticsDashboard />;
       case 'demand':
@@ -677,15 +722,8 @@ export function AdminDashboard() {
         return <UserBehaviorAnalytics />;
       case 'safety':
         return <SecurityDashboard />;
-      case 'health':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold">⚡ System Health</h2>
-            <p className="text-muted-foreground">Infrastructure monitoring - Coming soon</p>
-          </div>
-        );
       default:
-        return <MissionControl />;
+        return <MissionControl setActiveSection={setActiveSection} />;
     }
   };
 
