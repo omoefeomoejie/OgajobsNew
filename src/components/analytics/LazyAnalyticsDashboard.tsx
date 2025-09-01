@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-// import { withPerformanceMonitoring } from '@/components/performance/PerformanceProvider';
+import { withPerformanceMonitoring } from '@/components/performance/PerformanceProvider';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
@@ -111,21 +111,24 @@ function AnalyticsErrorFallback({ error, resetErrorBoundary }: {
   );
 }
 
-// Simple analytics dashboard without performance monitoring
-function OptimizedAnalyticsDashboard() {
-  return (
-    <ErrorBoundary 
-      FallbackComponent={AnalyticsErrorFallback}
-      onReset={() => window.location.reload()}
-    >
-      <Suspense fallback={<AnalyticsLoadingFallback />}>
-        <MemoizedChart>
-          <AnalyticsDashboard />
-        </MemoizedChart>
-      </Suspense>
-    </ErrorBoundary>
-  );
-}
+// Performance-optimized lazy analytics dashboard
+const OptimizedAnalyticsDashboard = withPerformanceMonitoring(
+  function OptimizedAnalyticsDashboard() {
+    return (
+      <ErrorBoundary 
+        FallbackComponent={AnalyticsErrorFallback}
+        onReset={() => window.location.reload()}
+      >
+        <Suspense fallback={<AnalyticsLoadingFallback />}>
+          <MemoizedChart>
+            <AnalyticsDashboard />
+          </MemoizedChart>
+        </Suspense>
+      </ErrorBoundary>
+    );
+  },
+  'AnalyticsDashboard'
+);
 
 export default OptimizedAnalyticsDashboard;
 

@@ -64,26 +64,25 @@ export const Header = () => {
           </Link>
 
           {/* Center Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-4">
             {/* Location Selector */}
-            <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
-              <MapPin className="w-4 h-4 text-muted-foreground" />
-              <select className="bg-transparent border-none outline-none text-sm">
+            <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
+              <MapPin className="w-3 h-3 text-muted-foreground" />
+              <select className="bg-transparent border-none outline-none text-xs">
                 <option>Lagos</option>
                 <option>Abuja</option>
-                <option>Benin City</option>
               </select>
             </div>
 
             {/* Navigation Links */}
-            <nav className="flex items-center gap-4">
-              <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+            <nav className="flex items-center gap-3">
+              <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
                 Find Services
               </Link>
-              <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+              <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
                 Become Artisan
               </Link>
-              <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+              <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
                 How It Works
               </Link>
               <Badge variant="secondary" className="text-xs">
@@ -94,27 +93,27 @@ export const Header = () => {
           </div>
 
           {/* Auth Buttons - Desktop */}
-          <div className="hidden md:flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <LanguageSelector />
             {user ? (
               <>
                 <NotificationCenter />
                 {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
-                  <Button variant="ghost" asChild>
+                  <Button variant="ghost" size="sm" asChild>
                     <Link to="/admin-dashboard">Admin</Link>
                   </Button>
                 ) : (
-                  <Button variant="ghost" asChild>
+                  <Button variant="ghost" size="sm" asChild>
                     <Link to="/dashboard">{t('navigation.dashboard')}</Link>
                   </Button>
                 )}
               </>
             ) : (
               <>
-                <Button variant="ghost" asChild>
+                <Button variant="ghost" size="sm" asChild>
                   <Link to="/auth">{t('navigation.login')}</Link>
                 </Button>
-                <Button asChild>
+                <Button size="sm" asChild>
                   <Link to="/auth">{t('navigation.getStarted')}</Link>
                 </Button>
               </>

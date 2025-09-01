@@ -156,18 +156,39 @@ export default function Auth() {
           description: "You have been signed in successfully.",
         });
 
-        // Redirect based on role
-        if (profile?.role === 'pos_agent') {
-          navigate('/agent-dashboard');
-        } else if (profile?.role === 'admin') {
-          navigate('/admin-dashboard');
-        } else if (profile?.role === 'artisan') {
-          navigate('/artisan-dashboard');
-        } else if (profile?.role === 'client') {
-          navigate('/client-dashboard');
-        } else {
-          navigate('/dashboard');
-        }
+        // Redirect based on role - use window.location for reliable redirect
+        setTimeout(async () => {
+          try {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', authData.user.id)
+              .single();
+
+            if (profileData?.role) {
+              switch (profileData.role) {
+                case 'pos_agent':
+                case 'agent':
+                  window.location.href = '/agent-dashboard';
+                  break;
+                case 'admin':
+                  window.location.href = '/admin-dashboard';
+                  break;
+                case 'artisan':
+                  window.location.href = '/dashboard';
+                  break;
+                case 'client':
+                default:
+                  window.location.href = '/dashboard';
+              }
+            } else {
+              window.location.href = '/dashboard';
+            }
+          } catch (error) {
+            console.error('Profile fetch error during redirect:', error);
+            window.location.href = '/dashboard';
+          }
+        }, 500);
       }
     } catch (error: any) {
       setError(error.message || 'An error occurred during sign in');
