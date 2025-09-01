@@ -55,10 +55,10 @@ export const ArtisanProfileViewer = memo(({ artisanId, showContactInfo = false }
     try {
       // Get public artisan info first
       const { data, error } = await supabase
-        .from('mv_artisan_directory')
+        .from('artisans')
         .select('*')
         .eq('id', artisanId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       

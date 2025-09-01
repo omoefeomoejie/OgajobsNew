@@ -81,8 +81,9 @@ export default function ServiceDirectory() {
     try {
       // Use the secure public view instead of direct table access
       const { data, error } = await supabase
-        .from('mv_artisan_directory')
+        .from('artisans')
         .select('*')
+        .eq('suspended', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

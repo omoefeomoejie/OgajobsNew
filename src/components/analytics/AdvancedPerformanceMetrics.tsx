@@ -166,7 +166,7 @@ export function AdvancedPerformanceMetrics() {
       ] = await Promise.all([
         supabase.from('bookings').select('*').order('created_at'),
         supabase.from('artisan_reviews').select('*'),
-        supabase.from('mv_artisan_directory').select('*'),
+        supabase.from('artisans').select('*'),
         supabase.from('assignments').select('*')
       ]);
 
@@ -225,15 +225,15 @@ export function AdvancedPerformanceMetrics() {
       });
 
       const serviceCompletionByArtisan = Array.from(artisanMap.entries()).map(([email, data]) => {
-        const artisan = artisans?.find((a: any) => a?.id === email); // Match by ID only since mv_artisan_directory doesn't have email
+        const artisan = artisans?.find((a: any) => a?.email === email || a?.id === email);
         const artisanReviews = reviews?.filter(r => r.artisan_id === (artisan?.id || email)) || [];
         const avgRating = artisanReviews.length 
           ? artisanReviews.reduce((sum, r) => sum + r.rating, 0) / artisanReviews.length 
           : 0;
 
         return {
-          artisanId: (artisan as any)?.id || email,
-          artisanName: (artisan as any)?.full_name || email,
+          artisanId: artisan?.id || email,
+          artisanName: artisan?.full_name || email,
           completionRate: data.total ? (data.completed / data.total) * 100 : 0,
           totalJobs: data.total,
           avgRating,
