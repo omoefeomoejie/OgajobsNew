@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import webpush from 'https://esm.sh/web-push@3.6.6'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +21,13 @@ serve(async (req) => {
   }
 
   try {
+    // Configure web-push with VAPID keys
+    webpush.setVapidDetails(
+      'mailto:support@ogajobs.com',
+      Deno.env.get('VAPID_PUBLIC_KEY') ?? '',
+      Deno.env.get('VAPID_PRIVATE_KEY') ?? ''
+    )
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -71,11 +79,12 @@ serve(async (req) => {
           }
         })
 
-        // In a real implementation, you would use web-push library
-        // For now, we'll simulate the push notification
-        console.log('Would send push notification:', {
+        // Send actual push notification using web-push
+        const result = await webpush.sendNotification(subscription, pushPayload)
+        
+        console.log('Push notification sent successfully:', {
           endpoint: subscription.endpoint,
-          payload: pushPayload
+          statusCode: result.statusCode
         })
 
         return { success: true }
