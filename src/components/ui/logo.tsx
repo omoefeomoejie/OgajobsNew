@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils';
-import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
 
 interface LogoProps {
   variant?: 'icon' | 'full';
@@ -36,7 +35,7 @@ export function Logo({
   if (variant === 'icon') {
     return (
       <img 
-        src={ogaJobsLogo}
+        src="/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png"
         alt="OgaJobs" 
         className={cn(
           logoSize,
@@ -51,7 +50,7 @@ export function Logo({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <img 
-        src={ogaJobsLogo}
+        src="/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png"
         alt="OgaJobs Logo" 
         className={cn(logoSize, 'object-contain aspect-square')}
         loading="lazy"
