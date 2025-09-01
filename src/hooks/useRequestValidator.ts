@@ -1,13 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-interface ValidationResponse {
-  valid: boolean;
-  errors: string[];
-  sanitized?: any;
-  securityViolation?: boolean;
-}
+import type { ValidationResponse } from '@/types/common';
 
 interface ValidationState {
   isValidating: boolean;
@@ -25,7 +19,7 @@ export function useRequestValidator() {
   const { toast } = useToast();
 
   const validateRequest = useCallback(async (
-    data: any, 
+    data: unknown, 
     schemaType: SchemaType
   ): Promise<ValidationResponse> => {
     setValidationState(prev => ({ ...prev, isValidating: true }));
@@ -95,9 +89,9 @@ export function useRequestValidator() {
   }, [toast]);
 
   const validateAndSanitize = useCallback(async (
-    data: any,
+    data: unknown,
     schemaType: SchemaType
-  ): Promise<{ valid: boolean; sanitized: any; errors: string[] }> => {
+  ): Promise<{ valid: boolean; sanitized: unknown; errors: string[] }> => {
     const validation = await validateRequest(data, schemaType);
     
     return {
@@ -108,9 +102,9 @@ export function useRequestValidator() {
   }, [validateRequest]);
 
   const withValidation = useCallback(async <T>(
-    data: any,
+    data: unknown,
     schemaType: SchemaType,
-    operation: (sanitizedData: any) => Promise<T>
+    operation: (sanitizedData: unknown) => Promise<T>
   ): Promise<T | null> => {
     const validation = await validateRequest(data, schemaType);
     
@@ -132,7 +126,7 @@ export function useRequestValidator() {
     return phoneRegex.test(phone);
   }, []);
 
-  const validateRequired = useCallback((value: any): boolean => {
+  const validateRequired = useCallback((value: unknown): boolean => {
     return value !== null && value !== undefined && value !== '';
   }, []);
 
