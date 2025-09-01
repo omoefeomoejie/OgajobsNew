@@ -40,10 +40,10 @@ export function Logo({
         alt="OgaJobs" 
         className={cn(
           logoSize,
-          'object-contain aspect-square bg-transparent',
+          'object-contain aspect-square',
           className
         )}
-        style={{ background: 'transparent' }}
+        loading="lazy"
       />
     );
   }
@@ -53,8 +53,8 @@ export function Logo({
       <img 
         src={ogaJobsLogo}
         alt="OgaJobs Logo" 
-        className={cn(logoSize, 'object-contain aspect-square bg-transparent')}
-        style={{ background: 'transparent' }}
+        className={cn(logoSize, 'object-contain aspect-square')}
+        loading="lazy"
       />
       {showText && (
         <div className="min-w-0">
