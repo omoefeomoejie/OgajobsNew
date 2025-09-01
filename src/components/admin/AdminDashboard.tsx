@@ -46,6 +46,14 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -71,6 +79,41 @@ const adminMenuItems = [
   { title: "User Behavior", url: "#behavior", icon: BarChart3 },
   { title: "Trust & Safety", url: "#safety", icon: Shield },
 ];
+
+// Section title mapping for breadcrumb navigation
+const getSectionTitle = (sectionKey: string): string => {
+  const section = adminMenuItems.find(item => item.url.replace('#', '') === sectionKey);
+  return section?.title || 'Unknown Section';
+};
+
+// Breadcrumb Navigation Component
+function AdminBreadcrumb({ activeSection, setActiveSection }: { 
+  activeSection: string; 
+  setActiveSection: (section: string) => void; 
+}) {
+  const currentSectionTitle = getSectionTitle(activeSection);
+  
+  return (
+    <div className="mb-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink 
+              onClick={() => setActiveSection('control')}
+              className="cursor-pointer"
+            >
+              Admin Dashboard
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{currentSectionTitle}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    </div>
+  );
+}
 
 function AdminSidebar({ activeSection, setActiveSection }: { 
   activeSection: string; 
@@ -743,6 +786,7 @@ export function AdminDashboard() {
             </div>
           </header>
           <main className="flex-1 p-6">
+            <AdminBreadcrumb activeSection={activeSection} setActiveSection={setActiveSection} />
             {renderContent()}
           </main>
         </div>
