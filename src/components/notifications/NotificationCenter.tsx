@@ -140,12 +140,9 @@ export function NotificationCenter() {
 
   const fetchNotifications = async () => {
     try {
-      // TODO: Replace with actual Supabase query when types are updated
-      // const { data, error } = await supabase
-      //   .from('notifications')
-      //   .select('*')
-      //   .eq('user_id', user?.id)
-      //   .order('created_at', { ascending: false });
+      // Using mock data until notification table is available in Supabase
+      // Will be replaced with actual query: 
+      // const { data, error } = await supabase.from('notifications').select('*')
 
       // Mock notifications for demo
       const mockNotifications: Notification[] = [
@@ -185,16 +182,10 @@ export function NotificationCenter() {
   };
 
   const setupRealtimeSubscription = () => {
-    // TODO: Enable when notification table types are available
-    // const channel = supabase
-    //   .channel('notifications')
-    //   .on('postgres_changes', 
-    //     { 
-    //       event: 'INSERT', 
-    //       schema: 'public', 
-    //       table: 'notifications',
-    //       filter: `user_id=eq.${user?.id}`
-    //     }, 
+    // Real-time subscription will be enabled when notification table is added:
+    // const channel = supabase.channel('notifications').on('postgres_changes', ...)
+    // For now, we'll poll for updates every 30 seconds
+    const pollInterval = setInterval(fetchNotifications, 30000);
     //     (payload) => {
     //       const newNotification = payload.new as Notification;
     //       setNotifications(prev => [newNotification, ...prev]);

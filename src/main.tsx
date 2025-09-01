@@ -17,8 +17,8 @@ registerServiceWorker();
 // Prefetch critical data immediately
 cacheUtils.prefetchCriticalData();
 
-// Enable performance monitoring in development
-const enablePerformanceMonitoring = process.env.NODE_ENV === 'development';
+// Disable performance monitoring to prevent infinite loops
+const enablePerformanceMonitoring = false;
 
 // Report bundle metrics in development
 if (import.meta.env.DEV) {

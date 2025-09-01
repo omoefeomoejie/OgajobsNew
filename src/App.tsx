@@ -10,41 +10,43 @@ import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { LegacyRedirect } from "@/components/routing/LegacyRedirect";
 import { ROUTES } from "@/config/routes";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import CookiePolicy from "./pages/CookiePolicy";
-import Services from "./pages/Services"; // Now using Services instead of ServiceDirectory
-import BookingRequest from "./pages/BookingRequest";
-import MyBookings from "./pages/MyBookings";
-import Messages from "./pages/Messages";
-import Reviews from "./pages/Reviews";
-import NotFound from "./pages/NotFound";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import Verification from "./pages/Verification";
-import AgentRegistration from "./pages/AgentRegistration";
-import AgentDashboard from "./pages/AgentDashboard";
-import Portfolio from "./pages/Portfolio";
-import PortfolioView from "./pages/PortfolioView";
-import Disputes from "./pages/Disputes";
-import Settings from "./pages/Settings";
-import Profile from "./pages/Profile";
-import AgentChatDashboardPage from "./pages/AgentChatDashboard";
-import HowItWorks from "./pages/HowItWorks";
-import AdminUsers from "./pages/AdminUsers";
-import FinancialReports from "./pages/FinancialReports";
-import Favorites from "./pages/Favorites";
-import BecomeArtisan from "./pages/BecomeArtisan";
-import HelpCenter from "./pages/HelpCenter";
-import SafetyGuidelines from "./pages/SafetyGuidelines";
-import POSPartnership from "./pages/POSPartnership";
-import CompetitiveAdvantages from "./pages/CompetitiveAdvantages";
-import Calendar from "./pages/Calendar";
-import MonitoringDashboard from "./pages/MonitoringDashboard";
+import {
+  LazyIndexWrapper as Index,
+  LazyAuthWrapper as Auth, 
+  LazyDashboardWrapper as Dashboard,
+  LazyAdminLoginWrapper as AdminLogin,
+  LazyAdminDashboardWrapper as AdminDashboard,
+  PrivacyPolicy,
+  TermsOfService,
+  CookiePolicy,
+  LazyServicesWrapper as Services,
+  LazyBookingRequestWrapper as BookingRequest,
+  LazyMyBookingsWrapper as MyBookings,
+  LazyMessagesWrapper as Messages,
+  LazyReviewsWrapper as Reviews,
+  NotFound,
+  PaymentSuccess,
+  LazyVerificationWrapper as Verification,
+  LazyAgentRegistrationWrapper as AgentRegistration,
+  LazyAgentDashboardWrapper as AgentDashboard,
+  LazyPortfolioWrapper as Portfolio,
+  LazyPortfolioViewWrapper as PortfolioView,
+  LazyDisputesWrapper as Disputes,
+  LazySettingsWrapper as Settings,
+  LazyProfileWrapper as Profile,
+  LazyAgentChatDashboardWrapper as AgentChatDashboardPage,
+  LazyHowItWorksWrapper as HowItWorks,
+  LazyAdminUsersWrapper as AdminUsers,
+  LazyFinancialReportsWrapper as FinancialReports,
+  LazyFavoritesWrapper as Favorites,
+  LazyBecomeArtisanWrapper as BecomeArtisan,
+  LazyHelpCenterWrapper as HelpCenter,
+  LazySafetyGuidelinesWrapper as SafetyGuidelines,
+  LazyPOSPartnershipWrapper as POSPartnership,
+  LazyCompetitiveAdvantagesWrapper as CompetitiveAdvantages,
+  LazyCalendarWrapper as Calendar,
+  LazyMonitoringDashboardWrapper as MonitoringDashboard,
+} from "@/utils/lazyRoutes";
 
 const queryClient = new QueryClient();
 

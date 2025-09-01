@@ -75,12 +75,18 @@ export const usePerformanceMonitor = (componentName: string = 'Unknown') => {
 
       performanceRegistry.set(componentName, newMetrics);
 
-      // Generate recommendations
-      generateRecommendations(newMetrics);
+      // Generate recommendations only if metrics changed significantly
+      const hasSignificantChange = !existingMetrics || 
+        Math.abs(newMetrics.lastRenderTime - existingMetrics.lastRenderTime) > 5 ||
+        newMetrics.renderCount % 10 === 0; // Only check every 10 renders
+        
+      if (hasSignificantChange) {
+        generateRecommendations(newMetrics);
+      }
     }
-  });
+  }, [componentName]); // Add componentName as dependency
 
-  const generateRecommendations = (metrics: PerformanceMetrics) => {
+  const generateRecommendations = useMemo(() => (metrics: PerformanceMetrics) => {
     const newRecommendations: PerformanceRecommendation[] = [];
 
     // High render time
@@ -110,8 +116,14 @@ export const usePerformanceMonitor = (componentName: string = 'Unknown') => {
       });
     }
 
-    setRecommendations(newRecommendations);
-  };
+    // Only update if recommendations actually changed
+    setRecommendations(prev => {
+      if (JSON.stringify(prev) !== JSON.stringify(newRecommendations)) {
+        return newRecommendations;
+      }
+      return prev;
+    });
+  }, [componentName]);
 
   // Memoized performance summary
   const performanceSummary = useMemo(() => {
