@@ -46,14 +46,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
+import { EnhancedBreadcrumb, buildNavigationPath } from './EnhancedBreadcrumb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -80,38 +73,28 @@ const adminMenuItems = [
   { title: "Trust & Safety", url: "#safety", icon: Shield },
 ];
 
-// Section title mapping for breadcrumb navigation
-const getSectionTitle = (sectionKey: string): string => {
-  const section = adminMenuItems.find(item => item.url.replace('#', '') === sectionKey);
-  return section?.title || 'Unknown Section';
-};
-
-// Breadcrumb Navigation Component
-function AdminBreadcrumb({ activeSection, setActiveSection }: { 
+// Enhanced Breadcrumb Integration
+function AdminBreadcrumbWrapper({ activeSection, setActiveSection }: { 
   activeSection: string; 
   setActiveSection: (section: string) => void; 
 }) {
-  const currentSectionTitle = getSectionTitle(activeSection);
+  const navigationPath = buildNavigationPath(activeSection);
   
+  const handleNavigation = (path: string[]) => {
+    // Navigate to the last item in the path
+    const targetSection = path[path.length - 1];
+    setActiveSection(targetSection);
+  };
+
   return (
-    <div className="mb-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink 
-              onClick={() => setActiveSection('control')}
-              className="cursor-pointer"
-            >
-              Admin Dashboard
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{currentSectionTitle}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-    </div>
+    <EnhancedBreadcrumb
+      navigationPath={navigationPath}
+      onNavigate={handleNavigation}
+      maxItems={4}
+      showHomeButton={true}
+      showQuickNav={true}
+      className="animate-fade-in"
+    />
   );
 }
 
@@ -786,7 +769,7 @@ export function AdminDashboard() {
             </div>
           </header>
           <main className="flex-1 p-6">
-            <AdminBreadcrumb activeSection={activeSection} setActiveSection={setActiveSection} />
+            <AdminBreadcrumbWrapper activeSection={activeSection} setActiveSection={setActiveSection} />
             {renderContent()}
           </main>
         </div>
