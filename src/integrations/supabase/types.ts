@@ -3637,6 +3637,10 @@ export type Database = {
         Args: { input_text: string; mask_type?: string }
         Returns: string
       }
+      monitor_sensitive_access: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       notify_artisan_policy_update: {
         Args: Record<PropertyKey, never>
         Returns: undefined
