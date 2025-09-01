@@ -101,52 +101,38 @@ export default function Auth() {
 
       logger.info('User authentication record created successfully');
 
-      // Create profile immediately with enhanced error handling
+      // Create profile using the new secure function
       logger.debug('Creating user profile');
       try {
-        const profileData = {
-          id: data.user.id,
-          email: data.user.email,
-          role: signupRole,
-          created_at: new Date().toISOString()
-        };
-
         const { data: profileResult, error: profileError } = await supabase
-          .from('profiles')
-          .insert(profileData)
-          .select()
-          .single();
+          .rpc('create_user_profile', {
+            p_user_id: data.user.id,
+            p_email: data.user.email,
+            p_role: signupRole,
+            p_full_name: signupFullName,
+            p_phone: signupPhone
+          });
 
         if (profileError) {
-          logger.error('Profile creation failed, attempting fallback', {
+          logger.error('Profile creation RPC failed', {
             errorCode: profileError.code,
             errorMessage: profileError.message
           });
-          
-          // Try to create profile with upsert as fallback
-          logger.debug('Attempting profile upsert as fallback');
-          const { error: upsertError } = await supabase
-            .from('profiles')
-            .upsert(profileData, { onConflict: 'id' });
-
-          if (upsertError) {
-            logger.error('Profile upsert fallback failed', { errorCode: upsertError.code });
-            throw new Error(`Profile creation failed: ${profileError.message}`);
-          }
-          
-          logger.info('Profile created via upsert fallback');
-        } else {
-          logger.info('Profile created successfully');
+          throw new Error(`Profile creation failed: ${profileError.message}`);
         }
 
-      } catch (profileCreationError) {
-        logger.error('Profile creation process failed', { error: profileCreationError });
-        // Don't fail the entire signup process, but log the error
-        toast({
-          title: "Profile Setup Warning",
-          description: "Account created but profile setup had issues. Please contact support if you experience problems.",
-          variant: "destructive",
-        });
+        if (!(profileResult as any)?.success) {
+          const errorMsg = (profileResult as any)?.error || 'Unknown profile creation error';
+          logger.error('Profile creation function returned error', { error: errorMsg });
+          throw new Error(`Profile setup failed: ${errorMsg}`);
+        }
+
+        logger.info('Profile created successfully via RPC function');
+
+      } catch (profileCreationError: any) {
+        logger.error('Profile creation process failed', { error: profileCreationError.message });
+        // This is a critical failure - we should fail the signup process
+        throw new Error(`Account setup failed: ${profileCreationError.message}. Please try again or contact support.`);
       }
 
       // Insert into role-specific table with enhanced error handling
@@ -165,8 +151,16 @@ export default function Auth() {
             .insert(roleData);
           
           if (artisanError) {
-            logger.error('Artisan creation error', { errorCode: artisanError.code });
-            // Don't fail signup for this, just log it
+            logger.error('Artisan creation error', { 
+              errorCode: artisanError.code, 
+              errorMessage: artisanError.message 
+            });
+            // Log but don't fail signup - artisan record can be created later
+            toast({
+              title: "Artisan Profile Notice",
+              description: "Account created successfully. Artisan profile will be completed during verification.",
+              variant: "default",
+            });
           } else {
             logger.info('Artisan record created successfully');
           }
@@ -177,15 +171,21 @@ export default function Auth() {
             .insert(roleData);
           
           if (clientError) {
-            logger.error('Client creation error', { errorCode: clientError.code });
-            // Don't fail signup for this, just log it
+            logger.error('Client creation error', { 
+              errorCode: clientError.code,
+              errorMessage: clientError.message
+            });
+            // Log but don't fail signup - client record can be created later
           } else {
             logger.info('Client record created successfully');
           }
         }
-      } catch (roleRecordError) {
-        logger.error('Role-specific record creation failed', { error: roleRecordError });
-        // Don't fail the signup process for this
+      } catch (roleRecordError: any) {
+        logger.error('Role-specific record creation failed', { 
+          error: roleRecordError.message,
+          role: signupRole 
+        });
+        // Don't fail the signup process for this - these are supplementary tables
       }
 
       logger.info('Signup process completed successfully');

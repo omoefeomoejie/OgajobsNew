@@ -2407,7 +2407,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           full_name?: string | null
-          id?: string
+          id: string
           identity_verified?: boolean | null
           phone?: string | null
           role?: string | null
@@ -3387,6 +3387,16 @@ export type Database = {
           p_full_name?: string
           p_password: string
           p_role?: string
+        }
+        Returns: Json
+      }
+      create_user_profile: {
+        Args: {
+          p_email: string
+          p_full_name?: string
+          p_phone?: string
+          p_role?: string
+          p_user_id: string
         }
         Returns: Json
       }
