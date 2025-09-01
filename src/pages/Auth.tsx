@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ROUTES } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -242,7 +243,7 @@ export default function Auth() {
           description: "You have been signed in successfully.",
         });
 
-        // Redirect based on role - use window.location for reliable redirect
+        // Redirect based on role using React Router
         setTimeout(async () => {
           try {
             const { data: profileData } = await supabase
@@ -255,24 +256,25 @@ export default function Auth() {
               switch (profileData.role) {
                 case 'pos_agent':
                 case 'agent':
-                  window.location.href = '/agent-dashboard';
+                  navigate(ROUTES.AGENT_DASHBOARD);
                   break;
                 case 'admin':
-                  window.location.href = '/admin-dashboard';
+                case 'super_admin':
+                  navigate(ROUTES.ADMIN.DASHBOARD);
                   break;
                 case 'artisan':
-                  window.location.href = '/dashboard';
+                  navigate(ROUTES.DASHBOARD);
                   break;
                 case 'client':
                 default:
-                  window.location.href = '/dashboard';
+                  navigate(ROUTES.DASHBOARD);
               }
             } else {
-              window.location.href = '/dashboard';
+              navigate(ROUTES.DASHBOARD);
             }
           } catch (error) {
             logger.error('Profile fetch error during redirect', { error });
-            window.location.href = '/dashboard';
+            navigate(ROUTES.DASHBOARD);
           }
         }, 500);
       }

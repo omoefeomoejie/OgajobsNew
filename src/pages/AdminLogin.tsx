@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,7 +61,7 @@ export default function AdminLogin() {
           description: "Successfully logged into admin panel.",
         });
 
-        navigate('/admin-dashboard');
+        navigate(ROUTES.ADMIN.DASHBOARD);
       }
     } catch (error: any) {
       setError('An unexpected error occurred');

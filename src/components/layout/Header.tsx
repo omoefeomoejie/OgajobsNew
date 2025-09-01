@@ -131,7 +131,7 @@ export const Header = () => {
                   <NotificationCenter />
                   {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
                     <Button variant="outline" size="sm" asChild>
-                      <Link to="/admin-dashboard">Admin</Link>
+                      <Link to={ROUTES.ADMIN.DASHBOARD}>Admin</Link>
                     </Button>
                   ) : (
                     <Button variant="outline" size="sm" asChild>
