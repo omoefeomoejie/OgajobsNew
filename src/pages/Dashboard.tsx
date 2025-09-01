@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import ClientDashboardPage from '@/pages/ClientDashboard';
 import ArtisanDashboardPage from '@/pages/ArtisanDashboard';
-import { AdminDashboard as AdminDashboardComponent } from '@/components/admin/AdminDashboard';
+import { AdminDashboardContainer as AdminDashboardComponent } from '@/components/admin/AdminDashboardContainer';
 import { RoleDebugPanel } from '@/components/debug/RoleDebugPanel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
