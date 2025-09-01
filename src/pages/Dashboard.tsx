@@ -7,27 +7,32 @@ import { RoleDebugPanel } from '@/components/debug/RoleDebugPanel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
+import { logger } from '@/lib/logger';
 
 export default function Dashboard() {
   const { profile, loading, user } = useAuth();
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
-  console.log('=== DASHBOARD DEBUG ===');
-  console.log('Current user:', user);
-  console.log('Current profile:', profile);
-  console.log('Loading state:', loading);
-  console.log('Profile role:', profile?.role);
-  console.log('User ID:', user?.id);
-  console.log('Profile ID:', profile?.id);
+  logger.debug('Dashboard state', {
+    hasUser: !!user,
+    hasProfile: !!profile,
+    loading,
+    profileRole: profile?.role,
+    hasUserId: !!user?.id,
+    hasProfileId: !!profile?.id
+  });
   
   // Check for role mismatch
   const userMetadataRole = user?.user_metadata?.role;
   const profileRole = profile?.role;
   const hasRoleMismatch = userMetadataRole && profileRole && userMetadataRole !== profileRole;
   
-  console.log('User metadata role:', userMetadataRole);
-  console.log('Has role mismatch:', hasRoleMismatch);
-  console.log('========================');
+  if (hasRoleMismatch) {
+    logger.warn('Role mismatch detected', {
+      metadataRole: userMetadataRole,
+      profileRole: profileRole
+    });
+  }
 
   if (loading) {
     return (
@@ -43,7 +48,7 @@ export default function Dashboard() {
   }
 
   if (!user) {
-    console.log('Dashboard - No user found, redirecting to auth');
+    logger.info('Dashboard accessed without authentication');
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -56,7 +61,7 @@ export default function Dashboard() {
   }
 
   if (!profile) {
-    console.log('Dashboard - No profile found for user:', user.id);
+    logger.warn('No profile found for authenticated user');
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -72,19 +77,16 @@ export default function Dashboard() {
   }
 
   const renderDashboard = () => {
-    console.log('Dashboard - Rendering for role:', profile?.role);
+    logger.debug('Rendering dashboard for role', { role: profile?.role });
     switch (profile?.role) {
       case 'client':
-        console.log('Dashboard - Showing ClientDashboard');
         return <ClientDashboardPage />;
       case 'artisan':
-        console.log('Dashboard - Showing ArtisanDashboard');
         return <ArtisanDashboardPage />;
       case 'admin':
-        console.log('Dashboard - Showing AdminDashboard');
         return <AdminDashboardComponent />;
       default:
-        console.log('Dashboard - Unknown role, showing ClientDashboard. Role was:', profile?.role);
+        logger.warn('Unknown user role detected', { role: profile?.role });
         return (
           <div className="p-6">
             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">

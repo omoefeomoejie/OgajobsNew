@@ -16,6 +16,7 @@ import LiveChatWidget from '@/components/chat/LiveChatWidget';
 import { Logo } from '@/components/ui/logo';
 import { SecureForm } from '@/components/security/SecureForm';
 import { ValidatedInput } from '@/components/security/InputValidator';
+import { logger } from '@/lib/logger';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -55,12 +56,11 @@ export default function Auth() {
       const signupPhone = formData?.phone || phone;
       const signupRole = formData?.role || role;
 
-      console.log('=== ENHANCED SIGNUP PROCESS ===');
-      console.log('Signup data:', {
-        email: signupEmail,
-        fullName: signupFullName,
-        phone: signupPhone,
-        role: signupRole
+      logger.debug('Enhanced signup process initiated', {
+        role: signupRole,
+        hasEmail: !!signupEmail,
+        hasFullName: !!signupFullName,
+        hasPhone: !!signupPhone
       });
 
       // Validate role selection
@@ -75,7 +75,7 @@ export default function Auth() {
 
       const redirectUrl = `${window.location.origin}/`;
       
-      console.log('Creating user with auth...');
+      logger.debug('Creating user authentication record');
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: signupEmail,
         password: signupPassword,
@@ -98,10 +98,10 @@ export default function Auth() {
         throw new Error('User creation failed - no user data returned');
       }
 
-      console.log('User created successfully:', data.user.id);
+      logger.info('User authentication record created successfully');
 
       // Create profile immediately with enhanced error handling
-      console.log('Creating user profile...');
+      logger.debug('Creating user profile');
       try {
         const profileData = {
           id: data.user.id,
@@ -110,8 +110,6 @@ export default function Auth() {
           created_at: new Date().toISOString()
         };
 
-        console.log('Profile data to insert:', profileData);
-
         const { data: profileResult, error: profileError } = await supabase
           .from('profiles')
           .insert(profileData)
@@ -119,31 +117,29 @@ export default function Auth() {
           .single();
 
         if (profileError) {
-          console.error('Profile creation error details:', {
-            message: profileError.message,
-            details: profileError.details,
-            hint: profileError.hint,
-            code: profileError.code
+          logger.error('Profile creation failed, attempting fallback', {
+            errorCode: profileError.code,
+            errorMessage: profileError.message
           });
           
           // Try to create profile with upsert as fallback
-          console.log('Attempting profile upsert as fallback...');
+          logger.debug('Attempting profile upsert as fallback');
           const { error: upsertError } = await supabase
             .from('profiles')
             .upsert(profileData, { onConflict: 'id' });
 
           if (upsertError) {
-            console.error('Profile upsert also failed:', upsertError);
+            logger.error('Profile upsert fallback failed', { errorCode: upsertError.code });
             throw new Error(`Profile creation failed: ${profileError.message}`);
           }
           
-          console.log('Profile created via upsert fallback');
+          logger.info('Profile created via upsert fallback');
         } else {
-          console.log('Profile created successfully:', profileResult);
+          logger.info('Profile created successfully');
         }
 
       } catch (profileCreationError) {
-        console.error('Profile creation process failed:', profileCreationError);
+        logger.error('Profile creation process failed', { error: profileCreationError });
         // Don't fail the entire signup process, but log the error
         toast({
           title: "Profile Setup Warning",
@@ -153,7 +149,7 @@ export default function Auth() {
       }
 
       // Insert into role-specific table with enhanced error handling
-      console.log('Creating role-specific record...');
+      logger.debug('Creating role-specific record', { role: signupRole });
       try {
         const roleData = {
           email: data.user.email,
@@ -162,36 +158,36 @@ export default function Auth() {
         };
 
         if (signupRole === 'artisan') {
-          console.log('Creating artisan record...');
+          logger.debug('Creating artisan record');
           const { error: artisanError } = await supabase
             .from('artisans')
             .insert(roleData);
           
           if (artisanError) {
-            console.error('Artisan creation error:', artisanError);
+            logger.error('Artisan creation error', { errorCode: artisanError.code });
             // Don't fail signup for this, just log it
           } else {
-            console.log('Artisan record created successfully');
+            logger.info('Artisan record created successfully');
           }
         } else {
-          console.log('Creating client record...');
+          logger.debug('Creating client record');
           const { error: clientError } = await supabase
             .from('clients')
             .insert(roleData);
           
           if (clientError) {
-            console.error('Client creation error:', clientError);
+            logger.error('Client creation error', { errorCode: clientError.code });
             // Don't fail signup for this, just log it
           } else {
-            console.log('Client record created successfully');
+            logger.info('Client record created successfully');
           }
         }
       } catch (roleRecordError) {
-        console.error('Role-specific record creation failed:', roleRecordError);
+        logger.error('Role-specific record creation failed', { error: roleRecordError });
         // Don't fail the signup process for this
       }
 
-      console.log('=== SIGNUP PROCESS COMPLETED ===');
+      logger.info('Signup process completed successfully');
 
       toast({
         title: t('messages.signUpSuccess'),
@@ -206,7 +202,7 @@ export default function Auth() {
       setRole('client');
 
     } catch (error: any) {
-      console.error('Signup process error:', error);
+      logger.error('Signup process failed', { error: error.message });
       const errorMessage = error.message || 'An error occurred during sign up';
       setError(errorMessage);
       
@@ -275,7 +271,7 @@ export default function Auth() {
               window.location.href = '/dashboard';
             }
           } catch (error) {
-            console.error('Profile fetch error during redirect:', error);
+            logger.error('Profile fetch error during redirect', { error });
             window.location.href = '/dashboard';
           }
         }, 500);
