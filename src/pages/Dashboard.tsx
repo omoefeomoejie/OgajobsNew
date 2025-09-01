@@ -20,5 +20,9 @@ export default function Dashboard() {
     }
   };
 
-  return renderDashboard();
+  return (
+    <AppLayout>
+      {renderDashboard()}
+    </AppLayout>
+  );
 }
