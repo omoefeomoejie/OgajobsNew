@@ -121,7 +121,20 @@ export function AppSidebar() {
               <div>
                 <h2 className="font-black text-2xl tracking-tight">OgaJobs</h2>
                 <p className="text-sm text-muted-foreground capitalize font-semibold">
-                  {profile?.role || 'User'} Dashboard
+                  {profile?.role ? (
+                    <>
+                      <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                      {profile.role === 'client' ? 'Client Portal' : 
+                       profile.role === 'artisan' ? 'Artisan Hub' : 
+                       profile.role === 'admin' ? 'Admin Panel' : 
+                       'User Dashboard'}
+                    </>
+                  ) : (
+                    <>
+                      <span className="inline-block w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                      Loading...
+                    </>
+                  )}
                 </p>
               </div>
             )}

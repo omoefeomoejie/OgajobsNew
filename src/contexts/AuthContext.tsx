@@ -47,25 +47,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(data);
       } else {
         // If no profile exists, create one with default values
+        console.log('Creating new profile for user:', userId);
         try {
+          const defaultRole = user?.user_metadata?.role || 'client';
+          console.log('Using role for new profile:', defaultRole);
+          
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
             .insert({
               id: userId,
               email: user?.email || '',
-              role: user?.user_metadata?.role || 'client'
+              role: defaultRole
             })
             .select()
             .single();
 
           if (createError) {
             console.error('Error creating profile:', createError);
+            // Still set a basic profile object so the app doesn't break
+            setProfile({
+              id: userId,
+              email: user?.email || '',
+              role: defaultRole,
+              created_at: new Date().toISOString()
+            });
             return;
           }
 
+          console.log('Profile created successfully:', newProfile);
           setProfile(newProfile);
         } catch (createErr) {
           console.error('Profile creation failed:', createErr);
+          // Fallback profile to prevent app crash
+          setProfile({
+            id: userId,
+            email: user?.email || '',
+            role: 'client',
+            created_at: new Date().toISOString()
+          });
         }
       }
     } catch (error) {

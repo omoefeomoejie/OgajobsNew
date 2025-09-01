@@ -73,13 +73,13 @@ export default function Auth() {
       if (signUpError) throw signUpError;
 
       if (data.user) {
-        // Insert profile data
+        // Insert profile data with correct role
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
             id: data.user.id,
             email: data.user.email,
-            role,
+            role: signupRole, // Use the actual selected role
             created_at: new Date().toISOString()
           });
 
