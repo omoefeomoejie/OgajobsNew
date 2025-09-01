@@ -90,21 +90,34 @@ export function CleanAnalyticsDashboard() {
   const { data: analytics, isLoading, error } = useQuery<AnalyticsData>({
     queryKey: ['analytics', 'dashboard'],
     queryFn: async (): Promise<AnalyticsData> => {
-      // This would be replaced with actual Supabase queries
-      return dataFetcher.fetch('dashboard-analytics', async (): Promise<AnalyticsData> => {
-        // Simulate API call - replace with real Supabase query
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Return actual data structure instead of mock data
-        return {
-          totalUsers: await getUserCount(),
-          activeBookings: await getActiveBookingCount(),
-          completedServices: await getCompletedServiceCount(),
-          averageRating: await getAverageRating(),
-          revenue: await getRevenueMetrics(),
-          recentActivity: await getRecentActivity()
-        };
-      });
+      // Simulate API call - replace with real Supabase query
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Return actual data structure instead of mock data
+      const [
+        totalUsers,
+        activeBookings, 
+        completedServices,
+        averageRating,
+        revenue,
+        recentActivity
+      ] = await Promise.all([
+        getUserCount(),
+        getActiveBookingCount(),
+        getCompletedServiceCount(),
+        getAverageRating(),
+        getRevenueMetrics(),
+        getRecentActivity()
+      ]);
+
+      return {
+        totalUsers,
+        activeBookings,
+        completedServices,
+        averageRating,
+        revenue,
+        recentActivity
+      };
     },
     refetchInterval: 30000, // Refresh every 30 seconds
     staleTime: 60000 // Consider data fresh for 1 minute
@@ -247,7 +260,11 @@ async function getAverageRating(): Promise<number> {
 
 async function getRevenueMetrics(): Promise<any> {
   // Replace with actual Supabase query
-  return null;
+  return {
+    totalRevenue: 0,
+    monthlyRevenue: 0,
+    revenueGrowth: 0
+  };
 }
 
 async function getRecentActivity(): Promise<Array<{title: string; description: string; timestamp: string}>> {
