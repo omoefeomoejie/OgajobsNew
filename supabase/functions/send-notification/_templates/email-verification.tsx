@@ -31,7 +31,7 @@ export const EmailVerificationEmail = ({
       <Container style={container}>
         <Section style={logoContainer}>
           <Img
-            src={`${appUrl}/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png`}
+            src={`${appUrl}/icon-512.png`}
             width="120"
             height="120"
             alt="OgaJobs Logo"

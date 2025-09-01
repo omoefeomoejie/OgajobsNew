@@ -1,11 +1,13 @@
 import { cn } from '@/lib/utils';
-import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
+import ogaJobsLogoPng from '@/assets/ogajobs-logo-new.png';
+import ogaJobsLogoSvg from '@/assets/ogajobs-logo.svg';
 
 interface LogoProps {
   variant?: 'icon' | 'full';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   showText?: boolean;
+  format?: 'svg' | 'png';
 }
 
 const sizeClasses = {
@@ -28,19 +30,21 @@ export function Logo({
   variant = 'full', 
   size = 'md', 
   className, 
-  showText = true 
+  showText = true,
+  format = 'svg'
 }: LogoProps) {
   const logoSize = sizeClasses[size];
   const textSize = textSizeClasses[size];
+  const logoSrc = format === 'svg' ? ogaJobsLogoSvg : ogaJobsLogoPng;
 
   if (variant === 'icon') {
     return (
       <img 
-        src={ogaJobsLogo}
+        src={logoSrc}
         alt="OgaJobs" 
         className={cn(
           logoSize,
-          'object-contain aspect-square',
+          'object-contain',
           className
         )}
         loading="lazy"
@@ -51,9 +55,9 @@ export function Logo({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <img 
-        src={ogaJobsLogo}
+        src={logoSrc}
         alt="OgaJobs Logo" 
-        className={cn(logoSize, 'object-contain aspect-square')}
+        className={cn(logoSize, 'object-contain')}
         loading="lazy"
       />
       {showText && (
