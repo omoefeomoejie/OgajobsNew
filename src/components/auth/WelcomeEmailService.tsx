@@ -5,7 +5,8 @@ export interface WelcomeEmailData {
   userId: string;
   email: string;
   fullName: string;
-  role: 'client' | 'artisan';
+  role: 'client' | 'artisan' | 'pos_agent';
+  agentCode?: string; // For POS agents
 }
 
 /**
@@ -23,7 +24,13 @@ export class WelcomeEmailService {
         role: data.role 
       });
 
-      const template = data.role === 'client' ? 'welcome_client' : 'welcome_artisan';
+    // Determine email template based on user role
+    let template = 'welcome_client';
+    if (data.role === 'artisan') {
+      template = 'welcome_artisan';
+    } else if (data.role === 'pos_agent') {
+      template = 'welcome_pos_agent';
+    }
 
       const { error } = await supabase.functions.invoke('send-notification', {
         body: {
@@ -31,10 +38,11 @@ export class WelcomeEmailService {
           template: template,
           userEmail: data.email,
           userId: data.userId,
-          data: {
-            full_name: data.fullName,
-            role: data.role
-          }
+      data: {
+        full_name: data.fullName,
+        role: data.role,
+        agent_code: data.agentCode // Include agent code for POS agents
+      }
         }
       });
 

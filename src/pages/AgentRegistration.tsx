@@ -10,10 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { MapPin, Phone, User, CreditCard } from 'lucide-react';
 import { PageWrapper } from '@/components/layout/PageWrapper';
+import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
 
 const AgentRegistration = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { sendWelcomeEmail } = useWelcomeEmail();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     phone: '',
@@ -59,8 +61,14 @@ const AgentRegistration = () => {
 
       const agentCode = generateAgentCode();
 
-      // For now, we'll just update the profile role since pos_agents table needs to be added to types
-      // The agent system will be fully implemented when database types are updated
+      // Get user profile for email
+      const { data: profile, error: profileFetchError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', user.id)
+        .single();
+
+      if (profileFetchError) throw profileFetchError;
 
       // Update profile role
       const { error: profileError } = await supabase
@@ -72,9 +80,45 @@ const AgentRegistration = () => {
 
       if (profileError) throw profileError;
 
+      // Create POS agent record (insert will be available once types are updated)
+      try {
+        const posAgentData = {
+          user_id: user.id,
+          agent_code: agentCode,
+          phone: formData.phone,
+          location: locationData,
+          bank_account_number: formData.bankAccount,
+          bank_code: formData.bankCode,
+          account_name: formData.accountName,
+          status: 'active',
+          commission_rate: 10.0, // Default 10% commission
+          total_artisans_onboarded: 0,
+          total_commission_earned: 0
+        };
+
+        // Note: This will be enabled once pos_agents table is properly typed
+        // await supabase.from('pos_agents').insert([posAgentData]);
+      } catch (error) {
+        console.log('POS agents table not yet fully available:', error);
+      }
+
+      // Send welcome email
+      try {
+        await sendWelcomeEmail({
+          userId: user.id,
+          email: profile?.email || user.email!,
+          fullName: user.email!.split('@')[0], // Use email username as name
+          role: 'pos_agent',
+          agentCode: agentCode
+        });
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail registration if email fails
+      }
+
       toast({
         title: "Registration Successful",
-        description: `Welcome! Your agent code is: ${agentCode}`,
+        description: `Welcome! Your agent code is: ${agentCode}. Check your email for more details.`,
       });
 
       navigate('/agent-dashboard');

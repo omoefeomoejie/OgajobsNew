@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { WelcomeEmailService, WelcomeEmailData } from "@/components/auth/WelcomeEmailService";
+import { WelcomeEmailService, type WelcomeEmailData } from "@/components/auth/WelcomeEmailService";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "@/lib/logger";
 

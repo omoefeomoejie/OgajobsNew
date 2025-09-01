@@ -7,6 +7,7 @@ import React from 'npm:react@18.3.1'
 // Import email templates
 import { WelcomeClientEmail } from './_templates/welcome-client.tsx'
 import { WelcomeArtisanEmail } from './_templates/welcome-artisan.tsx'
+import { WelcomePOSAgentEmail } from './_templates/welcome-pos-agent.tsx'
 import { PasswordResetEmail } from './_templates/password-reset.tsx'
 import { EmailVerificationEmail } from './_templates/email-verification.tsx'
 
@@ -166,6 +167,17 @@ async function sendEmailNotification(template: string, data: Record<string, any>
         emailHtml = await renderAsync(
           React.createElement(WelcomeArtisanEmail, {
             fullName: data.full_name || data.fullName || 'Skilled Artisan',
+            appUrl: appUrl
+          })
+        );
+        break;
+        
+      case 'welcome_pos_agent':
+        subject = 'Welcome to OgaJobs POS Partnership - Start earning commissions today!';
+        emailHtml = await renderAsync(
+          React.createElement(WelcomePOSAgentEmail, {
+            fullName: data.full_name || data.fullName || 'POS Agent',
+            agentCode: data.agent_code || data.agentCode || 'AGENT001',
             appUrl: appUrl
           })
         );
