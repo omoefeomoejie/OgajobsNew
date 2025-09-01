@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { LanguageSelector } from './LanguageSelector';
+import { ROUTES } from '@/config/routes';
 import { 
   Shield, 
   Phone, 
@@ -77,10 +78,10 @@ export const Header = () => {
           <div className="hidden md:flex items-center gap-4 lg:gap-6 flex-1 justify-center mx-4">
             {/* Navigation Links - Responsive Display */}
             <nav className="flex items-center gap-4 lg:gap-8">
-              <Link to="/all-services" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
+              <Link to={ROUTES.SERVICES} className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
                 Find Services
               </Link>
-              <Link to="/become-artisan" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
+              <Link to={ROUTES.BECOME_ARTISAN} className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
                 Become an Artisan
               </Link>
               <Link to="/how-it-works" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
@@ -193,7 +194,7 @@ export const Header = () => {
               {/* Navigation Links - Mobile */}
               <div className="space-y-2">
                 <Link 
-                  to="/all-services" 
+                  to={ROUTES.SERVICES} 
                   className="block text-muted-foreground hover:text-foreground transition-colors py-2 px-2 rounded"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -240,7 +241,7 @@ export const Header = () => {
                         asChild 
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <Link to="/admin-dashboard">Admin Dashboard</Link>
+                        <Link to={ROUTES.ADMIN.DASHBOARD}>Admin Dashboard</Link>
                       </Button>
                     ) : (
                       <Button 
@@ -249,7 +250,7 @@ export const Header = () => {
                         asChild 
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <Link to="/dashboard">Dashboard</Link>
+                        <Link to={ROUTES.DASHBOARD}>Dashboard</Link>
                       </Button>
                     )}
                   </>

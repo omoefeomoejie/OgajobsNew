@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { serviceCategories } from '@/data/serviceCategories';
+import { ROUTES } from '@/config/routes';
 import { 
   Search, 
   Filter,
@@ -219,7 +220,7 @@ export default function Services() {
               size="lg" 
               variant="secondary" 
               className="px-8"
-              onClick={() => navigate('/book')}
+              onClick={() => navigate(ROUTES.BOOK)}
             >
               Post a Custom Job
               <ArrowRight className="w-5 h-5 ml-2" />

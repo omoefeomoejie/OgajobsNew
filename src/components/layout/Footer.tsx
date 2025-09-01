@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Logo } from '@/components/ui/logo';
+import { ROUTES } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -96,10 +99,10 @@ export const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-6">Our Services</h4>
             <ul className="space-y-3 text-primary-foreground/80">
-              <li><Link to="/all-services" className="hover:text-white transition-colors">Find Services</Link></li>
-              <li><Link to="/become-artisan" className="hover:text-white transition-colors">Become an Artisan</Link></li>
-              <li><Link to="/pos-partnership" className="hover:text-white transition-colors">POS Partnership</Link></li>
-              <li><Link to="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+              <li><Link to={ROUTES.SERVICES} className="hover:text-white transition-colors">Find Services</Link></li>
+              <li><Link to={ROUTES.BECOME_ARTISAN} className="hover:text-white transition-colors">Become an Artisan</Link></li>
+              <li><Link to={ROUTES.POS_PARTNERSHIP} className="hover:text-white transition-colors">POS Partnership</Link></li>
+              <li><Link to={ROUTES.HOW_IT_WORKS} className="hover:text-white transition-colors">How It Works</Link></li>
             </ul>
           </div>
 

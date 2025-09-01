@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMobile } from '@/hooks/useMobile';
 import { Badge } from '@/components/ui/badge';
+import { getMobileNavItems } from '@/config/routes';
 import {
   Home,
   Search,
@@ -14,6 +15,18 @@ import {
   Shield
 } from 'lucide-react';
 
+const iconMap = {
+  Home,
+  Search,
+  Calendar: Calendar,
+  MessageSquare,
+  User,
+  Briefcase,
+  Star,
+  Settings,
+  Shield
+};
+
 export function MobileBottomNav() {
   const { user, profile } = useAuth();
   const { isMobile } = useMobile();
@@ -21,43 +34,10 @@ export function MobileBottomNav() {
 
   if (!isMobile || !user) return null;
 
-  const getNavigationItems = () => {
-    if (profile?.role === 'client') {
-      return [
-        { title: 'Home', url: '/dashboard', icon: Home },
-        { title: 'Find', url: '/services', icon: Search },
-        { title: 'Bookings', url: '/bookings', icon: Calendar },
-        { title: 'Profile', url: '/profile', icon: User },
-      ];
-    }
-
-    if (profile?.role === 'artisan') {
-      return [
-        { title: 'Home', url: '/dashboard', icon: Home },
-        { title: 'Jobs', url: '/jobs', icon: Briefcase },
-        { title: 'Messages', url: '/messages', icon: MessageSquare },
-        { title: 'Verify', url: '/verification', icon: Shield },
-        { title: 'Profile', url: '/profile', icon: User },
-      ];
-    }
-
-    if (profile?.role === 'admin' || profile?.role === 'super_admin') {
-      return [
-        { title: 'Home', url: '/dashboard', icon: Home },
-        { title: 'Messages', url: '/messages', icon: MessageSquare },
-        { title: 'Settings', url: '/settings', icon: Settings },
-        { title: 'Admin', url: '/admin-dashboard', icon: Shield },
-      ];
-    }
-
-    // Default for authenticated users without specific role
-    return [
-      { title: 'Home', url: '/dashboard', icon: Home },
-      { title: 'Profile', url: '/profile', icon: User },
-    ];
-  };
-
-  const navigationItems = getNavigationItems();
+  const navigationItems = getMobileNavItems(profile?.role).map(item => ({
+    ...item,
+    icon: iconMap[item.icon as keyof typeof iconMap] || Home
+  }));
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t border-border z-40 safe-area-pb">

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BookingTimeline } from '@/components/dashboard/BookingTimeline';
 import { PaymentOverview } from '@/components/dashboard/PaymentOverview';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 import { 
   Search, 
   Star, 
@@ -18,7 +20,6 @@ import {
   Heart,
   Plus
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 export default function ClientDashboard() {
   const { profile } = useAuth();
@@ -35,7 +36,7 @@ export default function ClientDashboard() {
           </div>
           <div className="flex gap-2">
             <Button asChild>
-              <Link to="/service-directory">
+              <Link to={ROUTES.SERVICES}>
                 <Search className="w-4 h-4 mr-2" />
                 Find Services
               </Link>
@@ -67,7 +68,7 @@ export default function ClientDashboard() {
       {/* Quick Actions Bar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Button variant="outline" className="justify-start h-auto p-4" asChild>
-          <Link to="/service-directory">
+          <Link to={ROUTES.SERVICES}>
             <div className="text-left">
               <Search className="w-5 h-5 mb-2" />
               <div className="font-medium">Find Services</div>

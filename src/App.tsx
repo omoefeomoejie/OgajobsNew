@@ -8,7 +8,8 @@ import { SecureErrorBoundary } from "@/components/error/SecureErrorBoundary";
 import { GlobalErrorHandler } from "@/components/error/GlobalErrorHandler";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
-import { AdminDashboard as AdminDashboardComponent } from "@/components/admin/AdminDashboard";
+import { LegacyRedirect } from "@/components/routing/LegacyRedirect";
+import { ROUTES } from "@/config/routes";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -17,7 +18,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
-import ServiceDirectory from "./pages/ServiceDirectory";
+import Services from "./pages/Services"; // Now using Services instead of ServiceDirectory
 import BookingRequest from "./pages/BookingRequest";
 import MyBookings from "./pages/MyBookings";
 import Messages from "./pages/Messages";
@@ -38,7 +39,6 @@ import AdminUsers from "./pages/AdminUsers";
 import FinancialReports from "./pages/FinancialReports";
 import Favorites from "./pages/Favorites";
 import BecomeArtisan from "./pages/BecomeArtisan";
-import Services from "./pages/Services";
 import HelpCenter from "./pages/HelpCenter";
 import SafetyGuidelines from "./pages/SafetyGuidelines";
 import POSPartnership from "./pages/POSPartnership";
@@ -58,40 +58,56 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
             <div className="relative min-h-screen">
+              <LegacyRedirect />
               <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/services" element={<ServiceDirectory />} />
-                <Route path="/book" element={<BookingRequest />} />
-                <Route path="/my-bookings" element={<MyBookings />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/reviews" element={<Reviews />} />
-                <Route path="/payment-success" element={<PaymentSuccess />} />
-                <Route path="/verification" element={<Verification />} />
-                <Route path="/agent-registration" element={<AgentRegistration />} />
-                <Route path="/agent-dashboard" element={<AgentDashboard />} />
-                <Route path="/portfolio" element={<Portfolio />} />
-                <Route path="/portfolio/:portfolioId" element={<PortfolioView />} />
-                <Route path="/disputes" element={<Disputes />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/agent-chat" element={<AgentChatDashboardPage />} />
-                <Route path="/become-artisan" element={<BecomeArtisan />} />
-                <Route path="/help-center" element={<HelpCenter />} />
-                <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
-                <Route path="/pos-partnership" element={<POSPartnership />} />
-                <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
-                <Route path="/calendar" element={<Calendar />} />
-                <Route path="/monitoring-dashboard" element={<MonitoringDashboard />} />
-                <Route path="/admin/users" element={<AdminUsers />} />
-                <Route path="/admin/financial-reports" element={<FinancialReports />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-                <Route path="/cookie-policy" element={<CookiePolicy />} />
-                <Route path="*" element={<NotFound />} />
+                {/* Public routes */}
+                <Route path={ROUTES.HOME} element={<Index />} />
+                <Route path={ROUTES.AUTH} element={<Auth />} />
+                <Route path={ROUTES.HOW_IT_WORKS} element={<HowItWorks />} />
+                <Route path={ROUTES.BECOME_ARTISAN} element={<BecomeArtisan />} />
+                <Route path={ROUTES.HELP_CENTER} element={<HelpCenter />} />
+                <Route path={ROUTES.SAFETY_GUIDELINES} element={<SafetyGuidelines />} />
+                <Route path={ROUTES.POS_PARTNERSHIP} element={<POSPartnership />} />
+                <Route path={ROUTES.COMPETITIVE_ADVANTAGES} element={<CompetitiveAdvantages />} />
+                
+                {/* Legal pages */}
+                <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
+                <Route path={ROUTES.TERMS_OF_SERVICE} element={<TermsOfService />} />
+                <Route path={ROUTES.COOKIE_POLICY} element={<CookiePolicy />} />
+                
+                {/* Main application routes */}
+                <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+                <Route path={ROUTES.SERVICES} element={<Services />} />
+                <Route path={ROUTES.BOOK} element={<BookingRequest />} />
+                <Route path={ROUTES.BOOKINGS} element={<MyBookings />} />
+                <Route path={ROUTES.FAVORITES} element={<Favorites />} />
+                <Route path={ROUTES.MESSAGES} element={<Messages />} />
+                <Route path={ROUTES.REVIEWS} element={<Reviews />} />
+                <Route path={ROUTES.CALENDAR} element={<Calendar />} />
+                <Route path={ROUTES.PROFILE} element={<Profile />} />
+                <Route path={ROUTES.SETTINGS} element={<Settings />} />
+                
+                {/* Artisan routes */}
+                <Route path={ROUTES.PORTFOLIO} element={<Portfolio />} />
+                <Route path={ROUTES.PORTFOLIO_VIEW} element={<PortfolioView />} />
+                <Route path={ROUTES.VERIFICATION} element={<Verification />} />
+                <Route path={ROUTES.DISPUTES} element={<Disputes />} />
+                
+                {/* Agent routes */}
+                <Route path={ROUTES.AGENT_REGISTRATION} element={<AgentRegistration />} />
+                <Route path={ROUTES.AGENT_DASHBOARD} element={<AgentDashboard />} />
+                <Route path={ROUTES.AGENT_CHAT} element={<AgentChatDashboardPage />} />
+                
+                {/* Admin routes - consolidated under /admin/* */}
+                <Route path={ROUTES.ADMIN.LOGIN} element={<AdminLogin />} />
+                <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
+                <Route path={ROUTES.ADMIN.USERS} element={<AdminUsers />} />
+                <Route path={ROUTES.ADMIN.FINANCIAL_REPORTS} element={<FinancialReports />} />
+                <Route path={ROUTES.ADMIN.MONITORING} element={<MonitoringDashboard />} />
+                
+                {/* Special routes */}
+                <Route path={ROUTES.PAYMENT_SUCCESS} element={<PaymentSuccess />} />
+                <Route path={ROUTES.NOT_FOUND} element={<NotFound />} />
               </Routes>
               
               {/* Mobile-specific components */}

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { ROUTES } from '@/config/routes';
 import { 
   Search, 
   Shield, 
@@ -98,7 +99,7 @@ export const HeroSection = () => {
               <Button 
                 size="lg" 
                 className="px-8 h-12 bg-primary hover:bg-primary-dark text-primary-foreground" 
-                onClick={() => navigate(`/all-services?search=${encodeURIComponent(searchQuery)}&city=${encodeURIComponent(selectedCity)}`)}
+                onClick={() => navigate(`${ROUTES.SERVICES}?search=${encodeURIComponent(searchQuery)}&city=${encodeURIComponent(selectedCity)}`)}
               >
                 <Search className="w-5 h-5 mr-2" />
                 {t('hero.searchButton')}

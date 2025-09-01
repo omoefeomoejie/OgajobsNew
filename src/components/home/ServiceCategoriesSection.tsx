@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { serviceCategories } from '@/data/serviceCategories';
+import { ROUTES } from '@/config/routes';
 import { 
   Home, 
   Building, 
@@ -101,7 +102,7 @@ export const ServiceCategoriesSection = () => {
                     className="w-full group-hover:bg-primary group-hover:text-white transition-colors"
                     asChild
                   >
-                    <Link to={`/all-services?category=${category.slug}`}>
+                    <Link to={`${ROUTES.SERVICES}?category=${category.slug}`}>
                       View Services
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
@@ -115,7 +116,7 @@ export const ServiceCategoriesSection = () => {
         {/* View All Services CTA */}
         <div className="text-center">
           <Button size="lg" className="px-8" asChild>
-            <Link to="/all-services">
+            <Link to={ROUTES.SERVICES}>
               View All Services
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>

@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { NavLink, useLocation } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 import {
   Sidebar,
   SidebarContent,
@@ -44,9 +45,9 @@ export function AppSidebar() {
   const getNavigationItems = () => {
     if (profile?.role === 'client') {
       return [
-        { title: 'Dashboard', url: '/dashboard', icon: Home },
-        { title: 'Find Services', url: '/service-directory', icon: Search },
-        { title: 'My Bookings', url: '/my-bookings', icon: Calendar },
+        { title: 'Dashboard', url: ROUTES.DASHBOARD, icon: Home },
+        { title: 'Find Services', url: ROUTES.SERVICES, icon: Search },
+        { title: 'My Bookings', url: ROUTES.BOOKINGS, icon: Calendar },
         { title: 'Messages', url: '/messages', icon: MessageSquare },
         { title: 'Favorites', url: '/favorites', icon: Star },
         { title: 'Reviews', url: '/reviews', icon: Star },
@@ -83,7 +84,7 @@ export function AppSidebar() {
 
     if (profile?.role === 'admin') {
       return [
-        { title: 'Admin Panel', url: '/admin-control-panel', icon: Shield },
+        { title: 'Admin Panel', url: ROUTES.ADMIN.DASHBOARD, icon: Shield },
         { title: 'User Management', url: '/admin/users', icon: Users },
         { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
         { title: 'Dashboard', url: '/dashboard', icon: Home },
