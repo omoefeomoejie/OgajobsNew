@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import ogaJobsLogo from '@/assets/ogajobs-logo.png';
+import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
 
 interface LogoProps {
   variant?: 'icon' | 'full';
@@ -33,11 +33,6 @@ export function Logo({
   const logoSize = sizeClasses[size];
   const textSize = textSizeClasses[size];
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    console.warn('Logo failed to load, hiding image');
-    e.currentTarget.style.display = 'none';
-  };
-
   if (variant === 'icon') {
     return (
       <img 
@@ -49,7 +44,6 @@ export function Logo({
           className
         )}
         loading="lazy"
-        onError={handleImageError}
       />
     );
   }
@@ -61,7 +55,6 @@ export function Logo({
         alt="OgaJobs Logo" 
         className={cn(logoSize, 'object-contain aspect-square')}
         loading="lazy"
-        onError={handleImageError}
       />
       {showText && (
         <div className="min-w-0">
