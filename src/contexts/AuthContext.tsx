@@ -43,16 +43,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Get fresh user data to check for role mismatches
+      const { data: userData } = await supabase.auth.getUser();
+      const userMetadataRole = userData?.user?.user_metadata?.role;
+
       if (data) {
-        setProfile(data);
+        console.log('Found existing profile:', data);
+        
+        // Check if role needs to be synced from user metadata
+        if (userMetadataRole && data.role !== userMetadataRole) {
+          console.log(`Role mismatch detected: Profile has "${data.role}", user metadata has "${userMetadataRole}". Syncing...`);
+          
+          try {
+            const { data: updatedProfile, error: updateError } = await supabase
+              .from('profiles')
+              .update({ role: userMetadataRole })
+              .eq('id', userId)
+              .select()
+              .single();
+
+            if (updateError) {
+              console.error('Error syncing role:', updateError);
+              // Use existing profile even if sync failed
+              setProfile(data);
+            } else {
+              console.log('Role synced successfully:', updatedProfile);
+              setProfile(updatedProfile);
+            }
+          } catch (syncErr) {
+            console.error('Role sync failed with exception:', syncErr);
+            // Use existing profile as fallback
+            setProfile(data);
+          }
+        } else {
+          setProfile(data);
+        }
       } else {
         // If no profile exists, create one with default values
         console.log('=== CREATING NEW PROFILE ===');
         console.log('Creating new profile for user:', userId);
-        
-        // Get fresh user data
-        const { data: userData } = await supabase.auth.getUser();
-        console.log('User data for profile creation:', userData?.user);
         
         if (!userData?.user) {
           console.error('No user data available for profile creation');
@@ -64,9 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.log('Using role for new profile:', defaultRole);
           console.log('Using email for new profile:', userData.user.email);
           
-          const { data: newProfile, error: createError } = await supabase
+          // Use upsert to handle race conditions
+          const { data: newProfile, error: upsertError } = await supabase
             .from('profiles')
-            .insert({
+            .upsert({
               id: userId,
               email: userData.user.email || '',
               role: defaultRole
@@ -74,14 +104,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .select()
             .single();
 
-          if (createError) {
-            console.error('Error creating profile:', createError);
-            console.error('Profile create error details:', {
-              message: createError.message,
-              details: createError.details,
-              hint: createError.hint,
-              code: createError.code
-            });
+          if (upsertError) {
+            console.error('Error upserting profile:', upsertError);
             
             // Still set a basic profile object so the app doesn't break
             const fallbackProfile = {
@@ -90,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               role: defaultRole,
               created_at: new Date().toISOString()
             };
-            console.log('Setting fallback profile after create error:', fallbackProfile);
+            console.log('Setting fallback profile after upsert error:', fallbackProfile);
             setProfile(fallbackProfile);
             return;
           }
@@ -103,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const fallbackProfile = {
             id: userId,
             email: userData.user.email || '',
-            role: 'client',
+            role: userMetadataRole || 'client',
             created_at: new Date().toISOString()
           };
           console.log('Setting fallback profile after exception:', fallbackProfile);
