@@ -70,41 +70,40 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation - Better Responsive Handling */}
+          {/* Desktop Navigation - Always Visible */}
           <div className="hidden xl:flex items-center gap-4 flex-1 justify-center">
-            {!user && (
-              <>
-                {/* Location Selector */}
-                <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
-                  <MapPin className="w-3 h-3 text-muted-foreground" />
-                  <select className="bg-transparent border-none outline-none text-xs min-w-0">
-                    <option>Lagos</option>
-                    <option>Abuja</option>
-                  </select>
-                </div>
+            {/* Location Selector */}
+            <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
+              <MapPin className="w-3 h-3 text-muted-foreground" />
+              <select className="bg-transparent border-none outline-none text-xs min-w-0">
+                <option>Lagos</option>
+                <option>Abuja</option>
+              </select>
+            </div>
 
-                {/* Navigation Links */}
-                <nav className="flex items-center gap-3">
-                  <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
-                    Find Services
-                  </Link>
-                  <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
-                    Become Artisan
-                  </Link>
-                  <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
-                    How It Works
-                  </Link>
-                  <Badge variant="secondary" className="text-xs">
-                    <Star className="w-3 h-3 mr-1" />
-                    4.9/5
-                  </Badge>
-                </nav>
-              </>
-            )}
+            {/* Navigation Links - Always Visible */}
+            <nav className="flex items-center gap-3">
+              <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+                Find Services
+              </Link>
+              <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+                Become Artisan
+              </Link>
+              <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+                How It Works
+              </Link>
+              <Badge variant="secondary" className="text-xs">
+                <Star className="w-3 h-3 mr-1" />
+                4.9/5
+              </Badge>
+            </nav>
+          </div>
 
+          {/* Right Section - User Role & Auth */}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             {/* User Role Indicator - Authenticated Users */}
             {user && profile?.role && (
-              <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
+              <div className="hidden xl:flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg mr-2">
                 <User className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm font-medium">
                   {profile.role === 'client' ? 'Client Portal' : 
@@ -114,10 +113,7 @@ export const Header = () => {
                 </span>
               </div>
             )}
-          </div>
 
-          {/* Right Section - Auth & Actions */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             {/* Language Selector - Always Visible */}
             <div className="hidden sm:block">
               <LanguageSelector />
@@ -180,17 +176,15 @@ export const Header = () => {
                 </div>
               )}
 
-              {/* Location Selector - Mobile */}
-              {!user && (
-                <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <select className="bg-transparent border-none outline-none text-sm flex-1">
-                    <option>Lagos</option>
-                    <option>Abuja</option>
-                    <option>Benin City</option>
-                  </select>
-                </div>
-              )}
+              {/* Location Selector - Mobile (Always Visible) */}
+              <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
+                <MapPin className="w-4 h-4 text-muted-foreground" />
+                <select className="bg-transparent border-none outline-none text-sm flex-1">
+                  <option>Lagos</option>
+                  <option>Abuja</option>
+                  <option>Benin City</option>
+                </select>
+              </div>
               
               {/* Navigation Links - Mobile */}
               <div className="space-y-2">
