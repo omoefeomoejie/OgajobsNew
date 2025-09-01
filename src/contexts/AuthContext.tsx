@@ -47,16 +47,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(data);
       } else {
         // If no profile exists, create one with default values
+        console.log('=== CREATING NEW PROFILE ===');
         console.log('Creating new profile for user:', userId);
+        
+        // Get fresh user data
+        const { data: userData } = await supabase.auth.getUser();
+        console.log('User data for profile creation:', userData?.user);
+        
+        if (!userData?.user) {
+          console.error('No user data available for profile creation');
+          return;
+        }
+        
         try {
-          const defaultRole = user?.user_metadata?.role || 'client';
+          const defaultRole = userData.user.user_metadata?.role || 'client';
           console.log('Using role for new profile:', defaultRole);
+          console.log('Using email for new profile:', userData.user.email);
           
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
             .insert({
               id: userId,
-              email: user?.email || '',
+              email: userData.user.email || '',
               role: defaultRole
             })
             .select()
@@ -64,28 +76,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (createError) {
             console.error('Error creating profile:', createError);
+            console.error('Profile create error details:', {
+              message: createError.message,
+              details: createError.details,
+              hint: createError.hint,
+              code: createError.code
+            });
+            
             // Still set a basic profile object so the app doesn't break
-            setProfile({
+            const fallbackProfile = {
               id: userId,
-              email: user?.email || '',
+              email: userData.user.email || '',
               role: defaultRole,
               created_at: new Date().toISOString()
-            });
+            };
+            console.log('Setting fallback profile after create error:', fallbackProfile);
+            setProfile(fallbackProfile);
             return;
           }
 
           console.log('Profile created successfully:', newProfile);
           setProfile(newProfile);
         } catch (createErr) {
-          console.error('Profile creation failed:', createErr);
+          console.error('Profile creation failed with exception:', createErr);
           // Fallback profile to prevent app crash
-          setProfile({
+          const fallbackProfile = {
             id: userId,
-            email: user?.email || '',
+            email: userData.user.email || '',
             role: 'client',
             created_at: new Date().toISOString()
-          });
+          };
+          console.log('Setting fallback profile after exception:', fallbackProfile);
+          setProfile(fallbackProfile);
         }
+        console.log('=== END CREATING NEW PROFILE ===');
       }
     } catch (error) {
       console.error('Profile fetch error:', error);
