@@ -47,6 +47,7 @@ const FormLoadingFallback = () => (
 // Create lazy components
 export const LazyIndex = lazy(() => import('@/pages/Index'));
 export const LazyAuth = lazy(() => import('@/pages/Auth'));
+export const LazyAuthConfirm = lazy(() => import('@/pages/AuthConfirm'));
 export const LazyDashboard = lazy(() => import('@/pages/Dashboard'));
 export const LazyAdminLogin = lazy(() => import('@/pages/AdminLogin'));
 export const LazyAdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
@@ -95,6 +96,7 @@ const createLazyWrapper = (LazyComponent: React.LazyExoticComponent<React.Compon
 // Wrapper components with appropriate fallbacks
 export const LazyIndexWrapper = createLazyWrapper(LazyIndex, React.createElement(PageLoadingFallback));
 export const LazyAuthWrapper = createLazyWrapper(LazyAuth, React.createElement(FormLoadingFallback));
+export const LazyAuthConfirmWrapper = createLazyWrapper(LazyAuthConfirm, React.createElement(PageLoadingFallback));
 export const LazyDashboardWrapper = createLazyWrapper(LazyDashboard, React.createElement(DashboardLoadingFallback));
 export const LazyAdminDashboardWrapper = createLazyWrapper(LazyAdminDashboard, React.createElement(DashboardLoadingFallback));
 export const LazyAdminControlPanelWrapper = createLazyWrapper(LazyAdminControlPanel, React.createElement(DashboardLoadingFallback));

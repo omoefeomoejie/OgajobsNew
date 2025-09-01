@@ -74,7 +74,7 @@ export default function Auth() {
         throw new Error('All fields are required');
       }
 
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/auth/confirm`;
       
       logger.debug('Creating user authentication record');
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -190,35 +190,11 @@ export default function Auth() {
 
       logger.info('Signup process completed successfully');
 
-      // Send welcome email
-      try {
-        logger.debug('Sending welcome email', { role: signupRole, email: signupEmail });
-        const { error: emailError } = await supabase.functions.invoke('send-notification', {
-          body: {
-            type: 'email',
-            template: signupRole === 'client' ? 'welcome_client' : 'welcome_artisan',
-            userEmail: signupEmail,
-            data: {
-              full_name: signupFullName,
-              role: signupRole
-            }
-          }
-        });
-
-        if (emailError) {
-          logger.error('Welcome email sending failed', { error: emailError });
-          // Don't fail the signup process for email issues
-        } else {
-          logger.info('Welcome email sent successfully');
-        }
-      } catch (emailSendError) {
-        logger.error('Welcome email process failed', { error: emailSendError });
-        // Don't fail the signup process for this
-      }
-
+      // Note: Welcome email will be sent automatically after email confirmation via database trigger
+      
       toast({
-        title: t('messages.signUpSuccess'),
-        description: `Account created successfully! Please check your email to verify your account and for your welcome message.`,
+        title: "Account Created Successfully!",
+        description: "Please check your email and click the confirmation link to activate your account. You'll receive a welcome message once confirmed.",
       });
 
       // Clear form after successful signup

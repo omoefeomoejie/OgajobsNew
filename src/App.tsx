@@ -13,6 +13,7 @@ import { ROUTES } from "@/config/routes";
 import {
   LazyIndexWrapper as Index,
   LazyAuthWrapper as Auth, 
+  LazyAuthConfirmWrapper as AuthConfirm,
   LazyDashboardWrapper as Dashboard,
   LazyAdminLoginWrapper as AdminLogin,
   LazyAdminDashboardWrapper as AdminDashboard,
@@ -66,6 +67,7 @@ const App = () => (
                 {/* Public routes */}
                 <Route path={ROUTES.HOME} element={<Index />} />
                 <Route path={ROUTES.AUTH} element={<Auth />} />
+                <Route path="/auth/confirm" element={<AuthConfirm />} />
                 <Route path={ROUTES.HOW_IT_WORKS} element={<HowItWorks />} />
                 <Route path={ROUTES.BECOME_ARTISAN} element={<BecomeArtisan />} />
                 <Route path={ROUTES.HELP_CENTER} element={<HelpCenter />} />

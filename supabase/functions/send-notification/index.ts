@@ -10,6 +10,7 @@ import { WelcomeArtisanEmail } from './_templates/welcome-artisan.tsx'
 import { WelcomePOSAgentEmail } from './_templates/welcome-pos-agent.tsx'
 import { PasswordResetEmail } from './_templates/password-reset.tsx'
 import { EmailVerificationEmail } from './_templates/email-verification.tsx'
+import { EmailConfirmationEmail } from './_templates/email-confirmation.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -202,6 +203,18 @@ async function sendEmailNotification(template: string, data: Record<string, any>
             confirmUrl: data.confirm_url || data.confirmUrl || '#',
             userEmail: email,
             appUrl: appUrl
+          })
+        );
+        break;
+        
+      case 'email_confirmation':
+        subject = 'Welcome to OgaJobs - Confirm your email address';
+        emailHtml = await renderAsync(
+          React.createElement(EmailConfirmationEmail, {
+            confirmUrl: data.confirm_url || data.confirmUrl || '#',
+            userEmail: email,
+            appUrl: appUrl,
+            fullName: data.full_name || data.fullName || 'Valued User'
           })
         );
         break;
