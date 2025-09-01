@@ -33,46 +33,117 @@ const POSAgentDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Get artisans onboarded by this agent (simplified version for now)
-      const { data: artisansData, error: artisansError } = await supabase
-        .from('artisans')
+      // Get POS agent data
+      const { data: agentData, error: agentError } = await supabase
+        .from('pos_agents')
         .select('*')
-        .ilike('message', `%${user.email}%`)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .eq('user_id', user.id)
+        .single();
 
-      if (artisansError && artisansError.code !== 'PGRST116') {
-        console.error('Error fetching artisans:', artisansError);
+      if (agentError && agentError.code !== 'PGRST116') {
+        console.error('Error fetching agent data:', agentError);
+        throw agentError;
       }
 
-      // Set basic stats based on artisans data
-      const totalArtisans = artisansData?.length || 0;
+      if (!agentData) {
+        // Fallback to mock data if no agent record found
+        setAgentStats({
+          totalArtisans: 0,
+          monthlyCommission: 0,
+          pendingCommission: 0,
+          totalEarnings: 0
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Get agent referrals
+      const { data: referralsData, error: referralsError } = await supabase
+        .from('agent_referrals')
+        .select(`
+          *,
+          artisans!agent_referrals_artisan_id_fkey (
+            id,
+            full_name,
+            email,
+            category,
+            city,
+            created_at
+          )
+        `)
+        .eq('agent_id', agentData.id)
+        .order('created_at', { ascending: false });
+
+      if (referralsError && referralsError.code !== 'PGRST116') {
+        console.error('Error fetching referrals:', referralsError);
+      }
+
+      // Get commission transactions
+      const { data: commissionsData, error: commissionsError } = await supabase
+        .from('commission_transactions')
+        .select('*')
+        .eq('agent_id', agentData.id)
+        .order('created_at', { ascending: false });
+
+      if (commissionsError && commissionsError.code !== 'PGRST116') {
+        console.error('Error fetching commissions:', commissionsError);
+      }
+
+      // Calculate stats
+      const totalArtisans = referralsData?.length || 0;
+      const totalCommissionEarned = commissionsData?.reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+      const pendingCommissions = commissionsData?.filter(c => c.status === 'pending').reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+      const monthlyCommissions = commissionsData?.filter(c => {
+        const commissionDate = new Date(c.created_at);
+        const currentDate = new Date();
+        return commissionDate.getMonth() === currentDate.getMonth() && 
+               commissionDate.getFullYear() === currentDate.getFullYear();
+      }).reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+
       setAgentStats({
         totalArtisans,
-        monthlyCommission: totalArtisans * 2500, // Estimated ₦2,500 per artisan per month
-        pendingCommission: totalArtisans * 1200, // Estimated pending
-        totalEarnings: totalArtisans * 15000 // Estimated total lifetime
+        monthlyCommission: monthlyCommissions,
+        pendingCommission: pendingCommissions,
+        totalEarnings: totalCommissionEarned
       });
 
-      if (artisansData) {
-        const formattedArtisans = artisansData.map((artisan: any) => ({
-          id: artisan.id,
-          name: artisan.full_name || 'Unknown',
-          service: artisan.category || 'N/A',
-          status: 'active', // Default status
-          joinDate: new Date(artisan.created_at).toISOString().split('T')[0],
-          commission: 2500, // Default commission
-          email: artisan.email
+      // Format artisans data
+      if (referralsData) {
+        const formattedArtisans = referralsData.map((referral: any) => ({
+          id: referral.id,
+          name: referral.artisans?.full_name || 'Unknown',
+          service: referral.artisans?.category || 'N/A',
+          status: referral.verification_status,
+          joinDate: new Date(referral.created_at).toISOString().split('T')[0],
+          commission: referral.total_commission_generated || 0,
+          email: referral.artisans?.email,
+          referralCode: referral.referral_code
         }));
         setRecentArtisans(formattedArtisans);
       }
 
-      // Set mock commission history for now
-      setCommissionHistory([
-        { month: 'December 2024', amount: totalArtisans * 2500, artisans: totalArtisans, status: 'pending' },
-        { month: 'November 2024', amount: totalArtisans * 2200, artisans: Math.max(totalArtisans - 1, 0), status: 'paid' },
-        { month: 'October 2024', amount: totalArtisans * 2800, artisans: Math.max(totalArtisans - 2, 0), status: 'paid' },
-      ]);
+      // Format commission history
+      if (commissionsData) {
+        const commissionsByMonth = commissionsData.reduce((acc: any, commission: any) => {
+          const month = new Date(commission.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+          if (!acc[month]) {
+            acc[month] = { month, amount: 0, artisans: new Set(), status: 'paid' };
+          }
+          acc[month].amount += Number(commission.amount);
+          acc[month].artisans.add(commission.artisan_id);
+          if (commission.status === 'pending') acc[month].status = 'pending';
+          return acc;
+        }, {});
+
+        const formattedHistory = Object.values(commissionsByMonth).map((entry: any) => ({
+          month: entry.month,
+          amount: entry.amount,
+          artisans: entry.artisans.size,
+          status: entry.status
+        }));
+
+        setCommissionHistory(formattedHistory);
+      }
 
       setLoading(false);
     } catch (error) {

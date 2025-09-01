@@ -31,49 +31,114 @@ const CommissionTracker: React.FC<CommissionTrackerProps> = ({ agentId, classNam
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Get all artisans onboarded by this agent for commission tracking
-      const { data: artisansData, error: artisansError } = await supabase
-        .from('artisans')
+      // Get POS agent data
+      const { data: agentData, error: agentError } = await supabase
+        .from('pos_agents')
         .select('*')
-        .ilike('message', `%${user.email}%`)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id)
+        .single();
 
-      if (artisansError && artisansError.code !== 'PGRST116') {
-        console.error('Error fetching artisans:', artisansError);
+      if (agentError && agentError.code !== 'PGRST116') {
+        console.error('Error fetching agent data:', agentError);
       }
 
-      // Calculate stats based on artisans
-      const totalArtisans = artisansData?.length || 0;
-      const baseCommissionPerArtisan = 2500; // ₦2,500 per artisan per month
+      if (!agentData) {
+        setStats({
+          totalEarned: 0,
+          pendingAmount: 0,
+          activeArtisans: 0,
+          monthlyGrowth: 0
+        });
+        setLoading(false);
+        return;
+      }
 
-      // Mock commission transactions based on artisans
-      const mockCommissions = artisansData?.map((artisan: any, index: number) => ({
-        id: artisan.id,
-        artisan_name: artisan.full_name || 'Unknown',
-        artisan_service: artisan.category || 'N/A',
-        amount: baseCommissionPerArtisan + (Math.random() * 1000), // Random variation
-        status: index % 3 === 0 ? 'pending' : 'paid',
-        date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random date within last 30 days
-        commission_rate: 5.0,
-        booking_count: Math.floor(Math.random() * 5) + 1
-      })) || [];
+      // Get commission transactions
+      const { data: commissionsData, error: commissionsError } = await supabase
+        .from('commission_transactions')
+        .select(`
+          *,
+          artisans!commission_transactions_artisan_id_fkey (
+            id,
+            full_name,
+            email,
+            category
+          )
+        `)
+        .eq('agent_id', agentData.id)
+        .order('created_at', { ascending: false });
 
-      setCommissions(mockCommissions);
+      if (commissionsError && commissionsError.code !== 'PGRST116') {
+        console.error('Error fetching commissions:', commissionsError);
+      }
+
+      // Get agent referrals for artisan count
+      const { data: referralsData, error: referralsError } = await supabase
+        .from('agent_referrals')
+        .select('*')
+        .eq('agent_id', agentData.id);
+
+      if (referralsError && referralsError.code !== 'PGRST116') {
+        console.error('Error fetching referrals:', referralsError);
+      }
+
+      const commissions = commissionsData || [];
+      const totalArtisans = referralsData?.length || 0;
+
+      // Format commissions for display
+      const formattedCommissions = commissions.map((commission: any) => ({
+        id: commission.id,
+        artisan_name: commission.artisans?.full_name || 'Unknown Artisan',
+        artisan_service: commission.artisans?.category || 'N/A',
+        amount: Number(commission.amount),
+        status: commission.status,
+        date: new Date(commission.created_at),
+        commission_rate: Number(commission.commission_rate || 0),
+        booking_count: 1 // This could be enhanced with actual booking count
+      }));
+
+      setCommissions(formattedCommissions);
 
       // Calculate stats
-      const totalEarned = mockCommissions
+      const totalEarned = commissions
         .filter(c => c.status === 'paid')
-        .reduce((sum, c) => sum + c.amount, 0);
+        .reduce((sum, c) => sum + Number(c.amount), 0);
       
-      const pendingAmount = mockCommissions
+      const pendingAmount = commissions
         .filter(c => c.status === 'pending')
-        .reduce((sum, c) => sum + c.amount, 0);
+        .reduce((sum, c) => sum + Number(c.amount), 0);
+
+      // Calculate monthly growth (comparison with previous month)
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+      const currentMonthEarnings = commissions
+        .filter(c => {
+          const commissionDate = new Date(c.created_at);
+          return commissionDate.getMonth() === currentMonth && 
+                 commissionDate.getFullYear() === currentYear;
+        })
+        .reduce((sum, c) => sum + Number(c.amount), 0);
+
+      const previousMonthEarnings = commissions
+        .filter(c => {
+          const commissionDate = new Date(c.created_at);
+          return commissionDate.getMonth() === previousMonth && 
+                 commissionDate.getFullYear() === previousYear;
+        })
+        .reduce((sum, c) => sum + Number(c.amount), 0);
+
+      const monthlyGrowth = previousMonthEarnings > 0 
+        ? Math.round(((currentMonthEarnings - previousMonthEarnings) / previousMonthEarnings) * 100)
+        : currentMonthEarnings > 0 ? 100 : 0;
 
       setStats({
         totalEarned,
         pendingAmount,
         activeArtisans: totalArtisans,
-        monthlyGrowth: Math.floor(Math.random() * 25) + 5 // Mock 5-30% growth
+        monthlyGrowth: Math.max(monthlyGrowth, 0) // Ensure non-negative growth
       });
 
       setLoading(false);

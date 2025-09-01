@@ -52,7 +52,16 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Create artisan record directly for now
+      // Get POS agent data
+      const { data: agentData, error: agentError } = await supabase
+        .from('pos_agents')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agentError) throw new Error('Agent not found. Please ensure you are registered as a POS agent.');
+
+      // Create artisan record
       const { data: artisanData, error: artisanError } = await supabase
         .from('artisans')
         .insert({
@@ -68,12 +77,52 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
 
       if (artisanError) throw artisanError;
 
-      // Generate referral code for tracking
-      const referralCode = 'AGT_' + Date.now().toString().slice(-6);
+      // Generate referral code
+      const referralCode = 'AGT_' + Date.now().toString().slice(-6) + '_' + Math.random().toString(36).substr(2, 3).toUpperCase();
+
+      // Create agent referral record
+      const { error: referralError } = await supabase
+        .from('agent_referrals')
+        .insert({
+          agent_id: agentData.id,
+          artisan_id: artisanData.id,
+          referral_code: referralCode,
+          verification_status: 'pending',
+          total_jobs_completed: 0,
+          total_commission_generated: 0
+        });
+
+      if (referralError) throw referralError;
+
+      // Update agent's total artisans count
+      const { error: updateError } = await supabase
+        .from('pos_agents')
+        .update({
+          total_artisans_onboarded: agentData.total_artisans_onboarded + 1
+        })
+        .eq('id', agentData.id);
+
+      if (updateError) console.warn('Failed to update agent count:', updateError);
+
+      // Send welcome email to artisan (optional - can be implemented later)
+      try {
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            type: 'welcome_artisan',
+            email: formData.email,
+            full_name: formData.fullName,
+            agent_name: user.email?.split('@')[0] || 'POS Agent',
+            referral_code: referralCode
+          }
+        });
+      } catch (emailError) {
+        console.warn('Failed to send welcome email to artisan:', emailError);
+        // Don't fail the onboarding if email fails
+      }
 
       toast({
         title: "Artisan Onboarded Successfully",
-        description: `${formData.fullName} has been added to the platform with tracking code: ${referralCode}`,
+        description: `${formData.fullName} has been added to the platform. Referral code: ${referralCode}`,
       });
       
       onSuccess();

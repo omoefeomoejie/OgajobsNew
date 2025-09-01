@@ -37,6 +37,79 @@ const AgentRegistration = () => {
     'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
   ];
 
+  const nigerianBanks = [
+    // Traditional Banks
+    { name: 'Access Bank', code: '044' },
+    { name: 'Citibank Nigeria', code: '023' },
+    { name: 'Ecobank Nigeria', code: '050' },
+    { name: 'Fidelity Bank', code: '070' },
+    { name: 'First Bank of Nigeria', code: '011' },
+    { name: 'First City Monument Bank', code: '214' },
+    { name: 'Guaranty Trust Bank', code: '058' },
+    { name: 'Heritage Bank', code: '030' },
+    { name: 'Keystone Bank', code: '082' },
+    { name: 'Polaris Bank', code: '076' },
+    { name: 'Providus Bank', code: '101' },
+    { name: 'Stanbic IBTC Bank', code: '221' },
+    { name: 'Standard Chartered Bank', code: '068' },
+    { name: 'Sterling Bank', code: '232' },
+    { name: 'SunTrust Bank', code: '100' },
+    { name: 'Union Bank of Nigeria', code: '032' },
+    { name: 'United Bank for Africa', code: '033' },
+    { name: 'Unity Bank', code: '215' },
+    { name: 'Wema Bank', code: '035' },
+    { name: 'Zenith Bank', code: '057' },
+    
+    // Digital Banks
+    { name: 'Carbon (Formerly One Finance)', code: '565' },
+    { name: 'Kuda Bank', code: '50211' },
+    { name: 'ALAT by Wema', code: '035A' },
+    { name: 'VFD Microfinance Bank', code: '566' },
+    { name: 'Mint MFB', code: '50515' },
+    { name: 'Rubies MFB', code: '125' },
+    { name: 'Eyowo', code: '50126' },
+    
+    // Microfinance Banks
+    { name: 'LAPO Microfinance Bank', code: '50563' },
+    { name: 'AB Microfinance Bank', code: '51204' },
+    { name: 'Accion Microfinance Bank', code: '51336' },
+    { name: 'Advans La Fayette Microfinance Bank', code: '51244' },
+    { name: 'Amju Unique MFB', code: '50926' },
+    { name: 'Bainescredit MFB', code: '51229' },
+    { name: 'CEMCS Microfinance Bank', code: '50823' },
+    { name: 'Esan Microfinance Bank', code: '50126' },
+    { name: 'Firmus MFB', code: '51314' },
+    { name: 'Fortis Microfinance Bank', code: '501' },
+    { name: 'Ibile Microfinance Bank', code: '51244' },
+    { name: 'Infinity MFB', code: '50457' },
+    { name: 'NPF Microfinance Bank', code: '552' },
+    { name: 'Page MFiBank', code: '50746' },
+    { name: 'Petra Mircofinance Bank', code: '50746' },
+    { name: 'Rephidim Microfinance Bank', code: '50994' },
+    { name: 'Safetrust Microfinance Bank', code: '403' },
+    { name: 'Stellas MFB', code: '51253' },
+    { name: 'Trustfund Microfinance Bank', code: '51269' },
+    
+    // Payment Service Banks & Fintechs
+    { name: 'OPay Digital Services', code: '999992' },
+    { name: 'PalmPay', code: '999991' },
+    { name: 'MoniePoint MFB', code: '50515' },
+    { name: 'FairMoney Microfinance Bank', code: '51318' },
+    { name: 'Flutterwave Technology Solutions', code: '50211' },
+    { name: 'Paystack', code: '50211' },
+    { name: 'Interswitch', code: '50211' },
+    
+    // Islamic Banking
+    { name: 'Jaiz Bank', code: '301' },
+    { name: 'Taj Bank', code: '302' },
+    
+    // Others
+    { name: 'Globus Bank', code: '00103' },
+    { name: 'PremiumTrust Bank', code: '105' },
+    { name: 'Parallex Bank', code: '104' },
+    { name: 'Titan Trust Bank', code: '102' }
+  ].sort((a, b) => a.name.localeCompare(b.name));
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -80,27 +153,26 @@ const AgentRegistration = () => {
 
       if (profileError) throw profileError;
 
-      // Create POS agent record (insert will be available once types are updated)
-      try {
-        const posAgentData = {
-          user_id: user.id,
-          agent_code: agentCode,
-          phone: formData.phone,
-          location: locationData,
-          bank_account_number: formData.bankAccount,
-          bank_code: formData.bankCode,
-          account_name: formData.accountName,
-          status: 'active',
-          commission_rate: 10.0, // Default 10% commission
-          total_artisans_onboarded: 0,
-          total_commission_earned: 0
-        };
+      // Create POS agent record
+      const posAgentData = {
+        user_id: user.id,
+        agent_code: agentCode,
+        phone: formData.phone,
+        location: locationData,
+        bank_account_number: formData.bankAccount,
+        bank_code: formData.bankCode,
+        account_name: formData.accountName,
+        status: 'active',
+        commission_rate: 10.0, // Default 10% commission
+        total_artisans_onboarded: 0,
+        total_commission_earned: 0
+      };
 
-        // Note: This will be enabled once pos_agents table is properly typed
-        // await supabase.from('pos_agents').insert([posAgentData]);
-      } catch (error) {
-        console.log('POS agents table not yet fully available:', error);
-      }
+      const { error: posAgentError } = await supabase
+        .from('pos_agents')
+        .insert([posAgentData]);
+
+      if (posAgentError) throw posAgentError;
 
       // Send welcome email
       try {
@@ -252,28 +324,13 @@ const AgentRegistration = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Select bank" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="044">Access Bank</SelectItem>
-                        <SelectItem value="014">Afribank</SelectItem>
-                        <SelectItem value="023">Citibank</SelectItem>
-                        <SelectItem value="050">Ecobank</SelectItem>
-                        <SelectItem value="011">First Bank</SelectItem>
-                        <SelectItem value="214">First City Monument Bank</SelectItem>
-                        <SelectItem value="070">Fidelity Bank</SelectItem>
-                        <SelectItem value="058">Guaranty Trust Bank</SelectItem>
-                        <SelectItem value="030">Heritage Bank</SelectItem>
-                        <SelectItem value="301">Jaiz Bank</SelectItem>
-                        <SelectItem value="082">Keystone Bank</SelectItem>
-                        <SelectItem value="076">Polaris Bank</SelectItem>
-                        <SelectItem value="221">Stanbic IBTC Bank</SelectItem>
-                        <SelectItem value="068">Standard Chartered</SelectItem>
-                        <SelectItem value="232">Sterling Bank</SelectItem>
-                        <SelectItem value="032">Union Bank</SelectItem>
-                        <SelectItem value="033">United Bank for Africa</SelectItem>
-                        <SelectItem value="215">Unity Bank</SelectItem>
-                        <SelectItem value="035">Wema Bank</SelectItem>
-                        <SelectItem value="057">Zenith Bank</SelectItem>
-                      </SelectContent>
+                        <SelectContent>
+                          {nigerianBanks.map((bank) => (
+                            <SelectItem key={bank.code} value={bank.code}>
+                              {bank.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
                     </Select>
                   </div>
                 </div>

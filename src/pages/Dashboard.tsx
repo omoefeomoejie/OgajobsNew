@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import ClientDashboardPage from '@/pages/ClientDashboard';
 import ArtisanDashboardPage from '@/pages/ArtisanDashboard';
 import { AdminDashboardContainer as AdminDashboardComponent } from '@/components/admin/AdminDashboardContainer';
+import POSAgentDashboard from '@/components/pos-agent/POSAgentDashboard';
 import { RoleDebugPanel } from '@/components/debug/RoleDebugPanel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
@@ -85,6 +86,8 @@ export default function Dashboard() {
         return <ArtisanDashboardPage />;
       case 'admin':
         return <AdminDashboardComponent />;
+      case 'pos_agent':
+        return <POSAgentDashboard />;
       default:
         logger.warn('Unknown user role detected', { role: profile?.role });
         return (
