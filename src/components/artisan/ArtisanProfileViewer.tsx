@@ -59,7 +59,7 @@ export const ArtisanProfileViewer = ({ artisanId, showContactInfo = false }: Art
     try {
       // Get public artisan info first
       const { data, error } = await supabase
-        .from('artisans_directory')
+        .from('mv_artisan_directory')
         .select('*')
         .eq('id', artisanId)
         .single();
@@ -68,17 +68,17 @@ export const ArtisanProfileViewer = ({ artisanId, showContactInfo = false }: Art
       
       if (data) {
         setArtisan({
-          id: data.id,
-          full_name: data.full_name,
-          city: data.city,
-          category: data.category,
-          skill: data.skill || data.category,
-          photo_url: data.photo_url,
-          profile_url: data.profile_url,
-          slug: data.slug,
-          created_at: data.created_at,
-          average_rating: data.average_rating || 0,
-          total_reviews: data.total_reviews || 0,
+          id: (data as any).id,
+          full_name: (data as any).full_name,
+          city: (data as any).city,
+          category: (data as any).category,
+          skill: (data as any).skill || (data as any).category,
+          photo_url: (data as any).photo_url,
+          profile_url: (data as any).profile_url,
+          slug: (data as any).slug,
+          created_at: (data as any).created_at,
+          average_rating: (data as any).average_rating || 0,
+          total_reviews: (data as any).total_reviews || 0,
           verification_level: 'unverified' // Default value since DB doesn't have this field yet
         });
       }

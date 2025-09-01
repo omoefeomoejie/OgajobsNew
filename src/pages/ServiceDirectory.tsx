@@ -81,14 +81,14 @@ export default function ServiceDirectory() {
     try {
       // Use the secure public view instead of direct table access
       const { data, error } = await supabase
-        .from('artisans_directory')
+        .from('mv_artisan_directory')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       // The public view already includes ratings, so we can use them directly
-      const artisansWithRatings: Artisan[] = (data || []).map(artisan => ({
+      const artisansWithRatings: Artisan[] = (data || []).map((artisan: any) => ({
         id: String(artisan.id || ''),
         full_name: String(artisan.full_name || ''),
         skill: String(artisan.skill || artisan.category || ''),

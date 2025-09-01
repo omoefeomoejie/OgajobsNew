@@ -118,14 +118,7 @@ export type Database = {
             foreignKeyName: "agent_referrals_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "agent_referrals_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -400,14 +393,7 @@ export type Database = {
             foreignKeyName: "artisan_reviews_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artisan_reviews_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -794,14 +780,7 @@ export type Database = {
             foreignKeyName: "commission_transactions_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_transactions_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1402,14 +1381,7 @@ export type Database = {
             foreignKeyName: "job_assignments_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "job_assignments_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1710,14 +1682,7 @@ export type Database = {
             foreignKeyName: "matches_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "matches_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1896,14 +1861,7 @@ export type Database = {
             foreignKeyName: "messages_artisan_id_fkey"
             columns: ["artisan_id"]
             isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public"
+            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -3372,7 +3330,7 @@ export type Database = {
       }
     }
     Views: {
-      artisans_directory: {
+      mv_artisan_directory: {
         Row: {
           average_rating: number | null
           category: string | null
@@ -3386,45 +3344,6 @@ export type Database = {
           slug: string | null
           suspended: boolean | null
           total_reviews: number | null
-        }
-        Relationships: []
-      }
-      artisans_public: {
-        Row: {
-          category: string | null
-          city: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          photo_url: string | null
-          profile_url: string | null
-          skill: string | null
-          slug: string | null
-          suspended: boolean | null
-        }
-        Insert: {
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-          suspended?: boolean | null
-        }
-        Update: {
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-          suspended?: boolean | null
         }
         Relationships: []
       }
@@ -3588,6 +3507,27 @@ export type Database = {
           phone: string
         }[]
       }
+      get_artisan_directory_secure: {
+        Args: {
+          p_category?: string
+          p_city?: string
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          average_rating: number
+          category: string
+          city: string
+          created_at: string
+          full_name: string
+          id: string
+          photo_url: string
+          profile_url: string
+          skill: string
+          slug: string
+          total_reviews: number
+        }[]
+      }
       get_artisan_performance_secure: {
         Args: { p_artisan_id?: string }
         Returns: {
@@ -3718,6 +3658,10 @@ export type Database = {
         Returns: undefined
       }
       refresh_performance_views_secure: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      refresh_public_views: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
