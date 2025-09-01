@@ -97,10 +97,25 @@ export const ProductionMonitor: React.FC = () => {
   useEffect(() => {
     refreshData();
     
-    // Set up auto-refresh every 30 seconds
-    const interval = setInterval(refreshData, 30000);
+    // Subscribe to real-time monitoring updates
+    const channel = supabase
+      .channel('production-monitoring')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'security_events',
+        },
+        () => {
+          refreshData(); // Refresh when security events change
+        }
+      )
+      .subscribe();
     
-    return () => clearInterval(interval);
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const getStatusColor = (status: string) => {

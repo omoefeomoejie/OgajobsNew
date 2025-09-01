@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, CheckCircle, Zap, Clock, Eye } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PerformanceMetrics {
   lcp: number; // Largest Contentful Paint
@@ -39,12 +40,22 @@ export function PerformanceMonitor() {
     collectNetworkInfo();
     collectMemoryInfo();
 
-    // Set up periodic monitoring
-    const interval = setInterval(() => {
-      collectPerformanceMetrics();
-    }, 30000); // Every 30 seconds
+    // Subscribe to real-time performance updates
+    const channel = supabase
+      .channel('performance-monitoring')
+      .on('broadcast', { event: 'performance-update' }, (payload) => {
+        console.log('Performance update received:', payload);
+        collectPerformanceMetrics();
+      })
+      .subscribe();
 
-    return () => clearInterval(interval);
+    // Initial collection and periodic backup (reduced frequency)
+    const interval = setInterval(collectPerformanceMetrics, 30000); // Every 30 seconds as backup
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const collectPerformanceMetrics = () => {

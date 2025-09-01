@@ -86,3 +86,21 @@ verify_jwt = false
 
 [functions.get-sentry-dsn]
 verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = true
+
+[functions.send-push-notification]
+verify_jwt = true
+
+[functions.store-push-subscription]
+verify_jwt = true
+
+[functions.remove-push-subscription]
+verify_jwt = true
+
+[functions.rate-limiter]
+verify_jwt = false
+
+[functions.request-validator]
+verify_jwt = false

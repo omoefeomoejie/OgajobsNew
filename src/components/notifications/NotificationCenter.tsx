@@ -50,11 +50,31 @@ export function NotificationCenter() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) {
-      fetchNotifications();
-      setupRealtimeSubscription();
-      checkPushSupport();
-    }
+    if (!user) return;
+    
+    fetchNotifications();
+    checkPushSupport();
+    
+    // Subscribe to real-time notifications
+    const channel = supabase
+      .channel('notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+        },
+        (payload) => {
+          console.log('New notification received:', payload);
+          fetchNotifications(); // Refresh notifications
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const checkPushSupport = () => {
@@ -182,36 +202,8 @@ export function NotificationCenter() {
   };
 
   const setupRealtimeSubscription = () => {
-    // Real-time subscription will be enabled when notification table is added:
-    // const channel = supabase.channel('notifications').on('postgres_changes', ...)
-    // For now, we'll poll for updates every 30 seconds
-    const pollInterval = setInterval(fetchNotifications, 30000);
-    //     (payload) => {
-    //       const newNotification = payload.new as Notification;
-    //       setNotifications(prev => [newNotification, ...prev]);
-    //       setUnreadCount(prev => prev + 1);
-    //       
-    //       // Show browser notification if permission granted
-    //       if (pushPermission === 'granted') {
-    //         new Notification(newNotification.title, {
-    //           body: newNotification.message,
-    //           icon: '/icon-192.png',
-    //           badge: '/icon-96.png'
-    //         });
-    //       }
-    //       
-    //       // Show toast notification
-    //       toast({
-    //         title: newNotification.title,
-    //         description: newNotification.message
-    //       });
-    //     }
-    //   )
-    //   .subscribe();
-
-    // return () => {
-    //   supabase.removeChannel(channel);
-    // };
+    // This function is now integrated into the useEffect above
+    // Keeping for reference - real-time subscription is now handled in useEffect
   };
 
   const markAsRead = async (notificationId: string) => {

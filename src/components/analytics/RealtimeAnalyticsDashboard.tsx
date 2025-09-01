@@ -178,8 +178,36 @@ export function RealtimeAnalyticsDashboard() {
 
   useEffect(() => {
     if (autoRefresh) {
-      const interval = setInterval(fetchRealtimeMetrics, refreshInterval);
-      return () => clearInterval(interval);
+      // Subscribe to real-time changes instead of polling
+      const channel = supabase
+        .channel('analytics-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'bookings',
+          },
+          () => {
+            fetchRealtimeMetrics(); // Refresh when bookings change
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'artisans',
+          },
+          () => {
+            fetchRealtimeMetrics(); // Refresh when artisans change
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [autoRefresh, refreshInterval]);
 
