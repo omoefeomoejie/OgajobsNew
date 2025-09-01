@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SecureErrorBoundary } from "@/components/error/SecureErrorBoundary";
 import { GlobalErrorHandler } from "@/components/error/GlobalErrorHandler";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
@@ -49,7 +49,7 @@ import MonitoringDashboard from "./pages/MonitoringDashboard";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ErrorBoundary>
+  <SecureErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <GlobalErrorHandler>
@@ -61,17 +61,10 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/login" element={<Auth />} />
-                <Route path="/register" element={<Auth />} />
-                <Route path="/ojssytem-admin" element={<AdminLogin />} />
-                <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/admin-control-panel" element={<AdminDashboardComponent />} />
                 <Route path="/services" element={<ServiceDirectory />} />
-                <Route path="/service-directory" element={<ServiceDirectory />} />
                 <Route path="/book" element={<BookingRequest />} />
-                <Route path="/bookings" element={<MyBookings />} />
                 <Route path="/my-bookings" element={<MyBookings />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/messages" element={<Messages />} />
@@ -86,17 +79,11 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/agent-chat" element={<AgentChatDashboardPage />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/become-artisan" element={<BecomeArtisan />} />
-                <Route path="/all-services" element={<Services />} />
-                <Route path="/services" element={<Services />} />
                 <Route path="/help-center" element={<HelpCenter />} />
-                <Route path="/help" element={<HelpCenter />} />
                 <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
-                <Route path="/safety" element={<SafetyGuidelines />} />
                 <Route path="/pos-partnership" element={<POSPartnership />} />
                 <Route path="/competitive-advantages" element={<CompetitiveAdvantages />} />
-                <Route path="/dispute-resolution" element={<Disputes />} />
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/monitoring-dashboard" element={<MonitoringDashboard />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
@@ -116,7 +103,7 @@ const App = () => (
         </GlobalErrorHandler>
       </AuthProvider>
     </QueryClientProvider>
-  </ErrorBoundary>
+  </SecureErrorBoundary>
 );
 
 export default App;

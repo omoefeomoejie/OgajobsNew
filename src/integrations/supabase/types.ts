@@ -3676,6 +3676,14 @@ export type Database = {
         Args: { details?: Json; violation_type: string }
         Returns: undefined
       }
+      log_sensitive_access_secure: {
+        Args: {
+          p_operation: string
+          p_record_id?: string
+          p_table_name: string
+        }
+        Returns: undefined
+      }
       log_sensitive_data_access: {
         Args: {
           p_access_type?: string

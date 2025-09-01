@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,6 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   className,
 }) => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -26,10 +25,6 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
     } else {
       navigate('/');
     }
-  };
-
-  const handleHome = () => {
-    navigate('/');
   };
 
   return (
@@ -54,11 +49,13 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleHome}
+            asChild
             className="flex items-center gap-2"
           >
-            <Home className="h-4 w-4" />
-            Home
+            <Link to="/">
+              <Home className="h-4 w-4" />
+              Home
+            </Link>
           </Button>
         )}
       </div>
