@@ -6,7 +6,7 @@ import App from './App.tsx'
 import './index.css'
 import './i18n/config'
 import { queryClient, cacheUtils } from '@/lib/queryClient'
-import { PerformanceProvider } from '@/components/performance/PerformanceProvider'
+// import { PerformanceProvider } from '@/components/performance/PerformanceProvider'
 import { reportBundleSize, addResourceHints, registerServiceWorker } from "@/utils/performanceOptimization"
 import { logBundleAnalysis } from "@/utils/bundleAnalyzer"
 
@@ -33,17 +33,15 @@ if (import.meta.env.DEV) {
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <PerformanceProvider enableMonitoring={enablePerformanceMonitoring}>
-        <App />
-        {/* React Query DevTools - only in development, hidden by default */}
-        {false && process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools 
-            initialIsOpen={false} 
-            buttonPosition="bottom-left"
-            position="bottom"
-          />
-        )}
-      </PerformanceProvider>
+      <App />
+      {/* React Query DevTools - only in development, hidden by default */}
+      {false && process.env.NODE_ENV === 'development' && (
+        <ReactQueryDevtools 
+          initialIsOpen={false} 
+          buttonPosition="bottom-left"
+          position="bottom"
+        />
+      )}
     </QueryClientProvider>
   </React.StrictMode>
 );
