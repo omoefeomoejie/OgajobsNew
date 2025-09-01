@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface Notification {
   id: string;
@@ -96,13 +97,13 @@ export function NotificationCenter() {
         // Save subscription to database
         try {
           // Note: Database call will work once types are regenerated
-          console.log('Push subscription enabled:', subscription);
+          logger.info('Push subscription enabled');
           toast({
             title: "Notifications Enabled",
             description: "You'll now receive push notifications for important updates."
           });
         } catch (error) {
-          console.error('Error saving subscription:', error);
+          logger.error('Error saving subscription', { error });
         }
 
       } else {
@@ -232,9 +233,9 @@ export function NotificationCenter() {
       setUnreadCount(prev => Math.max(0, prev - 1));
       
       // Note: Database update will work once types are regenerated
-      console.log('Marked notification as read:', notificationId);
+      logger.debug('Marked notification as read');
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      logger.error('Error marking notification as read', { error });
     }
   };
 
@@ -244,9 +245,9 @@ export function NotificationCenter() {
       setUnreadCount(0);
       
       // Note: Database update will work once types are regenerated
-      console.log('Marked all notifications as read');
+      logger.debug('Marked all notifications as read');
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      logger.error('Error marking all notifications as read', { error });
     }
   };
 
@@ -255,9 +256,9 @@ export function NotificationCenter() {
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
       
       // Note: Database delete will work once types are regenerated
-      console.log('Deleted notification:', notificationId);
+      logger.debug('Deleted notification');
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      logger.error('Error deleting notification', { error });
     }
   };
 
@@ -266,7 +267,7 @@ export function NotificationCenter() {
       setSettings(prev => ({ ...prev, [key]: value }));
       
       // Note: Database save will work once types are regenerated
-      console.log('Settings updated:', { [key]: value });
+      logger.debug('Settings updated');
 
       toast({
         title: "Settings Updated",

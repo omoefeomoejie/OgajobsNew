@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/lib/logger';
 
 interface Job {
   id: string;
@@ -78,7 +79,7 @@ export function ActiveJobsPanel() {
 
   const handleQuickAction = (action: string, jobId: string) => {
     // Handle quick actions
-    console.log(`${action} for job ${jobId}`);
+    logger.debug('Quick action triggered', { action, hasJobId: !!jobId });
   };
 
   if (loading) {

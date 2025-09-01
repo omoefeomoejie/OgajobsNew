@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/lib/logger';
 
 interface Booking {
   id: string;
@@ -99,7 +100,7 @@ export function BookingTimeline() {
   };
 
   const handleAction = (action: string, bookingId: string) => {
-    console.log(`${action} for booking ${bookingId}`);
+    logger.debug('Booking action triggered', { action, hasBookingId: !!bookingId });
   };
 
   if (loading) {

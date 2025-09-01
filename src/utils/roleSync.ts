@@ -1,8 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/lib/logger";
 
 export const manualRoleSync = async (userId: string, correctRole: string) => {
   try {
-    console.log(`Manually syncing role for user ${userId} to ${correctRole}`);
+    logger.debug('Manual role sync initiated', { hasUserId: !!userId, role: correctRole });
     
     // Try to update the profile role directly
     const { error } = await supabase
@@ -11,14 +12,14 @@ export const manualRoleSync = async (userId: string, correctRole: string) => {
       .eq('id', userId);
     
     if (error) {
-      console.warn('Database role sync failed:', error);
+      logger.warn('Database role sync failed', { errorCode: error.code });
       return false;
     }
     
-    console.log('Manual role sync successful');
+    logger.info('Manual role sync successful');
     return true;
   } catch (err) {
-    console.warn('Manual role sync failed:', err);
+    logger.warn('Manual role sync failed', { error: err });
     return false;
   }
 };
@@ -30,17 +31,17 @@ export const forceUserRole = async (userId: string): Promise<string | null> => {
     const userMetadataRole = userData?.user?.user_metadata?.role;
     
     if (userMetadataRole) {
-      console.log(`Forcing role from user metadata: ${userMetadataRole}`);
+      logger.debug('Forcing role from user metadata', { role: userMetadataRole });
       
       // Try to sync database but don't block on it
-      manualRoleSync(userId, userMetadataRole).catch(console.warn);
+      manualRoleSync(userId, userMetadataRole).catch((error) => logger.warn('Role sync failed', { error }));
       
       return userMetadataRole;
     }
     
     return null;
   } catch (err) {
-    console.warn('Error forcing user role:', err);
+    logger.warn('Error forcing user role', { error: err });
     return null;
   }
 };

@@ -5,6 +5,7 @@
 import { configManager } from '@/lib/config';
 import { sentryManager } from '@/lib/monitoring/sentry';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/lib/logger';
 
 interface ErrorReport {
   id: string;
@@ -58,7 +59,7 @@ class ErrorReportingManager {
     this.setupPeriodicFlush();
 
     this.isInitialized = true;
-    console.log('Error reporting initialized');
+    logger.info('Error reporting system initialized');
   }
 
   private setupGlobalErrorHandlers(): void {
@@ -176,7 +177,7 @@ class ErrorReportingManager {
     if (sentryManager.isEnabled()) {
       sentryManager.captureMessage(message, sentryLevel, context);
     } else {
-      console.log(`[${severity.toUpperCase()}] ${message}`, context);
+      logger.info(`Message captured (Sentry disabled)`, { level: severity, message, context });
     }
   }
 
@@ -193,9 +194,9 @@ class ErrorReportingManager {
       }
 
       // Log batch processing
-      console.log(`Flushed ${errors.length} errors to monitoring service`);
+      logger.info(`Flushed errors to monitoring service`, { errorCount: errors.length });
     } catch (error) {
-      console.error('Failed to flush error queue:', error);
+      logger.error('Failed to flush error queue', { error });
       // Re-add errors to queue for retry
       this.errorQueue.unshift(...errors);
     }

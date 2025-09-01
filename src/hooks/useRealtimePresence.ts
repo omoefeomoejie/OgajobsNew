@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/lib/logger';
 
 interface UserPresence {
   user_id: string;
@@ -60,10 +61,10 @@ export function useRealtimePresence(channelName: string = 'global') {
         setOnlineUsers(allUsers.filter(u => u.status !== 'offline'));
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('User joined:', key, newPresences);
+        logger.debug('User joined presence channel');
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('User left:', key, leftPresences);
+        logger.debug('User left presence channel');
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {

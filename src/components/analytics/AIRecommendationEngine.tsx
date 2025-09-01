@@ -27,6 +27,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface RecommendationItem {
   id: string;
@@ -164,13 +165,11 @@ export function AIRecommendationEngine() {
   const handleRecommendationAction = useCallback(async (recommendation: RecommendationItem, action: 'accept' | 'reject' | 'view') => {
     try {
       // Mock interaction logging for now
-      console.log('Recommendation interaction:', {
-        user_id: user?.id,
-        recommendation_id: recommendation.id,
+      logger.debug('Recommendation interaction', {
+        recommendationId: recommendation.id,
         action,
-        recommendation_type: recommendation.type,
-        confidence: recommendation.confidence,
-        timestamp: new Date().toISOString()
+        type: recommendation.type,
+        confidence: recommendation.confidence
       });
 
       // Update acceptance rate
@@ -189,7 +188,7 @@ export function AIRecommendationEngine() {
       // Handle specific actions based on recommendation type
       if (action === 'accept' && recommendation.type === 'artisan') {
         // Could navigate to artisan profile or add to favorites
-        console.log('Accepting artisan recommendation:', recommendation.data);
+        logger.info('Artisan recommendation accepted');
       }
 
     } catch (error) {
