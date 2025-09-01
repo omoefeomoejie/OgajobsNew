@@ -13,203 +13,266 @@ import {
   MapPin,
   Clock,
   Star,
-  LogOut,
-  User
+  User,
+  ChevronDown
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, profile, signOut, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const { t } = useTranslation();
 
   return (
     <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm">
-      {/* Trust Banner */}
-      <div className="bg-primary text-primary-foreground py-2">
+      {/* Trust Banner - Responsive */}
+      <div className="bg-primary text-primary-foreground py-1.5 sm:py-2">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span>{t('trust.verifiedArtisans')}</span>
+          <div className="flex items-center justify-center gap-2 sm:gap-4 lg:gap-6 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('trust.verifiedArtisans')}</span>
+              <span className="sm:hidden">Verified</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>Pay Only When Satisfied</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Pay Only When Satisfied</span>
+              <span className="sm:hidden">Secure Pay</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4" />
-              <span>{t('trust.support247')}</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t('trust.support247')}</span>
+              <span className="sm:hidden">24/7 Support</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Header */}
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between w-full">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity flex-shrink-0">
+      {/* Main Header - Improved Layout */}
+      <div className="container mx-auto px-4 py-3 sm:py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo - Responsive Sizing */}
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity flex-shrink-0">
             <img 
               src={ogaJobsLogo}
               alt="OgaJobs Logo" 
-              className="w-12 h-12 md:w-14 md:h-14 object-contain aspect-square bg-transparent"
+              className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain aspect-square bg-transparent"
               style={{ background: 'transparent' }}
             />
-            <div>
-              <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">OgaJobs</h1>
-              <p className="text-xs md:text-sm text-muted-foreground font-semibold whitespace-nowrap">Nigeria's Trust Infrastructure</p>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-foreground tracking-tight">
+                OgaJobs
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground font-semibold truncate">
+                Nigeria's Trust Infrastructure
+              </p>
             </div>
           </Link>
 
-          {/* Center Navigation - Only show when not authenticated */}
-          {!user && (
-            <div className="hidden lg:flex items-center gap-4">
-              {/* Location Selector */}
-              <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
-                <MapPin className="w-3 h-3 text-muted-foreground" />
-                <select className="bg-transparent border-none outline-none text-xs">
-                  <option>Lagos</option>
-                  <option>Abuja</option>
-                </select>
+          {/* Desktop Navigation - Better Responsive Handling */}
+          <div className="hidden xl:flex items-center gap-4 flex-1 justify-center">
+            {!user && (
+              <>
+                {/* Location Selector */}
+                <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
+                  <MapPin className="w-3 h-3 text-muted-foreground" />
+                  <select className="bg-transparent border-none outline-none text-xs min-w-0">
+                    <option>Lagos</option>
+                    <option>Abuja</option>
+                  </select>
+                </div>
+
+                {/* Navigation Links */}
+                <nav className="flex items-center gap-3">
+                  <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+                    Find Services
+                  </Link>
+                  <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+                    Become Artisan
+                  </Link>
+                  <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-sm whitespace-nowrap">
+                    How It Works
+                  </Link>
+                  <Badge variant="secondary" className="text-xs">
+                    <Star className="w-3 h-3 mr-1" />
+                    4.9/5
+                  </Badge>
+                </nav>
+              </>
+            )}
+
+            {/* User Role Indicator - Authenticated Users */}
+            {user && profile?.role && (
+              <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
+                <User className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">
+                  {profile.role === 'client' ? 'Client Portal' : 
+                   profile.role === 'artisan' ? 'Artisan Hub' : 
+                   profile.role === 'admin' ? 'Admin Panel' : 
+                   'User Account'}
+                </span>
               </div>
-
-              {/* Navigation Links */}
-              <nav className="flex items-center gap-3">
-                <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
-                  Find Services
-                </Link>
-                <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
-                  Become Artisan
-                </Link>
-                <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
-                  How It Works
-                </Link>
-                <Badge variant="secondary" className="text-xs">
-                  <Star className="w-3 h-3 mr-1" />
-                  4.9/5
-                </Badge>
-              </nav>
-            </div>
-          )}
-
-          {/* User Role Indicator - Show when authenticated */}
-          {user && profile?.role && (
-            <div className="hidden lg:flex items-center gap-2 bg-muted px-3 py-1 rounded-lg">
-              <User className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium capitalize">
-                {profile.role === 'client' ? 'Client Account' : 
-                 profile.role === 'artisan' ? 'Artisan Account' : 
-                 profile.role === 'admin' ? 'Admin Account' : 
-                 'User Account'}
-              </span>
-            </div>
-          )}
-
-          {/* Auth Buttons - Desktop */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <LanguageSelector />
-            {user ? (
-              <>
-                <NotificationCenter />
-                {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/admin-dashboard">Admin</Link>
-                  </Button>
-                ) : (
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/dashboard">{t('navigation.dashboard')}</Link>
-                  </Button>
-                )}
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/auth">{t('navigation.login')}</Link>
-                </Button>
-                <Button size="sm" asChild>
-                  <Link to="/auth">{t('navigation.getStarted')}</Link>
-                </Button>
-              </>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Right Section - Auth & Actions */}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            {/* Language Selector - Always Visible */}
+            <div className="hidden sm:block">
+              <LanguageSelector />
+            </div>
+
+            {/* Desktop Auth Buttons */}
+            <div className="hidden md:flex items-center gap-2">
+              {user ? (
+                <>
+                  <NotificationCenter />
+                  {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/admin-dashboard">Admin</Link>
+                    </Button>
+                  ) : (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/dashboard">Dashboard</Link>
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/auth">Login</Link>
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link to="/auth">Get Started</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Menu Button - Improved */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden p-2"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Enhanced Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden mt-4 py-4 border-t border-border">
-            <nav className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg mb-4">
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-                <select className="bg-transparent border-none outline-none text-sm flex-1">
-                  <option>Lagos</option>
-                  <option>Abuja</option>
-                  <option>Benin City</option>
-                </select>
-              </div>
+            <nav className="space-y-4">
+              {/* User Role Indicator - Mobile */}
+              {user && profile?.role && (
+                <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">
+                    {profile.role === 'client' ? 'Client Portal' : 
+                     profile.role === 'artisan' ? 'Artisan Hub' : 
+                     profile.role === 'admin' ? 'Admin Panel' : 
+                     'User Account'}
+                  </span>
+                </div>
+              )}
+
+              {/* Location Selector - Mobile */}
+              {!user && (
+                <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <select className="bg-transparent border-none outline-none text-sm flex-1">
+                    <option>Lagos</option>
+                    <option>Abuja</option>
+                    <option>Benin City</option>
+                  </select>
+                </div>
+              )}
               
-              <Link 
-                to="/all-services" 
-                className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.findServices')}
-              </Link>
-              <Link 
-                to="/become-artisan" 
-                className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.becomeArtisan')}
-              </Link>
-              <Link 
-                to="/how-it-works" 
-                className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.howItWorks')}
-              </Link>
-              
-              <div className="flex items-center gap-2 py-2">
-                <Badge variant="secondary" className="text-xs">
-                  <Star className="w-3 h-3 mr-1" />
-                  4.9/5 Trust Score
-                </Badge>
+              {/* Navigation Links - Mobile */}
+              <div className="space-y-2">
+                <Link 
+                  to="/all-services" 
+                  className="block text-muted-foreground hover:text-foreground transition-colors py-2 px-2 rounded"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Find Services
+                </Link>
+                <Link 
+                  to="/become-artisan" 
+                  className="block text-muted-foreground hover:text-foreground transition-colors py-2 px-2 rounded"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Become Artisan
+                </Link>
+                <Link 
+                  to="/how-it-works" 
+                  className="block text-muted-foreground hover:text-foreground transition-colors py-2 px-2 rounded"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  How It Works
+                </Link>
+                
+                <div className="flex items-center gap-2 py-2 px-2">
+                  <Badge variant="secondary" className="text-xs">
+                    <Star className="w-3 h-3 mr-1" />
+                    4.9/5 Trust Score
+                  </Badge>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-3 mt-4">
-                <LanguageSelector />
+              {/* Mobile Actions */}
+              <div className="space-y-3 pt-4 border-t border-border">
+                <div className="sm:hidden">
+                  <LanguageSelector />
+                </div>
+                
                 {user ? (
                   <>
-                    <NotificationCenter />
+                    <div className="w-full">
+                      <NotificationCenter />
+                    </div>
                     {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
-                      <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
-                        <Link to="/admin-dashboard">Admin</Link>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start" 
+                        asChild 
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Link to="/admin-dashboard">Admin Dashboard</Link>
                       </Button>
                     ) : (
-                      <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
-                        <Link to="/dashboard">{t('navigation.dashboard')}</Link>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start" 
+                        asChild 
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Link to="/dashboard">Dashboard</Link>
                       </Button>
                     )}
                   </>
                 ) : (
-                  <>
-                    <Button variant="ghost" asChild onClick={() => setIsMenuOpen(false)}>
-                      <Link to="/auth">{t('navigation.login')}</Link>
+                  <div className="space-y-2">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full" 
+                      asChild 
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Link to="/auth">Login</Link>
                     </Button>
-                    <Button asChild onClick={() => setIsMenuOpen(false)}>
-                      <Link to="/auth">{t('navigation.getStarted')}</Link>
+                    <Button 
+                      className="w-full" 
+                      asChild 
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Link to="/auth">Get Started</Link>
                     </Button>
-                  </>
+                  </div>
                 )}
               </div>
             </nav>
