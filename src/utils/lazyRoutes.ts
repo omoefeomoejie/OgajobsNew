@@ -50,6 +50,7 @@ export const LazyAuth = lazy(() => import('@/pages/Auth'));
 export const LazyDashboard = lazy(() => import('@/pages/Dashboard'));
 export const LazyAdminLogin = lazy(() => import('@/pages/AdminLogin'));
 export const LazyAdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
+export const LazyAdminControlPanel = lazy(() => import('@/pages/AdminControlPanel'));
 export const LazyServices = lazy(() => import('@/pages/Services'));
 export const LazyBookingRequest = lazy(() => import('@/pages/BookingRequest'));
 export const LazyMyBookings = lazy(() => import('@/pages/MyBookings'));
@@ -96,6 +97,7 @@ export const LazyIndexWrapper = createLazyWrapper(LazyIndex, React.createElement
 export const LazyAuthWrapper = createLazyWrapper(LazyAuth, React.createElement(FormLoadingFallback));
 export const LazyDashboardWrapper = createLazyWrapper(LazyDashboard, React.createElement(DashboardLoadingFallback));
 export const LazyAdminDashboardWrapper = createLazyWrapper(LazyAdminDashboard, React.createElement(DashboardLoadingFallback));
+export const LazyAdminControlPanelWrapper = createLazyWrapper(LazyAdminControlPanel, React.createElement(DashboardLoadingFallback));
 export const LazyServicesWrapper = createLazyWrapper(LazyServices, React.createElement(PageLoadingFallback));
 export const LazyBookingRequestWrapper = createLazyWrapper(LazyBookingRequest, React.createElement(FormLoadingFallback));
 export const LazyMyBookingsWrapper = createLazyWrapper(LazyMyBookings, React.createElement(PageLoadingFallback));

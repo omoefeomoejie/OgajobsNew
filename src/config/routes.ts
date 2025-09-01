@@ -47,6 +47,7 @@ export const ROUTES = {
   ADMIN: {
     LOGIN: '/admin/login',
     DASHBOARD: '/admin/dashboard',
+    CONTROL_PANEL: '/admin/control',
     USERS: '/admin/users',
     FINANCIAL_REPORTS: '/admin/financial-reports',
     MONITORING: '/admin/monitoring',

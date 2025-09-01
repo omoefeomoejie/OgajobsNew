@@ -16,6 +16,7 @@ import {
   LazyDashboardWrapper as Dashboard,
   LazyAdminLoginWrapper as AdminLogin,
   LazyAdminDashboardWrapper as AdminDashboard,
+  LazyAdminControlPanelWrapper as AdminControlPanel,
   PrivacyPolicy,
   TermsOfService,
   CookiePolicy,
@@ -103,6 +104,7 @@ const App = () => (
                 {/* Admin routes - consolidated under /admin/* */}
                 <Route path={ROUTES.ADMIN.LOGIN} element={<AdminLogin />} />
                 <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
+                <Route path={ROUTES.ADMIN.CONTROL_PANEL} element={<AdminControlPanel />} />
                 <Route path={ROUTES.ADMIN.USERS} element={<AdminUsers />} />
                 <Route path={ROUTES.ADMIN.FINANCIAL_REPORTS} element={<FinancialReports />} />
                 <Route path={ROUTES.ADMIN.MONITORING} element={<MonitoringDashboard />} />
