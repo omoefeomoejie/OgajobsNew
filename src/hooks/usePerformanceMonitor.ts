@@ -7,6 +7,19 @@ interface PerformanceMetrics {
   componentName: string;
   memoryUsage?: number;
   timestamp: number;
+  // Web Vitals compatibility
+  fcp?: number | null;
+  lcp?: number | null;
+  fid?: number | null;
+  cls?: number | null;
+  ttfb?: number | null;
+  domContentLoaded?: number | null;
+  loadComplete?: number | null;
+  usedJSHeapSize?: number | null;
+  totalJSHeapSize?: number | null;
+  connectionType?: string | null;
+  effectiveType?: string | null;
+  bundleSize?: number | null;
 }
 
 interface PerformanceRecommendation {
@@ -20,7 +33,7 @@ const performanceRegistry = new Map<string, PerformanceMetrics>();
 const PERFORMANCE_THRESHOLD = 16; // 16ms for 60fps
 const HIGH_RENDER_COUNT_THRESHOLD = 10;
 
-export const usePerformanceMonitor = (componentName: string) => {
+export const usePerformanceMonitor = (componentName: string = 'Unknown') => {
   const renderStartTime = useRef<number>();
   const renderCount = useRef(0);
   const mountTime = useRef(Date.now());
@@ -39,6 +52,7 @@ export const usePerformanceMonitor = (componentName: string) => {
       
       // Update metrics
       const existingMetrics = performanceRegistry.get(componentName);
+      const webVitals = measureWebVitalsData();
       const newMetrics: PerformanceMetrics = {
         renderCount: renderCount.current,
         averageRenderTime: existingMetrics 
@@ -47,7 +61,16 @@ export const usePerformanceMonitor = (componentName: string) => {
         lastRenderTime: renderTime,
         componentName,
         timestamp: Date.now(),
-        memoryUsage: (performance as any)?.memory?.usedJSHeapSize || undefined
+        memoryUsage: (performance as any)?.memory?.usedJSHeapSize || undefined,
+        // Web Vitals
+        fcp: webVitals.fcp,
+        lcp: webVitals.lcp,
+        fid: webVitals.fid,
+        cls: webVitals.cls,
+        ttfb: webVitals.ttfb,
+        usedJSHeapSize: (performance as any)?.memory?.usedJSHeapSize || null,
+        totalJSHeapSize: (performance as any)?.memory?.totalJSHeapSize || null,
+        bundleSize: null // Would need to be calculated elsewhere
       };
 
       performanceRegistry.set(componentName, newMetrics);
@@ -106,10 +129,56 @@ export const usePerformanceMonitor = (componentName: string) => {
     };
   }, [componentName, recommendations]);
 
+  // Backward compatibility - provide old API alongside new API
+  const metrics = performanceSummary?.metrics || null;
+  const performanceScore = performanceSummary?.score || 0;
+  
+  const getPerformanceReport = () => {
+    return {
+      score: performanceScore,
+      grade: performanceSummary?.grade || 'F',
+      recommendations: recommendations,
+      isOptimal: performanceSummary?.isOptimal || false,
+      renderCount: renderCount.current,
+      componentName
+    };
+  };
+
+  const measureWebVitalsData = () => {
+    try {
+      const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      return {
+        fcp: performance.getEntriesByType('paint').find(entry => entry.name === 'first-contentful-paint')?.startTime || null,
+        lcp: performance.getEntriesByType('largest-contentful-paint')[0]?.startTime || null,
+        cls: 0, // Would need PerformanceObserver for real CLS
+        fid: 0, // Would need PerformanceObserver for real FID
+        ttfb: navigationEntry?.responseStart || null
+      };
+    } catch (error) {
+      return {
+        fcp: null,
+        lcp: null,
+        cls: 0,
+        fid: 0,
+        ttfb: null
+      };
+    }
+  };
+
+  const measureWebVitals = () => {
+    return measureWebVitalsData();
+  };
+
   return {
+    // New API
     performanceSummary,
     recommendations,
-    renderCount: renderCount.current
+    renderCount: renderCount.current,
+    // Old API for backward compatibility
+    metrics,
+    performanceScore,
+    getPerformanceReport,
+    measureWebVitals
   };
 };
 

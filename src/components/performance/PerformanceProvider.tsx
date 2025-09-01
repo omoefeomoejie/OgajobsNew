@@ -17,6 +17,13 @@ interface PerformanceMetrics {
   connectionType: string | null;
   effectiveType: string | null;
   bundleSize: number | null;
+  // Additional hook-specific properties
+  renderCount?: number;
+  averageRenderTime?: number;
+  lastRenderTime?: number;
+  componentName?: string;
+  memoryUsage?: number;
+  timestamp?: number;
 }
 
 interface PerformanceContextType {
@@ -48,7 +55,7 @@ export function PerformanceProvider({
     maxRenderTime: 16, // 16ms (60fps)
   }
 }: PerformanceProviderProps) {
-  const { metrics, performanceScore, getPerformanceReport } = usePerformanceMonitor();
+  const { metrics, performanceScore, getPerformanceReport } = usePerformanceMonitor('PerformanceProvider');
   const [slowComponents, setSlowComponents] = useState<Map<string, number>>(new Map());
   const [optimizationRecommendations, setOptimizationRecommendations] = useState<string[]>([]);
 
@@ -144,9 +151,9 @@ export function PerformanceProvider({
     if (typeof window !== 'undefined' && 'gtag' in window) {
       (window as any).gtag('event', 'performance_report', {
         performance_score: performanceScore,
-        fcp: metrics.fcp,
-        lcp: metrics.lcp,
-        cls: metrics.cls,
+        fcp: metrics.fcp || null,
+        lcp: metrics.lcp || null,
+        cls: metrics.cls || null,
         memory_usage: metrics.usedJSHeapSize || 0,
       });
     }
@@ -165,7 +172,7 @@ export function PerformanceProvider({
   }, [metrics, performanceScore, getPerformanceReport, optimizationRecommendations, enableMonitoring]);
 
   const contextValue: PerformanceContextType = {
-    metrics,
+    metrics: metrics as PerformanceMetrics | null,
     performanceScore,
     optimizationRecommendations,
     clearCache,

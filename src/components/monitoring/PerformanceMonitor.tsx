@@ -24,13 +24,13 @@ interface PerformanceMonitorProps {
 }
 
 export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }: PerformanceMonitorProps) {
-  const { metrics, performanceScore, getPerformanceReport, measureWebVitals } = usePerformanceMonitor();
+  const { metrics, performanceScore, getPerformanceReport, measureWebVitals } = usePerformanceMonitor('PerformanceMonitor');
   const [showRecommendations, setShowRecommendations] = useState(false);
 
   useEffect(() => {
     const report = getPerformanceReport();
     if (report.recommendations.length > 0 && onOptimizationNeeded) {
-      onOptimizationNeeded(report.recommendations);
+      onOptimizationNeeded(report.recommendations.map(r => r.message));
     }
   }, [metrics, onOptimizationNeeded, getPerformanceReport]);
 
@@ -114,7 +114,7 @@ export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }
                 <span>FCP</span>
               </div>
               <div className="text-lg font-semibold">
-                {metrics.fcp ? `${metrics.fcp.toFixed(1)}s` : 'N/A'}
+                {metrics?.fcp ? `${(metrics.fcp / 1000).toFixed(1)}s` : 'N/A'}
               </div>
               <div className="text-xs text-muted-foreground">First Contentful Paint</div>
             </div>
@@ -125,7 +125,7 @@ export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }
                 <span>LCP</span>
               </div>
               <div className="text-lg font-semibold">
-                {metrics.lcp ? `${metrics.lcp.toFixed(1)}s` : 'N/A'}
+                {metrics?.lcp ? `${(metrics.lcp / 1000).toFixed(1)}s` : 'N/A'}
               </div>
               <div className="text-xs text-muted-foreground">Largest Contentful Paint</div>
             </div>
@@ -136,7 +136,7 @@ export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }
                 <span>FID</span>
               </div>
               <div className="text-lg font-semibold">
-                {metrics.fid ? `${metrics.fid.toFixed(1)}ms` : 'N/A'}
+                {metrics?.fid ? `${metrics.fid.toFixed(1)}ms` : 'N/A'}
               </div>
               <div className="text-xs text-muted-foreground">First Input Delay</div>
             </div>
@@ -147,7 +147,7 @@ export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }
                 <span>CLS</span>
               </div>
               <div className="text-lg font-semibold">
-                {metrics.cls ? metrics.cls.toFixed(3) : 'N/A'}
+                {metrics?.cls ? metrics.cls.toFixed(3) : 'N/A'}
               </div>
               <div className="text-xs text-muted-foreground">Cumulative Layout Shift</div>
             </div>
@@ -160,7 +160,7 @@ export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }
                 <span>Load Complete</span>
               </div>
               <div className="text-sm font-medium">
-                {metrics.loadComplete ? `${metrics.loadComplete.toFixed(0)}ms` : 'N/A'}
+                {metrics?.loadComplete ? `${metrics.loadComplete.toFixed(0)}ms` : 'N/A'}
               </div>
             </div>
 
@@ -170,7 +170,7 @@ export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }
                 <span>TTFB</span>
               </div>
               <div className="text-sm font-medium">
-                {metrics.ttfb ? `${metrics.ttfb.toFixed(0)}ms` : 'N/A'}
+                {metrics?.ttfb ? `${metrics.ttfb.toFixed(0)}ms` : 'N/A'}
               </div>
             </div>
 
@@ -216,7 +216,7 @@ export function PerformanceMonitor({ showDetails = false, onOptimizationNeeded }
               {report.recommendations.map((recommendation, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm">
                   <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                  <span>{recommendation}</span>
+                  <span>{recommendation.message}</span>
                 </li>
               ))}
             </ul>

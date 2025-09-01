@@ -20,7 +20,7 @@ export const PerformanceOptimizedComponent = memo<PerformanceOptimizedComponentP
   enableVirtualization = false,
   chunkSize = 10
 }) => {
-  const { measureWebVitals, getPerformanceReport } = usePerformanceMonitor();
+  const { measureWebVitals, getPerformanceReport } = usePerformanceMonitor('PerformanceOptimizer');
 
   const handleError = useCallback((error: Error, errorInfo: any) => {
     console.error('Performance Optimized Component Error:', error, errorInfo);
@@ -129,7 +129,7 @@ VirtualizedList.displayName = 'VirtualizedList';
 
 // Performance monitoring hook for components
 export const useComponentPerformance = (componentName: string) => {
-  const { measureWebVitals } = usePerformanceMonitor();
+  const { measureWebVitals } = usePerformanceMonitor('ComponentPerformance');
   
   React.useEffect(() => {
     const startTime = performance.now();
