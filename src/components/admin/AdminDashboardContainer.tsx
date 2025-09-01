@@ -9,9 +9,9 @@ import { EnhancedBreadcrumb, buildNavigationPath } from './EnhancedBreadcrumb';
 import { Badge } from '@/components/ui/badge';
 
 // Section components
-import { MissionControl } from './sections/MissionControl';
-import { UserQueue } from './sections/UserQueue';
-import { BookingControl } from './sections/BookingControl';
+import { MissionControlOptimized } from './sections/MissionControlOptimized';
+import { UserQueueOptimized } from './sections/UserQueueOptimized';
+import { BookingControlOptimized } from './sections/BookingControlOptimized';
 import { AdminSidebar } from './sections/AdminSidebar';
 
 // Analytics components
@@ -27,7 +27,7 @@ import DynamicPricingDashboard from '@/components/analytics/DynamicPricingDashbo
 import FraudDetectionDashboard from '@/components/analytics/FraudDetectionDashboard';
 import QualityPredictionDashboard from '@/components/analytics/QualityPredictionDashboard';
 import RecommendationEngine from '@/components/analytics/RecommendationEngine';
-import PredictiveAnalyticsDashboard from '@/components/analytics/PredictiveAnalyticsDashboard';
+import { PerformanceDashboard } from './PerformanceDashboard';
 
 // Enhanced Breadcrumb Integration
 function AdminBreadcrumbWrapper({ activeSection, setActiveSection }: { 
@@ -61,11 +61,11 @@ export function AdminDashboardContainer() {
   const renderContent = () => {
     switch (activeSection) {
       case 'control':
-        return <MissionControl setActiveSection={setActiveSection} />;
+        return <MissionControlOptimized setActiveSection={setActiveSection} />;
       case 'users':
-        return <UserQueue />;
+        return <UserQueueOptimized />;
       case 'bookings':
-        return <BookingControl />;
+        return <BookingControlOptimized />;
       case 'disputes':
         return <DisputeResolutionCenter />;
       case 'finance':
@@ -85,15 +85,15 @@ export function AdminDashboardContainer() {
       case 'recommendations':
         return <RecommendationEngine />;
       case 'predictive':
-        return <PredictiveAnalyticsDashboard />;
+        return <div className="p-8 text-center text-muted-foreground">Predictive Analytics - Coming Soon</div>;
       case 'performance':
-        return <AdvancedPerformanceMetrics />;
+        return <PerformanceDashboard />;
       case 'behavior':
         return <UserBehaviorAnalytics />;
       case 'safety':
         return <SecurityDashboard />;
       default:
-        return <MissionControl setActiveSection={setActiveSection} />;
+        return <MissionControlOptimized setActiveSection={setActiveSection} />;
     }
   };
 
