@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Shield } from 'lucide-react';
+import { Shield, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { EnhancedBreadcrumb, buildNavigationPath } from './EnhancedBreadcrumb';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ROUTES } from '@/config/routes';
 
 // Section components
 import { MissionControlOptimized } from './sections/MissionControlOptimized';
@@ -30,16 +33,20 @@ import RecommendationEngine from '@/components/analytics/RecommendationEngine';
 import { PerformanceDashboard } from './PerformanceDashboard';
 
 // Enhanced Breadcrumb Integration
-function AdminBreadcrumbWrapper({ activeSection, setActiveSection }: { 
+function AdminBreadcrumbWrapper({ activeSection, setActiveSection, onNavigateHome }: { 
   activeSection: string; 
-  setActiveSection: (section: string) => void; 
+  setActiveSection: (section: string) => void;
+  onNavigateHome: () => void;
 }) {
   const navigationPath = buildNavigationPath(activeSection);
   
   const handleNavigation = (path: string[]) => {
-    // Navigate to the last item in the path
     const targetSection = path[path.length - 1];
-    setActiveSection(targetSection);
+    if (targetSection === 'dashboard') {
+      onNavigateHome();
+    } else {
+      setActiveSection(targetSection);
+    }
   };
 
   return (
@@ -47,7 +54,7 @@ function AdminBreadcrumbWrapper({ activeSection, setActiveSection }: {
       navigationPath={navigationPath}
       onNavigate={handleNavigation}
       maxItems={4}
-      showHomeButton={true}
+      showHomeButton={false}
       showQuickNav={true}
       className="animate-fade-in"
     />
@@ -56,6 +63,7 @@ function AdminBreadcrumbWrapper({ activeSection, setActiveSection }: {
 
 export function AdminDashboardContainer() {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("control");
 
   const renderContent = () => {
@@ -105,6 +113,15 @@ export function AdminDashboardContainer() {
           <header className="sticky top-0 z-40 h-16 flex items-center justify-between border-b px-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(ROUTES.ADMIN.DASHBOARD)}
+                className="flex items-center gap-2 hover:bg-muted"
+              >
+                <Home className="w-4 h-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Button>
               <Badge variant="destructive">Admin Control</Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -113,7 +130,11 @@ export function AdminDashboardContainer() {
             </div>
           </header>
           <main className="flex-1 p-6 space-y-6">
-            <AdminBreadcrumbWrapper activeSection={activeSection} setActiveSection={setActiveSection} />
+            <AdminBreadcrumbWrapper 
+              activeSection={activeSection} 
+              setActiveSection={setActiveSection}
+              onNavigateHome={() => navigate(ROUTES.ADMIN.DASHBOARD)}
+            />
             <div className="w-full">
               {renderContent()}
             </div>

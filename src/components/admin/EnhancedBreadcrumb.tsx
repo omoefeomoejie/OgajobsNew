@@ -95,7 +95,8 @@ export function EnhancedBreadcrumb({
 
   // Quick navigation options (all available sections)
   const quickNavOptions: BreadcrumbPath[] = [
-    { key: 'control', title: 'Mission Control', icon: Home },
+    { key: 'dashboard', title: 'Dashboard Home', icon: Home },
+    { key: 'control', title: 'Mission Control' },
     { key: 'users', title: 'User Queue' },
     { key: 'bookings', title: 'Booking Control' },
     { key: 'disputes', title: 'Disputes' },
@@ -123,7 +124,7 @@ export function EnhancedBreadcrumb({
               <>
                 <BreadcrumbItem>
                   <BreadcrumbLink
-                    onClick={() => handleNavigation(['control'])}
+                    onClick={() => handleNavigation(['dashboard'])}
                     className={cn(
                       "cursor-pointer transition-all duration-200",
                       "hover:text-primary hover:scale-105",
