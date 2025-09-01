@@ -11,7 +11,7 @@ const STATIC_ASSETS = [
   '/index.html',
   '/manifest.json',
   '/offline.html',
-  '/icon-512.png',
+  '/assets/ogajobs-logo.png',
   // Core app routes for offline access
   '/auth',
   '/dashboard',
@@ -452,8 +452,8 @@ self.addEventListener('push', (event) => {
 async function showNotification(data) {
   const options = {
     body: data.body || data.message,
-    icon: '/icon-512.png',
-    badge: '/icon-512.png',
+    icon: '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png',
+    badge: '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png',
     tag: data.tag || `craftconnect-${data.type}-${Date.now()}`,
     renotify: data.renotify || false,
     requireInteraction: data.requireInteraction || false,
@@ -507,8 +507,8 @@ function showGroupedNotification(type, notifications) {
 
   const options = {
     body: `You have ${count} new ${typeLabels[type] || 'notifications'}`,
-    icon: '/icon-512.png',
-    badge: '/icon-512.png',
+    icon: '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png',
+    badge: '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png',
     tag: `craftconnect-group-${type}`,
     data: {
       type: 'grouped',
