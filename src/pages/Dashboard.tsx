@@ -3,9 +3,14 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import ClientDashboardPage from '@/pages/ClientDashboard';
 import ArtisanDashboardPage from '@/pages/ArtisanDashboard';
 import { AdminDashboard as AdminDashboardComponent } from '@/components/admin/AdminDashboard';
+import { RoleDebugPanel } from '@/components/debug/RoleDebugPanel';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Dashboard() {
   const { profile, loading, user } = useAuth();
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   console.log('=== DASHBOARD DEBUG ===');
   console.log('Current user:', user);
@@ -14,6 +19,14 @@ export default function Dashboard() {
   console.log('Profile role:', profile?.role);
   console.log('User ID:', user?.id);
   console.log('Profile ID:', profile?.id);
+  
+  // Check for role mismatch
+  const userMetadataRole = user?.user_metadata?.role;
+  const profileRole = profile?.role;
+  const hasRoleMismatch = userMetadataRole && profileRole && userMetadataRole !== profileRole;
+  
+  console.log('User metadata role:', userMetadataRole);
+  console.log('Has role mismatch:', hasRoleMismatch);
   console.log('========================');
 
   if (loading) {
@@ -87,6 +100,31 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      {hasRoleMismatch && (
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <h3 className="text-lg font-semibold text-destructive">Role Synchronization Issue Detected</h3>
+          </div>
+          <p className="text-sm text-destructive/80 mb-3">
+            Your authentication metadata shows role "{userMetadataRole}" but your profile shows "{profileRole}". 
+            This is causing the wrong dashboard to appear. Use the debug panel below to fix this.
+          </p>
+          <button 
+            onClick={() => setShowDebugPanel(!showDebugPanel)}
+            className="text-sm text-destructive underline hover:no-underline"
+          >
+            {showDebugPanel ? 'Hide' : 'Show'} Role Debug Panel
+          </button>
+        </div>
+      )}
+      
+      {showDebugPanel && (
+        <div className="mb-6">
+          <RoleDebugPanel />
+        </div>
+      )}
+      
       {renderDashboard()}
     </AppLayout>
   );

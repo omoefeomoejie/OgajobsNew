@@ -32,50 +32,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
+      // Get fresh user data first to use as source of truth
+      const { data: userData } = await supabase.auth.getUser();
+      const userMetadataRole = userData?.user?.user_metadata?.role;
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .maybeSingle(); // Use maybeSingle instead of single to handle cases with no profile
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
         return;
       }
 
-      // Get fresh user data to check for role mismatches
-      const { data: userData } = await supabase.auth.getUser();
-      const userMetadataRole = userData?.user?.user_metadata?.role;
-
       if (data) {
         console.log('Found existing profile:', data);
+        console.log('User metadata role:', userMetadataRole);
         
-        // Check if role needs to be synced from user metadata
+        // Always prioritize user metadata role as source of truth
         if (userMetadataRole && data.role !== userMetadataRole) {
-          console.log(`Role mismatch detected: Profile has "${data.role}", user metadata has "${userMetadataRole}". Syncing...`);
+          console.log(`Role mismatch detected: Profile has "${data.role}", user metadata has "${userMetadataRole}". Using metadata role as source of truth.`);
           
-          try {
-            const { data: updatedProfile, error: updateError } = await supabase
-              .from('profiles')
-              .update({ role: userMetadataRole })
-              .eq('id', userId)
-              .select()
-              .single();
-
-            if (updateError) {
-              console.error('Error syncing role:', updateError);
-              // Use existing profile even if sync failed
-              setProfile(data);
-            } else {
-              console.log('Role synced successfully:', updatedProfile);
-              setProfile(updatedProfile);
+          // Create corrected profile with metadata role
+          const correctedProfile = {
+            ...data,
+            role: userMetadataRole
+          };
+          
+          console.log('Using corrected profile with metadata role:', correctedProfile);
+          setProfile(correctedProfile);
+          
+          // Try to sync database in background without blocking UI
+          setTimeout(async () => {
+            try {
+              console.log('Attempting background database role sync...');
+              const { error: bgSyncError } = await supabase
+                .from('profiles')
+                .update({ role: userMetadataRole })
+                .eq('id', userId);
+              
+              if (bgSyncError) {
+                console.warn('Background role sync failed (database issue), but continuing with correct role from metadata:', bgSyncError);
+              } else {
+                console.log('Background role sync completed successfully');
+              }
+            } catch (backgroundSyncErr) {
+              console.warn('Background role sync failed (exception), but continuing with correct role from metadata:', backgroundSyncErr);
             }
-          } catch (syncErr) {
-            console.error('Role sync failed with exception:', syncErr);
-            // Use existing profile as fallback
-            setProfile(data);
-          }
+          }, 2000);
         } else {
+          console.log('Profile role matches metadata or no metadata role found, using profile as-is');
           setProfile(data);
         }
       } else {
