@@ -39,8 +39,8 @@ createRoot(document.getElementById("root")!).render(
         <NetworkErrorBoundary>
           <App />
           <FeedbackContainer />
-          {/* React Query DevTools - only in development, hidden by default */}
-          {import.meta.env.DEV && (
+          {/* React Query DevTools - disabled by default */}
+          {false && import.meta.env.DEV && (
             <ReactQueryDevtools 
               initialIsOpen={false} 
               buttonPosition="bottom-left"
