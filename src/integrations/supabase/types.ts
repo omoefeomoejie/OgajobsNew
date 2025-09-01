@@ -114,13 +114,6 @@ export type Database = {
             referencedRelation: "artisans"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "agent_referrals_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_directory"
-            referencedColumns: ["id"]
-          },
         ]
       }
       ai_chat_config: {
@@ -387,13 +380,6 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artisan_reviews_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -774,13 +760,6 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_transactions_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1378,13 +1357,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "job_assignments_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_directory"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "job_assignments_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1679,13 +1651,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "matches_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_directory"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "matches_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1855,13 +1820,6 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "mv_artisan_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -3330,23 +3288,7 @@ export type Database = {
       }
     }
     Views: {
-      mv_artisan_directory: {
-        Row: {
-          average_rating: number | null
-          category: string | null
-          city: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          photo_url: string | null
-          profile_url: string | null
-          skill: string | null
-          slug: string | null
-          suspended: boolean | null
-          total_reviews: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       aggregate_demand_data: {
