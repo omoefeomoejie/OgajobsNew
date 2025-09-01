@@ -20,9 +20,10 @@ export default function ArtisanDashboard() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Artisan Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back, {profile?.email}</p>
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-6 rounded-lg mb-6">
+        <h1 className="text-3xl font-bold text-green-900 dark:text-green-100">Artisan Dashboard</h1>
+        <p className="text-green-700 dark:text-green-300 mt-2">Manage your services and grow your business</p>
+        <p className="text-sm text-green-600 dark:text-green-400">Welcome back, {profile?.email}</p>
       </div>
 
       {/* Main Dashboard Content */}

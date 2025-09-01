@@ -63,34 +63,49 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Center Navigation */}
-          <div className="hidden lg:flex items-center gap-4">
-            {/* Location Selector */}
-            <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
-              <MapPin className="w-3 h-3 text-muted-foreground" />
-              <select className="bg-transparent border-none outline-none text-xs">
-                <option>Lagos</option>
-                <option>Abuja</option>
-              </select>
-            </div>
+          {/* Center Navigation - Only show when not authenticated */}
+          {!user && (
+            <div className="hidden lg:flex items-center gap-4">
+              {/* Location Selector */}
+              <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
+                <MapPin className="w-3 h-3 text-muted-foreground" />
+                <select className="bg-transparent border-none outline-none text-xs">
+                  <option>Lagos</option>
+                  <option>Abuja</option>
+                </select>
+              </div>
 
-            {/* Navigation Links */}
-            <nav className="flex items-center gap-3">
-              <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
-                Find Services
-              </Link>
-              <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
-                Become Artisan
-              </Link>
-              <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
-                How It Works
-              </Link>
-              <Badge variant="secondary" className="text-xs">
-                <Star className="w-3 h-3 mr-1" />
-                4.9/5
-              </Badge>
-            </nav>
-          </div>
+              {/* Navigation Links */}
+              <nav className="flex items-center gap-3">
+                <Link to="/all-services" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
+                  Find Services
+                </Link>
+                <Link to="/become-artisan" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
+                  Become Artisan
+                </Link>
+                <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors text-xs whitespace-nowrap">
+                  How It Works
+                </Link>
+                <Badge variant="secondary" className="text-xs">
+                  <Star className="w-3 h-3 mr-1" />
+                  4.9/5
+                </Badge>
+              </nav>
+            </div>
+          )}
+
+          {/* User Role Indicator - Show when authenticated */}
+          {user && profile?.role && (
+            <div className="hidden lg:flex items-center gap-2 bg-muted px-3 py-1 rounded-lg">
+              <User className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium capitalize">
+                {profile.role === 'client' ? 'Client Account' : 
+                 profile.role === 'artisan' ? 'Artisan Account' : 
+                 profile.role === 'admin' ? 'Admin Account' : 
+                 'User Account'}
+              </span>
+            </div>
+          )}
 
           {/* Auth Buttons - Desktop */}
           <div className="flex items-center gap-2 flex-shrink-0">
