@@ -70,34 +70,34 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation - Always Visible - Matches Reference Design */}
-          <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
-            {/* Navigation Links - Prominent Display */}
-            <nav className="flex items-center gap-8">
-              <Link to="/all-services" className="text-foreground hover:text-primary transition-colors font-medium text-base">
+          {/* Desktop Navigation - Always Visible - Responsive Design */}
+          <div className="hidden md:flex items-center gap-4 lg:gap-6 flex-1 justify-center mx-4">
+            {/* Navigation Links - Responsive Display */}
+            <nav className="flex items-center gap-4 lg:gap-8">
+              <Link to="/all-services" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
                 Find Services
               </Link>
-              <Link to="/become-artisan" className="text-foreground hover:text-primary transition-colors font-medium text-base">
+              <Link to="/become-artisan" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
                 Become an Artisan
               </Link>
-              <Link to="/how-it-works" className="text-foreground hover:text-primary transition-colors font-medium text-base">
+              <Link to="/how-it-works" className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
                 How It Works
               </Link>
             </nav>
 
-            {/* Trust Score Badge - Green Design to Match Reference */}
-            <div className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-full border border-green-200">
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              <span className="text-sm font-medium text-green-700">4.9/5 Trust Score</span>
+            {/* Trust Score Badge - Responsive */}
+            <div className="hidden lg:flex items-center gap-2 bg-green-50 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full border border-green-200">
+              <Star className="w-3 h-3 lg:w-4 lg:h-4 text-yellow-500 fill-yellow-500" />
+              <span className="text-xs lg:text-sm font-medium text-green-700 whitespace-nowrap">4.9/5 Trust Score</span>
             </div>
           </div>
 
           {/* Right Section - Location, Language, Auth */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            {/* Location Selector - Moved to Right Section */}
-            <div className="hidden lg:flex items-center gap-1 bg-muted px-3 py-2 rounded-lg">
-              <MapPin className="w-4 h-4 text-muted-foreground" />
-              <select className="bg-transparent border-none outline-none text-sm min-w-0">
+            {/* Location Selector - Responsive */}
+            <div className="hidden lg:flex items-center gap-1 bg-muted px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg">
+              <MapPin className="w-3 h-3 lg:w-4 lg:h-4 text-muted-foreground" />
+              <select className="bg-transparent border-none outline-none text-xs lg:text-sm min-w-0">
                 <option>Lagos</option>
                 <option>Abuja</option>
                 <option>Port Harcourt</option>
@@ -105,7 +105,7 @@ export const Header = () => {
               </select>
             </div>
 
-            {/* Language Selector */}
+            {/* Language Selector - Responsive */}
             <div className="hidden sm:block">
               <LanguageSelector />
             </div>
@@ -147,7 +147,7 @@ export const Header = () => {
               )}
             </div>
 
-            {/* Mobile Menu Button - Improved */}
+            {/* Mobile Menu Button - Responsive */}
             <Button
               variant="ghost"
               size="sm"
