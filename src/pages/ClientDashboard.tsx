@@ -2,19 +2,109 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { BookingTimeline } from '@/components/dashboard/BookingTimeline';
 import { PaymentOverview } from '@/components/dashboard/PaymentOverview';
+import { 
+  Search, 
+  Star, 
+  Shield, 
+  Clock, 
+  MapPin, 
+  Phone,
+  CreditCard,
+  MessageSquare,
+  Calendar,
+  Heart,
+  Plus
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function ClientDashboard() {
   const { profile } = useAuth();
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
-      {/* Header */}
+      {/* Enhanced Header with Capabilities */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 rounded-lg mb-6">
-        <h1 className="text-3xl font-bold text-blue-900 dark:text-blue-100">Client Dashboard</h1>
-        <p className="text-blue-700 dark:text-blue-300 mt-2">Book trusted artisans for your projects</p>
-        <p className="text-sm text-blue-600 dark:text-blue-400">Welcome back, {profile?.email}</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-blue-900 dark:text-blue-100">Client Dashboard</h1>
+            <p className="text-blue-700 dark:text-blue-300 mt-2">Book trusted artisans for your projects</p>
+            <p className="text-sm text-blue-600 dark:text-blue-400">Welcome back, {profile?.email}</p>
+          </div>
+          <div className="flex gap-2">
+            <Button asChild>
+              <Link to="/service-directory">
+                <Search className="w-4 h-4 mr-2" />
+                Find Services
+              </Link>
+            </Button>
+          </div>
+        </div>
+        
+        {/* Client Capabilities */}
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <Shield className="w-4 h-4" />
+            <span className="text-sm">Verified Artisans</span>
+          </div>
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <CreditCard className="w-4 h-4" />
+            <span className="text-sm">Secure Payments</span>
+          </div>
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <Clock className="w-4 h-4" />
+            <span className="text-sm">24/7 Support</span>
+          </div>
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <Star className="w-4 h-4" />
+            <span className="text-sm">Rate & Review</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Button variant="outline" className="justify-start h-auto p-4" asChild>
+          <Link to="/service-directory">
+            <div className="text-left">
+              <Search className="w-5 h-5 mb-2" />
+              <div className="font-medium">Find Services</div>
+              <div className="text-xs text-muted-foreground">Browse artisans</div>
+            </div>
+          </Link>
+        </Button>
+        
+        <Button variant="outline" className="justify-start h-auto p-4" asChild>
+          <Link to="/my-bookings">
+            <div className="text-left">
+              <Calendar className="w-5 h-5 mb-2" />
+              <div className="font-medium">My Bookings</div>
+              <div className="text-xs text-muted-foreground">Track requests</div>
+            </div>
+          </Link>
+        </Button>
+        
+        <Button variant="outline" className="justify-start h-auto p-4" asChild>
+          <Link to="/favorites">
+            <div className="text-left">
+              <Heart className="w-5 h-5 mb-2" />
+              <div className="font-medium">Favorites</div>
+              <div className="text-xs text-muted-foreground">Saved artisans</div>
+            </div>
+          </Link>
+        </Button>
+        
+        <Button variant="outline" className="justify-start h-auto p-4" asChild>
+          <Link to="/messages">
+            <div className="text-left">
+              <MessageSquare className="w-5 h-5 mb-2" />
+              <div className="font-medium">Messages</div>
+              <div className="text-xs text-muted-foreground">Chat with artisans</div>
+            </div>
+          </Link>
+        </Button>
       </div>
 
       {/* Main Content */}
