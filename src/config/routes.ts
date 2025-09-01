@@ -63,6 +63,7 @@ export const LEGACY_ROUTES = {
   '/service-directory': ROUTES.SERVICES,
   '/admin-dashboard': ROUTES.ADMIN.DASHBOARD,
   '/admin-login': ROUTES.ADMIN.LOGIN,
+  '/ojssytem-admin': ROUTES.ADMIN.LOGIN, // Legacy admin login route
   '/monitoring-dashboard': ROUTES.ADMIN.MONITORING,
 } as const;
 

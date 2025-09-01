@@ -102,19 +102,21 @@ export function AdminDashboardContainer() {
       <div className="min-h-screen flex w-full">
         <AdminSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
         <div className="flex-1 flex flex-col">
-          <header className="h-16 flex items-center justify-between border-b px-6 bg-destructive/5">
-            <SidebarTrigger />
+          <header className="sticky top-0 z-40 h-16 flex items-center justify-between border-b px-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex items-center gap-4">
+              <SidebarTrigger />
               <Badge variant="destructive">Admin Control</Badge>
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-destructive" />
-                <span className="text-sm font-medium">Mission Control Active</span>
-              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-destructive" />
+              <span className="text-sm font-medium">Mission Control Active</span>
             </div>
           </header>
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-6 space-y-6">
             <AdminBreadcrumbWrapper activeSection={activeSection} setActiveSection={setActiveSection} />
-            {renderContent()}
+            <div className="w-full">
+              {renderContent()}
+            </div>
           </main>
         </div>
       </div>
