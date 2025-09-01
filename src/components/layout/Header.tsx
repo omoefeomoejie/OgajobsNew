@@ -71,7 +71,7 @@ export const Header = () => {
           </Link>
 
           {/* Desktop Navigation - Always Visible */}
-          <div className="hidden xl:flex items-center gap-4 flex-1 justify-center">
+          <div className="hidden lg:flex items-center gap-4 flex-1 justify-center">
             {/* Location Selector */}
             <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
               <MapPin className="w-3 h-3 text-muted-foreground" />
