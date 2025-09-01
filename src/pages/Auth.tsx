@@ -55,8 +55,27 @@ export default function Auth() {
       const signupPhone = formData?.phone || phone;
       const signupRole = formData?.role || role;
 
+      console.log('=== ENHANCED SIGNUP PROCESS ===');
+      console.log('Signup data:', {
+        email: signupEmail,
+        fullName: signupFullName,
+        phone: signupPhone,
+        role: signupRole
+      });
+
+      // Validate role selection
+      if (!signupRole || !['client', 'artisan'].includes(signupRole)) {
+        throw new Error('Please select a valid role (Client or Artisan)');
+      }
+
+      // Validate required fields
+      if (!signupEmail || !signupPassword || !signupFullName || !signupPhone) {
+        throw new Error('All fields are required');
+      }
+
       const redirectUrl = `${window.location.origin}/`;
       
+      console.log('Creating user with auth...');
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: signupEmail,
         password: signupPassword,
@@ -70,61 +89,132 @@ export default function Auth() {
         }
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error('Auth signup error:', signUpError);
+        throw signUpError;
+      }
 
-      if (data.user) {
-        // Insert profile data with correct role
-        const { error: profileError } = await supabase
+      if (!data.user) {
+        throw new Error('User creation failed - no user data returned');
+      }
+
+      console.log('User created successfully:', data.user.id);
+
+      // Create profile immediately with enhanced error handling
+      console.log('Creating user profile...');
+      try {
+        const profileData = {
+          id: data.user.id,
+          email: data.user.email,
+          role: signupRole,
+          created_at: new Date().toISOString()
+        };
+
+        console.log('Profile data to insert:', profileData);
+
+        const { data: profileResult, error: profileError } = await supabase
           .from('profiles')
-          .insert({
-            id: data.user.id,
-            email: data.user.email,
-            role: signupRole, // Use the actual selected role
-            created_at: new Date().toISOString()
-          });
+          .insert(profileData)
+          .select()
+          .single();
 
         if (profileError) {
-          console.error('Profile creation error:', profileError);
+          console.error('Profile creation error details:', {
+            message: profileError.message,
+            details: profileError.details,
+            hint: profileError.hint,
+            code: profileError.code
+          });
+          
+          // Try to create profile with upsert as fallback
+          console.log('Attempting profile upsert as fallback...');
+          const { error: upsertError } = await supabase
+            .from('profiles')
+            .upsert(profileData, { onConflict: 'id' });
+
+          if (upsertError) {
+            console.error('Profile upsert also failed:', upsertError);
+            throw new Error(`Profile creation failed: ${profileError.message}`);
+          }
+          
+          console.log('Profile created via upsert fallback');
+        } else {
+          console.log('Profile created successfully:', profileResult);
         }
 
-        // Insert into appropriate table based on role
-        const finalRole = formData?.role || role;
-        const finalFullName = formData?.fullName || fullName;
-        const finalPhone = formData?.phone || phone;
-        
-        if (finalRole === 'artisan') {
+      } catch (profileCreationError) {
+        console.error('Profile creation process failed:', profileCreationError);
+        // Don't fail the entire signup process, but log the error
+        toast({
+          title: "Profile Setup Warning",
+          description: "Account created but profile setup had issues. Please contact support if you experience problems.",
+          variant: "destructive",
+        });
+      }
+
+      // Insert into role-specific table with enhanced error handling
+      console.log('Creating role-specific record...');
+      try {
+        const roleData = {
+          email: data.user.email,
+          full_name: signupFullName,
+          phone: signupPhone
+        };
+
+        if (signupRole === 'artisan') {
+          console.log('Creating artisan record...');
           const { error: artisanError } = await supabase
             .from('artisans')
-            .insert({
-              email: data.user.email,
-              full_name: finalFullName,
-              phone: finalPhone
-            });
+            .insert(roleData);
           
           if (artisanError) {
             console.error('Artisan creation error:', artisanError);
+            // Don't fail signup for this, just log it
+          } else {
+            console.log('Artisan record created successfully');
           }
         } else {
+          console.log('Creating client record...');
           const { error: clientError } = await supabase
             .from('clients')
-            .insert({
-              email: data.user.email,
-              full_name: finalFullName,
-              phone: finalPhone
-            });
+            .insert(roleData);
           
           if (clientError) {
             console.error('Client creation error:', clientError);
+            // Don't fail signup for this, just log it
+          } else {
+            console.log('Client record created successfully');
           }
         }
-
-        toast({
-          title: t('messages.signUpSuccess'),
-          description: "Please check your email to verify your account.",
-        });
+      } catch (roleRecordError) {
+        console.error('Role-specific record creation failed:', roleRecordError);
+        // Don't fail the signup process for this
       }
+
+      console.log('=== SIGNUP PROCESS COMPLETED ===');
+
+      toast({
+        title: t('messages.signUpSuccess'),
+        description: `Account created successfully! Please check your email to verify your account.`,
+      });
+
+      // Clear form after successful signup
+      setEmail('');
+      setPassword('');
+      setFullName('');
+      setPhone('');
+      setRole('client');
+
     } catch (error: any) {
-      setError(error.message || 'An error occurred during sign up');
+      console.error('Signup process error:', error);
+      const errorMessage = error.message || 'An error occurred during sign up';
+      setError(errorMessage);
+      
+      toast({
+        title: "Sign Up Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -319,21 +409,38 @@ export default function Auth() {
                 rateLimitKey="auth-signup"
                 validationSchema={(data) => {
                   const errors: string[] = [];
-                  if (!data.fullName || data.fullName.length < 2) {
-                    errors.push('Full name is required (minimum 2 characters)');
+                  
+                  // Enhanced validation with specific error messages
+                  if (!data.fullName || data.fullName.trim().length < 2) {
+                    errors.push('Full name is required and must be at least 2 characters');
                   }
+                  
                   if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-                    errors.push('Valid email is required');
+                    errors.push('Please enter a valid email address');
                   }
-                  if (!data.phone || !/^(\+234|0)[789][01]\d{8}$/.test(data.phone.replace(/\s/g, ''))) {
-                    errors.push('Valid Nigerian phone number is required');
+                  
+                  if (!data.phone) {
+                    errors.push('Phone number is required');
+                  } else {
+                    // Enhanced phone validation for Nigerian numbers
+                    const cleanPhone = data.phone.replace(/\s|-|\(|\)/g, '');
+                    if (!/^(\+234|234|0)[789][01]\d{8}$/.test(cleanPhone)) {
+                      errors.push('Please enter a valid Nigerian phone number (e.g., +2348012345678, 08012345678)');
+                    }
                   }
-                  if (!data.password || data.password.length < 6) {
-                    errors.push('Password must be at least 6 characters');
+                  
+                  if (!data.password) {
+                    errors.push('Password is required');
+                  } else if (data.password.length < 6) {
+                    errors.push('Password must be at least 6 characters long');
+                  } else if (!/(?=.*[a-z])(?=.*[A-Z])/.test(data.password)) {
+                    errors.push('Password should contain at least one uppercase and one lowercase letter');
                   }
-                  if (!data.role) {
-                    errors.push('Please select your role');
+                  
+                  if (!data.role || !['client', 'artisan'].includes(data.role)) {
+                    errors.push('Please select your role: either Client or Artisan');
                   }
+                  
                   return { valid: errors.length === 0, errors };
                 }}
                 className="space-y-4"
@@ -370,30 +477,52 @@ export default function Auth() {
                   minLength={6}
                 />
                 <div className="space-y-3">
-                  <Label>{t('signUp.roleLabel')}</Label>
+                  <Label className="text-base font-medium">{t('signUp.roleLabel')} <span className="text-destructive">*</span></Label>
+                  <p className="text-sm text-muted-foreground">Choose how you'll use OgaJobs platform:</p>
                   <input type="hidden" name="role" value={role} />
-                  <RadioGroup value={role} onValueChange={(value: 'client' | 'artisan') => setRole(value)}>
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted transition-colors">
-                      <RadioGroupItem value="client" id="client" />
-                      <Label htmlFor="client" className="flex items-center gap-2 cursor-pointer flex-1">
-                        <Users className="w-4 h-4 text-primary" />
-                        <div>
-                          <div className="font-medium">{t('signUp.roleClient')}</div>
-                          <div className="text-sm text-muted-foreground">I need to hire skilled artisans</div>
+                  <RadioGroup 
+                    value={role} 
+                    onValueChange={(value: 'client' | 'artisan') => setRole(value)}
+                    className="space-y-3"
+                  >
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group data-[state=checked]:border-primary data-[state=checked]:bg-primary/5">
+                      <RadioGroupItem value="client" id="client" className="mt-1" />
+                      <Label htmlFor="client" className="flex items-start gap-3 cursor-pointer flex-1 group-hover:text-foreground">
+                        <Users className="w-5 h-5 text-primary mt-0.5" />
+                        <div className="space-y-1">
+                          <div className="font-medium text-base">{t('signUp.roleClient')}</div>
+                          <div className="text-sm text-muted-foreground">
+                            I need to hire skilled artisans for various services and projects
+                          </div>
+                          <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md inline-block">
+                            Perfect for homeowners, businesses, and project managers
+                          </div>
                         </div>
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted transition-colors">
-                      <RadioGroupItem value="artisan" id="artisan" />
-                      <Label htmlFor="artisan" className="flex items-center gap-2 cursor-pointer flex-1">
-                        <Briefcase className="w-4 h-4 text-primary" />
-                        <div>
-                          <div className="font-medium">{t('signUp.roleArtisan')}</div>
-                          <div className="text-sm text-muted-foreground">I'm a skilled artisan looking for work</div>
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group data-[state=checked]:border-primary data-[state=checked]:bg-primary/5">
+                      <RadioGroupItem value="artisan" id="artisan" className="mt-1" />
+                      <Label htmlFor="artisan" className="flex items-start gap-3 cursor-pointer flex-1 group-hover:text-foreground">
+                        <Briefcase className="w-5 h-5 text-primary mt-0.5" />
+                        <div className="space-y-1">
+                          <div className="font-medium text-base">{t('signUp.roleArtisan')}</div>
+                          <div className="text-sm text-muted-foreground">
+                            I'm a skilled professional offering services to clients
+                          </div>
+                          <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md inline-block">
+                            For contractors, craftsmen, and service professionals
+                          </div>
                         </div>
                       </Label>
                     </div>
                   </RadioGroup>
+                  {/* Role Selection Validation Warning */}
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-xs text-blue-800">
+                      <strong>Important:</strong> Your role determines your dashboard and available features. 
+                      Choose carefully as this affects your entire experience on the platform.
+                    </p>
+                  </div>
                 </div>
                 {error && (
                   <Alert variant="destructive">
