@@ -114,13 +114,9 @@ export function usePushNotifications() {
       };
 
       // Save subscription to database
-      const { error } = await supabase
-        .from('push_subscriptions')
-        .upsert({
-          user_id: user.id,
-          subscription: subscriptionData,
-          enabled: true
-        });
+      const { error } = await supabase.functions.invoke('store-push-subscription', {
+        body: { subscription: subscriptionData }
+      });
 
       if (error) throw error;
 
@@ -155,11 +151,7 @@ export function usePushNotifications() {
 
       // Remove from database
       if (user) {
-        const { error } = await supabase
-          .from('push_subscriptions')
-          .update({ enabled: false })
-          .eq('user_id', user.id);
-
+        const { error } = await supabase.functions.invoke('remove-push-subscription');
         if (error) throw error;
       }
 
