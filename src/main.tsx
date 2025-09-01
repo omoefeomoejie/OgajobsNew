@@ -19,8 +19,8 @@ registerServiceWorker();
 // Prefetch critical data immediately
 cacheUtils.prefetchCriticalData();
 
-// Disable performance monitoring to prevent infinite loops
-const enablePerformanceMonitoring = false;
+// Enable performance monitoring for production insights
+const enablePerformanceMonitoring = true;
 
 // Report bundle metrics in development
 if (import.meta.env.DEV) {
@@ -40,7 +40,7 @@ createRoot(document.getElementById("root")!).render(
           <App />
           <FeedbackContainer />
           {/* React Query DevTools - only in development, hidden by default */}
-          {false && process.env.NODE_ENV === 'development' && (
+          {import.meta.env.DEV && (
             <ReactQueryDevtools 
               initialIsOpen={false} 
               buttonPosition="bottom-left"
