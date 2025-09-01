@@ -39,16 +39,22 @@ export function Logo({
 
   if (variant === 'icon') {
     return (
-      <img 
-        src={logoSrc}
-        alt="OgaJobs" 
-        className={cn(
-          logoSize,
-          'object-contain',
-          className
-        )}
-        loading="lazy"
-      />
+      <div className={cn('flex items-center', className)}>
+        <img 
+          src={logoSrc}
+          alt="OgaJobs" 
+          className={cn(
+            logoSize,
+            'object-contain'
+          )}
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+          }}
+        />
+        <div className="hidden text-primary font-bold text-center">OJ</div>
+      </div>
     );
   }
 
@@ -59,7 +65,12 @@ export function Logo({
         alt="OgaJobs Logo" 
         className={cn(logoSize, 'object-contain')}
         loading="lazy"
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+        }}
       />
+      <div className="hidden text-primary font-bold">OgaJobs</div>
       {showText && (
         <div className="min-w-0">
           <h1 className={cn(textSize, 'font-black text-foreground tracking-tight')}>
