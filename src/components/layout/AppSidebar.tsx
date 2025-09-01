@@ -28,7 +28,7 @@ import {
   Headphones,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
+import { Logo } from '@/components/ui/logo';
 
 export function AppSidebar() {
   const { profile, signOut } = useAuth();
@@ -110,32 +110,31 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Logo Section */}
         <div className="p-4 border-b">
-          <NavLink to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <img 
-              src={ogaJobsLogo}
-              alt="OgaJobs" 
-              className="w-10 h-10 object-contain aspect-square bg-transparent"
-              style={{ background: 'transparent' }}
-            />
-            {state !== "collapsed" && (
-              <div>
-                <h2 className="font-black text-2xl tracking-tight">OgaJobs</h2>
-                <p className="text-sm text-muted-foreground capitalize font-semibold">
-                  {profile?.role ? (
-                    <>
-                      <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                      {profile.role === 'client' ? 'Client Portal' : 
-                       profile.role === 'artisan' ? 'Artisan Hub' : 
-                       profile.role === 'admin' ? 'Admin Panel' : 
-                       'User Dashboard'}
-                    </>
-                  ) : (
-                    <>
-                      <span className="inline-block w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
-                      Loading...
-                    </>
-                  )}
-                </p>
+          <NavLink to="/" className="hover:opacity-80 transition-opacity">
+            {state === "collapsed" ? (
+              <Logo variant="icon" size="md" />
+            ) : (
+              <div className="flex items-center gap-3">
+                <Logo variant="icon" size="md" />
+                <div>
+                  <h2 className="font-black text-2xl tracking-tight">OgaJobs</h2>
+                  <p className="text-sm text-muted-foreground capitalize font-semibold">
+                    {profile?.role ? (
+                      <>
+                        <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        {profile.role === 'client' ? 'Client Portal' : 
+                         profile.role === 'artisan' ? 'Artisan Hub' : 
+                         profile.role === 'admin' ? 'Admin Panel' : 
+                         'User Dashboard'}
+                      </>
+                    ) : (
+                      <>
+                        <span className="inline-block w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                        Loading...
+                      </>
+                    )}
+                  </p>
+                </div>
               </div>
             )}
           </NavLink>

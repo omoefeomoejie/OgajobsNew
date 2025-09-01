@@ -17,7 +17,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import ogaJobsLogo from '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png';
+import { Logo } from '@/components/ui/logo';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,20 +53,23 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo - Responsive Sizing */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity flex-shrink-0">
-            <img 
-              src={ogaJobsLogo}
-              alt="OgaJobs Logo" 
-              className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain aspect-square bg-transparent"
-              style={{ background: 'transparent' }}
-            />
-            <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-foreground tracking-tight">
-                OgaJobs
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground font-semibold truncate">
-                Nigeria's Trust Infrastructure
-              </p>
+          <Link to="/" className="hover:opacity-80 transition-opacity flex-shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Logo 
+                variant="full"
+                size="sm"
+                className="sm:hidden"
+              />
+              <Logo 
+                variant="full"
+                size="md"
+                className="hidden sm:flex md:hidden"
+              />
+              <Logo 
+                variant="full"
+                size="lg"
+                className="hidden md:flex"
+              />
             </div>
           </Link>
 
