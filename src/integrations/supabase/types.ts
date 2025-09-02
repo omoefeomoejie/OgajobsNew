@@ -3088,6 +3088,39 @@ export type Database = {
           },
         ]
       }
+      trust_metrics_queue: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          processed_at: string | null
+          queued_at: string | null
+          retry_count: number | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          queued_at?: string | null
+          retry_count?: number | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          queued_at?: string | null
+          retry_count?: number | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_notification_settings: {
         Row: {
           booking_updates: boolean
@@ -3618,6 +3651,10 @@ export type Database = {
           p_service_category: string
         }
         Returns: Json
+      }
+      process_trust_metrics_background: {
+        Args: { p_user_id: string }
+        Returns: boolean
       }
       refresh_performance_views: {
         Args: Record<PropertyKey, never>
