@@ -20,6 +20,43 @@ import { ValidatedInput } from '@/components/security/InputValidator';
 import { logger } from '@/lib/logger';
 import { WelcomeEmailService } from '@/components/auth/WelcomeEmailService';
 
+// Helper function to create user profile after email confirmation
+const createUserProfile = async (user: any, signupData: any) => {
+  const { data: profileResult, error: profileError } = await supabase
+    .rpc('create_user_profile', {
+      p_user_id: user.id,
+      p_email: user.email!,
+      p_role: signupData.role,
+      p_full_name: signupData.fullName,
+      p_phone: signupData.phone
+    });
+
+  if (profileError) {
+    console.error('Profile creation failed:', profileError);
+    throw new Error('Failed to set up your profile. Please contact support.');
+  }
+
+  if (!(profileResult as any)?.success) {
+    const errorMsg = (profileResult as any)?.error || 'Profile setup failed';
+    throw new Error(errorMsg);
+  }
+
+  // Send welcome email after profile is created
+  try {
+    await WelcomeEmailService.sendWelcomeEmail({
+      userId: user.id,
+      email: user.email!,
+      fullName: signupData.fullName,
+      role: signupData.role
+    });
+  } catch (emailError) {
+    logger.warn('Welcome email failed but profile created successfully', { 
+      userId: user.id, 
+      error: emailError 
+    });
+  }
+};
+
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,7 +80,49 @@ export default function Auth() {
       }
     };
     checkUser();
-  }, [navigate, redirectTo]);
+
+    // Handle email confirmation callback
+    const handleAuthStateChange = async (event: string, session: any) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Check if this is a new signup that just got confirmed
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('confirmed') === 'true') {
+          // User just confirmed their email - create their profile
+          try {
+            const userData = session.user.user_metadata || {};
+            await createUserProfile(session.user, {
+              role: userData.role || 'client',
+              fullName: userData.full_name || 'User',
+              phone: userData.phone || '',
+              email: session.user.email
+            });
+            
+            toast({
+              title: "Email Confirmed! 🎉",
+              description: "Your account is now active. Welcome to OgaJobs!",
+            });
+            
+            // Clear the confirmed parameter and redirect
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+            navigate(redirectTo);
+            
+          } catch (error: any) {
+            logger.error('Profile creation failed after email confirmation:', error);
+            toast({
+              title: "Setup Error",
+              description: "Account confirmed but profile setup failed. Please contact support.",
+              variant: "destructive",
+            });
+          }
+        }
+      }
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
+    
+    return () => subscription.unsubscribe();
+  }, [navigate, redirectTo, toast]);
 
   const handleSignUp = async (e: React.FormEvent, formData?: any) => {
     e.preventDefault();
@@ -74,11 +153,12 @@ export default function Auth() {
         throw new Error('Please select a valid role (Client or Artisan)');
       }
 
-      // Create user with simplified process - no email confirmation required
+      // Create user with email confirmation enabled
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: signupData.email,
         password: signupData.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth?confirmed=true`,
           data: {
             full_name: signupData.fullName,
             phone: signupData.phone,
@@ -102,49 +182,33 @@ export default function Auth() {
         throw new Error('Account creation failed. Please try again.');
       }
 
-      // Create profile - simplified single call
-      const { data: profileResult, error: profileError } = await supabase
-        .rpc('create_user_profile', {
-          p_user_id: data.user.id,
-          p_email: data.user.email!,
-          p_role: signupData.role,
-          p_full_name: signupData.fullName,
-          p_phone: signupData.phone
+      // Check if user needs email confirmation
+      if (!data.session) {
+        // User needs to confirm email - show different message
+        toast({
+          title: "Check Your Email! 📧",
+          description: "We've sent you a beautiful confirmation email. Please click the link to activate your account.",
         });
 
-      if (profileError) {
-        console.error('Profile creation failed:', profileError);
-        throw new Error('Failed to set up your profile. Please contact support.');
-      }
-
-      if (!(profileResult as any)?.success) {
-        const errorMsg = (profileResult as any)?.error || 'Profile setup failed';
-        throw new Error(errorMsg);
-      }
-
-      // Send custom welcome email
-      try {
-        await WelcomeEmailService.sendWelcomeEmail({
-          userId: data.user.id,
-          email: data.user.email!,
-          fullName: signupData.fullName,
-          role: signupData.role
+        logger.info('Signup initiated - confirmation email sent', { 
+          email: signupData.email,
+          role: signupData.role 
         });
-      } catch (emailError) {
-        // Don't fail signup if email fails, just log it
-        logger.warn('Welcome email failed but signup succeeded', { 
-          userId: data.user.id, 
-          error: emailError 
-        });
+        
+        // Clear form
+        setEmail('');
+        setPassword('');
+        setFullName('');
+        setPhone('');
+        setRole('client');
+        
+        return; // Exit early - user needs to confirm email
       }
 
-      // Success - clean up form and show success message
-      setEmail('');
-      setPassword('');
-      setFullName('');
-      setPhone('');
-      setRole('client');
-
+      // If we have a session, user is confirmed, proceed with profile creation
+      await createUserProfile(data.user, signupData);
+      
+      // Success message for immediate login
       toast({
         title: "Account Created Successfully! 🎉",
         description: "Welcome to OgaJobs! You can start using your account immediately.",
