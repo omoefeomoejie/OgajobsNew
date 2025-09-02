@@ -18,6 +18,7 @@ import { Logo } from '@/components/ui/logo';
 import { SecureForm } from '@/components/security/SecureForm';
 import { ValidatedInput } from '@/components/security/InputValidator';
 import { logger } from '@/lib/logger';
+import { WelcomeEmailService } from '@/components/auth/WelcomeEmailService';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -73,12 +74,11 @@ export default function Auth() {
         throw new Error('Please select a valid role (Client or Artisan)');
       }
 
-      // Create user with simplified process
+      // Create user with simplified process - no email confirmation required
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: signupData.email,
         password: signupData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm`,
           data: {
             full_name: signupData.fullName,
             phone: signupData.phone,
@@ -122,6 +122,22 @@ export default function Auth() {
         throw new Error(errorMsg);
       }
 
+      // Send custom welcome email
+      try {
+        await WelcomeEmailService.sendWelcomeEmail({
+          userId: data.user.id,
+          email: data.user.email!,
+          fullName: signupData.fullName,
+          role: signupData.role
+        });
+      } catch (emailError) {
+        // Don't fail signup if email fails, just log it
+        logger.warn('Welcome email failed but signup succeeded', { 
+          userId: data.user.id, 
+          error: emailError 
+        });
+      }
+
       // Success - clean up form and show success message
       setEmail('');
       setPassword('');
@@ -131,7 +147,7 @@ export default function Auth() {
 
       toast({
         title: "Account Created Successfully! 🎉",
-        description: "Please check your email and click the confirmation link to activate your account.",
+        description: "Welcome to OgaJobs! You can start using your account immediately.",
       });
 
       logger.info('Signup completed successfully', { role: signupData.role });
