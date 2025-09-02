@@ -3549,6 +3549,10 @@ export type Database = {
         Args: { portfolio_id_param: string }
         Returns: undefined
       }
+      initialize_missing_trust_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
