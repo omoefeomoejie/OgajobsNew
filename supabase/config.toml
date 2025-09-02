@@ -1,5 +1,9 @@
 project_id = "vclzkuzexsuhaaliweey"
 
+[auth.email.template.confirmation]
+subject = "Confirm Your Signup - OgaJobs"
+content_path = "./templates/confirmation.html"
+
 [api]
 enabled = true
 port = 54321
