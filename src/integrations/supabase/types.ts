@@ -3672,6 +3672,10 @@ export type Database = {
         Args: { admin_email: string; admin_user_id: string }
         Returns: undefined
       }
+      trigger_trust_metrics_processing: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       update_dispute_status: {
         Args: {
           admin_notes_param?: string
