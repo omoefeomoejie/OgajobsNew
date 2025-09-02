@@ -24,6 +24,9 @@ enabled = true
 [functions.process-email-queue]
 verify_jwt = false
 
+[functions.fix-welcome-emails]
+verify_jwt = false
+
 [functions.create-payment]
 verify_jwt = true
 
