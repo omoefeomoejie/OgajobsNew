@@ -49,6 +49,7 @@ import {
   LazyCalendarWrapper as Calendar,
   LazyMonitoringDashboardWrapper as MonitoringDashboard,
 } from "@/utils/lazyRoutes";
+import TestSignup from '@/pages/TestSignup';
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,9 @@ const App = () => (
                 <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
                 <Route path={ROUTES.TERMS_OF_SERVICE} element={<TermsOfService />} />
                 <Route path={ROUTES.COOKIE_POLICY} element={<CookiePolicy />} />
+                
+                {/* Testing routes */}
+                <Route path="/test-signup" element={<TestSignup />} />
                 
                 {/* Main application routes */}
                 <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />

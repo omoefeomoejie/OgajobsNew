@@ -66,8 +66,9 @@ export function SecureForm({
       }
 
       // Rate limiting and submission
-      // Temporarily bypass rate limiting for signup to focus on core database issues
-      await onSubmit(sanitizedData);
+      await withRateLimit(rateLimitKey, async () => {
+        await onSubmit(sanitizedData);
+      });
 
     } catch (err: any) {
       setError(err.message || 'An error occurred while submitting the form');

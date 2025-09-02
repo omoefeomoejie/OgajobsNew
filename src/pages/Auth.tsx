@@ -51,162 +51,95 @@ export default function Auth() {
 
     try {
       // Use form data if provided (from SecureForm), otherwise use state
-      const signupEmail = formData?.email || email;
-      const signupPassword = formData?.password || password;
-      const signupFullName = formData?.fullName || fullName;
-      const signupPhone = formData?.phone || phone;
-      const signupRole = formData?.role || role;
+      const signupData = {
+        email: formData?.email || email,
+        password: formData?.password || password,
+        fullName: formData?.fullName || fullName,
+        phone: formData?.phone || phone,
+        role: formData?.role || role
+      };
 
-      logger.debug('Enhanced signup process initiated', {
-        role: signupRole,
-        hasEmail: !!signupEmail,
-        hasFullName: !!signupFullName,
-        hasPhone: !!signupPhone
+      logger.debug('Signup process initiated', {
+        role: signupData.role,
+        hasEmail: !!signupData.email
       });
 
-      // Validate role selection
-      if (!signupRole || !['client', 'artisan'].includes(signupRole)) {
-        throw new Error('Please select a valid role (Client or Artisan)');
-      }
-
       // Validate required fields
-      if (!signupEmail || !signupPassword || !signupFullName || !signupPhone) {
+      if (!signupData.email || !signupData.password || !signupData.fullName || !signupData.phone) {
         throw new Error('All fields are required');
       }
 
-      const redirectUrl = `${window.location.origin}/auth/confirm`;
-      
-      logger.debug('Creating user authentication record');
+      if (!signupData.role || !['client', 'artisan'].includes(signupData.role)) {
+        throw new Error('Please select a valid role (Client or Artisan)');
+      }
+
+      // Create user with simplified process
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email: signupEmail,
-        password: signupPassword,
+        email: signupData.email,
+        password: signupData.password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
           data: {
-            full_name: signupFullName,
-            phone: signupPhone,
-            role: signupRole
+            full_name: signupData.fullName,
+            phone: signupData.phone,
+            role: signupData.role
           }
         }
       });
 
       if (signUpError) {
-        console.error('Auth signup error:', signUpError);
-        throw signUpError;
+        // Provide user-friendly error messages
+        if (signUpError.message.includes('already registered')) {
+          throw new Error('This email is already registered. Please sign in instead.');
+        }
+        if (signUpError.message.includes('password')) {
+          throw new Error('Password must be at least 6 characters long.');
+        }
+        throw new Error(signUpError.message || 'Failed to create account');
       }
 
       if (!data.user) {
-        throw new Error('User creation failed - no user data returned');
+        throw new Error('Account creation failed. Please try again.');
       }
 
-      logger.info('User authentication record created successfully');
-
-      // Create profile using the new secure function
-      logger.debug('Creating user profile');
-      try {
+      // Create profile - simplified single call
       const { data: profileResult, error: profileError } = await supabase
         .rpc('create_user_profile', {
           p_user_id: data.user.id,
           p_email: data.user.email!,
-          p_role: signupRole,
-          p_full_name: signupFullName,
-          p_phone: signupPhone
+          p_role: signupData.role,
+          p_full_name: signupData.fullName,
+          p_phone: signupData.phone
         });
 
-        if (profileError) {
-          logger.error('Profile creation RPC failed', {
-            errorCode: profileError.code,
-            errorMessage: profileError.message
-          });
-          throw new Error(`Profile creation failed: ${profileError.message}`);
-        }
-
-        if (!(profileResult as any)?.success) {
-          const errorMsg = (profileResult as any)?.error || 'Unknown profile creation error';
-          logger.error('Profile creation function returned error', { error: errorMsg });
-          throw new Error(`Profile setup failed: ${errorMsg}`);
-        }
-
-        logger.info('Profile created successfully via RPC function');
-
-      } catch (profileCreationError: any) {
-        logger.error('Profile creation process failed', { error: profileCreationError.message });
-        // This is a critical failure - we should fail the signup process
-        throw new Error(`Account setup failed: ${profileCreationError.message}. Please try again or contact support.`);
+      if (profileError) {
+        console.error('Profile creation failed:', profileError);
+        throw new Error('Failed to set up your profile. Please contact support.');
       }
 
-      // Insert into role-specific table with enhanced error handling
-      logger.debug('Creating role-specific record', { role: signupRole });
-      try {
-        const roleData = {
-          email: data.user.email,
-          full_name: signupFullName,
-          phone: signupPhone
-        };
-
-        if (signupRole === 'artisan') {
-          logger.debug('Creating artisan record');
-          const { error: artisanError } = await supabase
-            .from('artisans')
-            .insert(roleData);
-          
-          if (artisanError) {
-            logger.error('Artisan creation error', { 
-              errorCode: artisanError.code, 
-              errorMessage: artisanError.message 
-            });
-            // Log but don't fail signup - artisan record can be created later
-            toast({
-              title: "Artisan Profile Notice",
-              description: "Account created successfully. Artisan profile will be completed during verification.",
-              variant: "default",
-            });
-          } else {
-            logger.info('Artisan record created successfully');
-          }
-        } else {
-          logger.debug('Creating client record');
-          const { error: clientError } = await supabase
-            .from('clients')
-            .insert(roleData);
-          
-          if (clientError) {
-            logger.error('Client creation error', { 
-              errorCode: clientError.code,
-              errorMessage: clientError.message
-            });
-            // Log but don't fail signup - client record can be created later
-          } else {
-            logger.info('Client record created successfully');
-          }
-        }
-      } catch (roleRecordError: any) {
-        logger.error('Role-specific record creation failed', { 
-          error: roleRecordError.message,
-          role: signupRole 
-        });
-        // Don't fail the signup process for this - these are supplementary tables
+      if (!(profileResult as any)?.success) {
+        const errorMsg = (profileResult as any)?.error || 'Profile setup failed';
+        throw new Error(errorMsg);
       }
 
-      logger.info('Signup process completed successfully');
-
-      // Note: Welcome email will be sent automatically after email confirmation via database trigger
-      
-      toast({
-        title: "Account Created Successfully!",
-        description: "Please check your email and click the confirmation link to activate your account. You'll receive a welcome message once confirmed.",
-      });
-
-      // Clear form after successful signup
+      // Success - clean up form and show success message
       setEmail('');
       setPassword('');
       setFullName('');
       setPhone('');
       setRole('client');
 
+      toast({
+        title: "Account Created Successfully! 🎉",
+        description: "Please check your email and click the confirmation link to activate your account.",
+      });
+
+      logger.info('Signup completed successfully', { role: signupData.role });
+
     } catch (error: any) {
-      logger.error('Signup process failed', { error: error.message });
-      const errorMessage = error.message || 'An error occurred during sign up';
+      logger.error('Signup failed:', { error: error.message });
+      
+      const errorMessage = error.message || 'An unexpected error occurred during sign up';
       setError(errorMessage);
       
       toast({
