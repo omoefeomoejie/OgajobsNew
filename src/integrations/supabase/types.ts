@@ -1186,6 +1186,42 @@ export type Database = {
           },
         ]
       }
+      email_notifications_queue: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          processed_at: string | null
+          status: string | null
+          template: string
+          template_data: Json | null
+          user_email: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          status?: string | null
+          template: string
+          template_data?: Json | null
+          user_email: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          status?: string | null
+          template?: string
+          template_data?: Json | null
+          user_email?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       escrow_payments: {
         Row: {
           amount: number

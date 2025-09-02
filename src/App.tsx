@@ -10,6 +10,7 @@ import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { LegacyRedirect } from "@/components/routing/LegacyRedirect";
 import { ROUTES } from "@/config/routes";
+import { useWelcomeEmailQueue } from "@/hooks/useWelcomeEmailQueue";
 import {
   LazyIndexWrapper as Index,
   LazyAuthWrapper as Auth, 
@@ -53,15 +54,19 @@ import TestSignup from '@/pages/TestSignup';
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <SecureErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <GlobalErrorHandler>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+const App = () => {
+  // Initialize welcome email queue processing
+  useWelcomeEmailQueue();
+
+  return (
+    <SecureErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <GlobalErrorHandler>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
             <div className="relative min-h-screen">
               <LegacyRedirect />
               <Routes>
@@ -130,6 +135,7 @@ const App = () => (
       </AuthProvider>
     </QueryClientProvider>
   </SecureErrorBoundary>
-);
+  );
+};
 
 export default App;
