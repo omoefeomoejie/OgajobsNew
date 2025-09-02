@@ -3,31 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/lib/logger';
 
 /**
- * Hook to initialize welcome email queue processing
- * This activates the asynchronous welcome email system
+ * Hook to monitor welcome email queue processing
+ * This monitors the email notification queue for status updates
  */
 export function useWelcomeEmailQueue() {
   useEffect(() => {
-    // Initialize the welcome email listener
-    const initializeListener = async () => {
-      try {
-        logger.info('Initializing welcome email queue listener...');
-        
-        // Call the welcome email listener to start processing
-        const { data, error } = await supabase.functions.invoke('welcome-email-listener');
-        
-        if (error) {
-          logger.error('Failed to initialize welcome email listener', { error: error.message });
-        } else {
-          logger.info('Welcome email listener initialized successfully', data);
-        }
-      } catch (error: any) {
-        logger.error('Exception initializing welcome email listener', { error: error.message });
-      }
-    };
-
-    // Initialize on mount
-    initializeListener();
 
     // Set up realtime listener for the email queue
     const channel = supabase
