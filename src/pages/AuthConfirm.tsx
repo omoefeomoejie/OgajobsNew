@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, AlertCircle, Loader2, ArrowLeft, Mail } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader2, ArrowLeft, Key } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/layout/PageWrapper';
@@ -16,61 +16,49 @@ export default function AuthConfirm() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const handleEmailConfirmation = async () => {
+    const handlePasswordReset = async () => {
       try {
-        // Check if this is a token hash confirmation
+        // Check if this is a password reset token
         const tokenHash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         
-        if (tokenHash && type) {
+        if (tokenHash && type === 'recovery') {
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
-            type: type as any
+            type: 'recovery'
           });
 
           if (error) {
-            console.error('Email confirmation error:', error);
+            console.error('Password reset verification error:', error);
             setStatus('error');
-            setMessage(error.message || 'Failed to confirm email. The link may have expired.');
+            setMessage(error.message || 'Password reset link has expired or is invalid.');
           } else if (data?.user) {
             setStatus('success');
-            setMessage('Email confirmed successfully! Welcome to OgaJobs!');
+            setMessage('Password reset verified! You can now set a new password.');
             
             // Show success toast
             toast({
-              title: "Email Confirmed!",
-              description: "Your account has been verified. You can now sign in.",
+              title: "Reset Link Verified!",
+              description: "You can now set a new password for your account.",
             });
 
-            // Redirect to dashboard or login after a delay
+            // Redirect to password reset form after a delay
             setTimeout(() => {
-              if (data.session) {
-                navigate('/dashboard');
-              } else {
-                navigate('/auth?message=confirmed');
-              }
-            }, 3000);
+              navigate('/auth?mode=reset&verified=true');
+            }, 2000);
           }
         } else {
-          // Check if user is already logged in
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            setStatus('success');
-            setMessage('You are already signed in!');
-            setTimeout(() => navigate('/dashboard'), 2000);
-          } else {
-            setStatus('error');
-            setMessage('Invalid confirmation link. Please try signing up again.');
-          }
+          setStatus('error');
+          setMessage('Invalid or missing reset link. Please request a new password reset.');
         }
       } catch (error) {
-        console.error('Confirmation process error:', error);
+        console.error('Password reset process error:', error);
         setStatus('error');
         setMessage('An unexpected error occurred. Please try again.');
       }
     };
 
-    handleEmailConfirmation();
+    handlePasswordReset();
   }, [searchParams, navigate, toast]);
 
   return (
@@ -109,9 +97,9 @@ export default function AuthConfirm() {
               </Link>
             </div>
             <CardTitle className="text-2xl font-bold">
-              {status === 'loading' && 'Confirming Your Email...'}
-              {status === 'success' && 'Email Confirmed!'}
-              {status === 'error' && 'Confirmation Failed'}
+              {status === 'loading' && 'Verifying Reset Link...'}
+              {status === 'success' && 'Reset Link Verified!'}
+              {status === 'error' && 'Verification Failed'}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-6">
@@ -136,21 +124,12 @@ export default function AuthConfirm() {
             {/* Action Buttons */}
             <div className="space-y-3">
               {status === 'success' && (
-                <>
-                  <Button 
-                    className="w-full" 
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    Continue to Dashboard
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => navigate('/auth')}
-                  >
-                    Sign In
-                  </Button>
-                </>
+                <Button 
+                  className="w-full" 
+                  onClick={() => navigate('/auth?mode=reset&verified=true')}
+                >
+                  Set New Password
+                </Button>
               )}
               
               {status === 'error' && (
@@ -159,7 +138,7 @@ export default function AuthConfirm() {
                     className="w-full" 
                     onClick={() => navigate('/auth')}
                   >
-                    Try Signing Up Again
+                    Request New Reset Link
                   </Button>
                   <Button 
                     variant="outline" 
@@ -175,11 +154,11 @@ export default function AuthConfirm() {
             {/* Additional Help */}
             <div className="border-t pt-4 space-y-2">
               <div className="flex items-center justify-center text-sm text-muted-foreground">
-                <Mail className="h-4 w-4 mr-2" />
+                <Key className="h-4 w-4 mr-2" />
                 Need help? Contact support
               </div>
               <p className="text-xs text-muted-foreground">
-                Having trouble? Check your email for the welcome message or contact our support team.
+                Having trouble with password reset? Contact our support team for assistance.
               </p>
             </div>
           </CardContent>
