@@ -4,6 +4,10 @@ project_id = "vclzkuzexsuhaaliweey"
 subject = "Confirm Your Signup - OgaJobs"
 content_path = "./templates/confirmation.html"
 
+[auth.hook.send_email]
+enabled = true
+uri = "https://vclzkuzexsuhaaliweey.supabase.co/functions/v1/auth-email-webhook"
+
 [api]
 enabled = true
 port = 54321
@@ -113,4 +117,7 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.request-validator]
+verify_jwt = false
+
+[functions.auth-email-webhook]
 verify_jwt = false

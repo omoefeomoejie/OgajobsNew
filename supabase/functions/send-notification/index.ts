@@ -11,6 +11,9 @@ import { WelcomePOSAgentEmail } from './_templates/welcome-pos-agent.tsx'
 import { PasswordResetEmail } from './_templates/password-reset.tsx'
 import { EmailVerificationEmail } from './_templates/email-verification.tsx'
 import { EmailConfirmationEmail } from './_templates/email-confirmation.tsx'
+import { MagicLinkEmail } from './_templates/magic-link.tsx'
+import { ReauthenticationEmail } from './_templates/reauthentication.tsx'
+import { EmailChangeEmail } from './_templates/email-change.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -215,6 +218,64 @@ async function sendEmailNotification(template: string, data: Record<string, any>
             userEmail: email,
             appUrl: appUrl,
             fullName: data.full_name || data.fullName || 'Valued User'
+          })
+        );
+        break;
+
+      case 'auth_signup_confirmation':
+        subject = 'Confirm Your Signup - OgaJobs';
+        emailHtml = await renderAsync(
+          React.createElement(EmailConfirmationEmail, {
+            confirmUrl: data.confirm_url || data.confirmUrl || '#',
+            userEmail: email,
+            appUrl: appUrl,
+            fullName: data.full_name || data.fullName || 'Valued User'
+          })
+        );
+        break;
+
+      case 'auth_password_reset':
+        subject = 'Reset your OgaJobs password';
+        emailHtml = await renderAsync(
+          React.createElement(PasswordResetEmail, {
+            resetUrl: data.reset_url || data.resetUrl || '#',
+            userEmail: email,
+            appUrl: appUrl,
+            expiresIn: data.expires_in || data.expiresIn || '1 hour'
+          })
+        );
+        break;
+
+      case 'auth_magic_link':
+        subject = 'Your secure login link for OgaJobs';
+        emailHtml = await renderAsync(
+          React.createElement(MagicLinkEmail, {
+            magicLink: data.magic_link || data.magicLink || '#',
+            userEmail: email,
+            appUrl: appUrl
+          })
+        );
+        break;
+
+      case 'auth_reauthentication':
+        subject = 'Confirm reauthentication - OgaJobs';
+        emailHtml = await renderAsync(
+          React.createElement(ReauthenticationEmail, {
+            verificationCode: data.verification_code || data.verificationCode || '000000',
+            userEmail: email,
+            appUrl: appUrl
+          })
+        );
+        break;
+
+      case 'auth_email_change':
+        subject = 'Confirm your email change - OgaJobs';
+        emailHtml = await renderAsync(
+          React.createElement(EmailChangeEmail, {
+            confirmUrl: data.confirm_url || data.confirmUrl || '#',
+            userEmail: email,
+            oldEmail: data.old_email || data.oldEmail,
+            appUrl: appUrl
           })
         );
         break;
