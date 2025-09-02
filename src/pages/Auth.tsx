@@ -104,14 +104,14 @@ export default function Auth() {
       // Create profile using the new secure function
       logger.debug('Creating user profile');
       try {
-        const { data: profileResult, error: profileError } = await supabase
-          .rpc('create_user_profile', {
-            p_user_id: data.user.id,
-            p_email: data.user.email,
-            p_role: signupRole,
-            p_full_name: signupFullName,
-            p_phone: signupPhone
-          });
+      const { data: profileResult, error: profileError } = await supabase
+        .rpc('create_user_profile', {
+          p_user_id: data.user.id,
+          p_email: data.user.email!,
+          p_role: signupRole,
+          p_full_name: signupFullName,
+          p_phone: signupPhone
+        });
 
         if (profileError) {
           logger.error('Profile creation RPC failed', {

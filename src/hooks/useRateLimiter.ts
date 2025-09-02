@@ -29,14 +29,15 @@ export function useRateLimiter() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const checkRateLimit = useCallback(async (url: string): Promise<boolean> => {
+  const checkRateLimit = useCallback(async (operation: string): Promise<boolean> => {
     setRateLimitState(prev => ({ ...prev, loading: true }));
 
     try {
       const { data, error } = await supabase.functions.invoke('rate-limiter', {
         body: {
-          url,
-          userId: user?.id || null
+          operation_type: operation,
+          max_attempts: 10,
+          window_minutes: 60
         }
       });
 
@@ -87,10 +88,10 @@ export function useRateLimiter() {
   }, [user?.id, toast]);
 
   const withRateLimit = useCallback(async <T>(
-    url: string,
+    operation_name: string,
     operation: () => Promise<T>
   ): Promise<T | null> => {
-    const canProceed = await checkRateLimit(url);
+    const canProceed = await checkRateLimit(operation_name);
     
     if (!canProceed) {
       return null;
