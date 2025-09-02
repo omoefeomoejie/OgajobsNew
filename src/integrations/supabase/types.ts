@@ -3477,6 +3477,10 @@ export type Database = {
         Args: { booking_id_param: string; completed_by_param: string }
         Returns: Json
       }
+      configure_service_role_key: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       create_admin_user: {
         Args: {
           p_email: string
@@ -3714,6 +3718,13 @@ export type Database = {
           p_service_category: string
         }
         Returns: Json
+      }
+      process_pending_welcome_emails: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          errors: string[]
+          processed_count: number
+        }[]
       }
       process_trust_metrics_background: {
         Args: { p_user_id: string }
