@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Check } from 'lucide-react';
+import { RefreshCw, Check, AlertCircle, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useRateLimiter } from '@/hooks/useRateLimiter';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ResendEmailButtonProps {
-  onResend: () => Promise<void>;
+  email: string;
   disabled?: boolean;
-  cooldownTime?: number;
 }
 
 export function ResendEmailButton({
-  onResend,
-  disabled = false,
-  cooldownTime = 60
+  email,
+  disabled = false
 }: ResendEmailButtonProps) {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [resendCount, setResendCount] = useState(0);
   const [lastResent, setLastResent] = useState(false);
+  const [showAlternatives, setShowAlternatives] = useState(false);
   const { toast } = useToast();
+  const { withRateLimit, isRateLimited } = useRateLimiter();
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -28,26 +31,59 @@ export function ResendEmailButton({
     return () => clearTimeout(timer);
   }, [cooldown]);
 
+  // Show alternatives after 3 failed attempts
+  useEffect(() => {
+    if (resendCount >= 3) {
+      setShowAlternatives(true);
+    }
+  }, [resendCount]);
+
+  const getProgressiveDelay = (attempt: number) => {
+    switch (attempt) {
+      case 0: return 60;   // 60 seconds
+      case 1: return 120;  // 2 minutes
+      case 2: return 300;  // 5 minutes
+      default: return 600; // 10 minutes
+    }
+  };
+
   const handleResend = async () => {
-    if (loading || cooldown > 0 || disabled) return;
+    if (loading || cooldown > 0 || disabled || isRateLimited()) return;
 
     setLoading(true);
+    
     try {
-      await onResend();
-      setResendCount(prev => prev + 1);
-      setLastResent(true);
-      
-      // Progressive cooldown: 60s, 120s, 300s
-      const newCooldown = resendCount === 0 ? 60 : resendCount === 1 ? 120 : 300;
-      setCooldown(newCooldown);
+      const result = await withRateLimit('email_resend', async () => {
+        const { error } = await supabase.auth.resend({
+          type: 'signup',
+          email: email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`
+          }
+        });
 
-      toast({
-        title: "Email Sent! ✉️",
-        description: "Check your inbox (and spam folder) for the confirmation email.",
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return true;
       });
 
-      // Reset success state after 3 seconds
-      setTimeout(() => setLastResent(false), 3000);
+      if (result) {
+        setResendCount(prev => prev + 1);
+        setLastResent(true);
+        
+        const newCooldown = getProgressiveDelay(resendCount);
+        setCooldown(newCooldown);
+
+        toast({
+          title: "Email Sent! ✉️",
+          description: "Check your inbox (and spam folder) for the confirmation email.",
+        });
+
+        // Reset success state after 3 seconds
+        setTimeout(() => setLastResent(false), 3000);
+      }
       
     } catch (error: any) {
       toast({
@@ -60,30 +96,90 @@ export function ResendEmailButton({
     }
   };
 
-  const isDisabled = disabled || loading || cooldown > 0;
+  const formatCooldownTime = (seconds: number) => {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+  };
+
+  const isDisabled = disabled || loading || cooldown > 0 || isRateLimited();
   const buttonText = cooldown > 0 
-    ? `Resend in ${cooldown}s` 
+    ? `Resend in ${formatCooldownTime(cooldown)}` 
     : resendCount > 0 
     ? "Resend Again" 
     : "Didn't receive email?";
 
   return (
-    <Button
-      variant="outline"
-      onClick={handleResend}
-      disabled={isDisabled}
-      className={`w-full transition-all duration-300 ${
-        lastResent ? 'bg-green-50 border-green-200 text-green-700' : ''
-      }`}
-    >
-      {loading ? (
-        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-      ) : lastResent ? (
-        <Check className="h-4 w-4 mr-2 text-green-600" />
-      ) : (
-        <RefreshCw className="h-4 w-4 mr-2" />
+    <div className="space-y-4">
+      <Button
+        variant="outline"
+        onClick={handleResend}
+        disabled={isDisabled}
+        className={`w-full transition-all duration-300 ${
+          lastResent ? 'bg-success/10 border-success/20 text-success' : ''
+        }`}
+      >
+        {loading ? (
+          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+        ) : lastResent ? (
+          <Check className="h-4 w-4 mr-2" />
+        ) : cooldown > 0 ? (
+          <AlertCircle className="h-4 w-4 mr-2" />
+        ) : (
+          <RefreshCw className="h-4 w-4 mr-2" />
+        )}
+        {lastResent ? "Email Sent Successfully!" : buttonText}
+      </Button>
+
+      {resendCount > 0 && (
+        <Alert className="bg-muted/30 border-muted">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Email sent {resendCount} time{resendCount > 1 ? 's' : ''}.</strong>
+            <br />
+            If you still don't see it, check your spam folder or try a different email address.
+          </AlertDescription>
+        </Alert>
       )}
-      {lastResent ? "Email Sent Successfully!" : buttonText}
-    </Button>
+
+      {showAlternatives && (
+        <div className="space-y-3 p-4 bg-muted/20 rounded-lg border border-muted">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <MessageCircle className="h-4 w-4" />
+            <span>Need help? Try these options:</span>
+          </div>
+          
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => {
+                window.location.href = 'mailto:support@ogajobs.com?subject=Email Confirmation Issue';
+              }}
+            >
+              Contact Support
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => {
+                // Refresh auth state to check if user confirmed elsewhere
+                window.location.reload();
+              }}
+            >
+              I've Already Confirmed
+            </Button>
+          </div>
+          
+          <p className="text-xs text-muted-foreground">
+            Sometimes emails can take up to 10 minutes to arrive. Make sure to check your spam/junk folder.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }

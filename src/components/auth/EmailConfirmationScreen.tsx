@@ -102,9 +102,8 @@ export function EmailConfirmationScreen({
           </Alert>
 
           <ResendEmailButton
-            onResend={() => onResendEmail(signupData.email, signupData.password, signupData)}
+            email={signupData.email}
             disabled={timeElapsed < 60}
-            cooldownTime={60}
           />
         </div>
 
