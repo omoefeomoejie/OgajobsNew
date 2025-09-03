@@ -19,6 +19,7 @@ import { SecureForm } from '@/components/security/SecureForm';
 import { ValidatedInput } from '@/components/security/InputValidator';
 import { logger } from '@/lib/logger';
 import { WelcomeEmailService } from '@/components/auth/WelcomeEmailService';
+import { EmailConfirmationScreen } from '@/components/auth/EmailConfirmationScreen';
 
 // Helper function to create user profile after email confirmation
 const createUserProfile = async (user: any, signupData: any) => {
@@ -65,11 +66,27 @@ export default function Auth() {
   const [role, setRole] = useState<'client' | 'artisan'>('client');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [signupData, setSignupData] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/';
   const { t } = useTranslation('auth');
+
+  // Load stored signup data on component mount
+  useEffect(() => {
+    const stored = localStorage.getItem('ogajobs_signup_data');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        setSignupData(data);
+        setShowConfirmation(true);
+      } catch (error) {
+        localStorage.removeItem('ogajobs_signup_data');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -123,6 +140,44 @@ export default function Auth() {
     
     return () => subscription.unsubscribe();
   }, [navigate, redirectTo, toast]);
+
+  const handleResendEmail = async (email: string, password: string, userData: any) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth?confirmed=true`,
+          data: {
+            full_name: userData.fullName,
+            phone: userData.phone,
+            role: userData.role
+          }
+        }
+      });
+
+      if (error) {
+        if (error.message.includes('already registered')) {
+          throw new Error('Email already confirmed. Please try signing in.');
+        }
+        throw error;
+      }
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const handleBackToSignup = () => {
+    setShowConfirmation(false);
+    setSignupData(null);
+    localStorage.removeItem('ogajobs_signup_data');
+    // Clear form
+    setEmail('');
+    setPassword('');
+    setFullName('');
+    setPhone('');
+    setRole('client');
+  };
 
   const handleSignUp = async (e: React.FormEvent, formData?: any) => {
     e.preventDefault();
@@ -184,23 +239,23 @@ export default function Auth() {
 
       // Check if user needs email confirmation
       if (!data.session) {
-        // User needs to confirm email - show different message
-        toast({
-          title: "Check Your Email! 📧",
-          description: "We've sent you a beautiful confirmation email. Please click the link to activate your account.",
-        });
+        // Store signup data for resend functionality
+        const confirmationData = {
+          email: signupData.email,
+          password: signupData.password,
+          fullName: signupData.fullName,
+          phone: signupData.phone,
+          role: signupData.role
+        };
+        
+        localStorage.setItem('ogajobs_signup_data', JSON.stringify(confirmationData));
+        setSignupData(confirmationData);
+        setShowConfirmation(true);
 
         logger.info('Signup initiated - confirmation email sent', { 
           email: signupData.email,
           role: signupData.role 
         });
-        
-        // Clear form
-        setEmail('');
-        setPassword('');
-        setFullName('');
-        setPhone('');
-        setRole('client');
         
         return; // Exit early - user needs to confirm email
       }
@@ -333,7 +388,17 @@ export default function Auth() {
         </div>
       </div>
       
-      <Card className="w-full max-w-md relative z-10">
+      {showConfirmation && signupData ? (
+        <EmailConfirmationScreen
+          email={signupData.email}
+          fullName={signupData.fullName}
+          role={signupData.role}
+          onBackToSignup={handleBackToSignup}
+          onResendEmail={handleResendEmail}
+          signupData={signupData}
+        />
+      ) : (
+        <Card className="w-full max-w-md relative z-10">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <Link to="/" className="hover:opacity-80 transition-opacity">
@@ -547,6 +612,7 @@ export default function Auth() {
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
     <LiveChatWidget />
     </>
