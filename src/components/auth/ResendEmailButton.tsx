@@ -9,11 +9,13 @@ import { supabase } from '@/integrations/supabase/client';
 interface ResendEmailButtonProps {
   email: string;
   disabled?: boolean;
+  onResend?: (email: string, password: string, userData: any) => Promise<void>;
 }
 
 export function ResendEmailButton({
   email,
-  disabled = false
+  disabled = false,
+  onResend
 }: ResendEmailButtonProps) {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
@@ -54,16 +56,29 @@ export function ResendEmailButton({
     
     try {
       const result = await withRateLimit('email_resend', async () => {
-        const { error } = await supabase.auth.resend({
-          type: 'signup',
-          email: email,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
-        });
+        // Check if we have stored signup data
+        const stored = localStorage.getItem('ogajobs_signup_data');
+        if (!stored) {
+          throw new Error('No signup data found. Please try signing up again.');
+        }
 
-        if (error) {
-          throw new Error(error.message);
+        const signupData = JSON.parse(stored);
+        
+        // Use custom resend handler if provided, otherwise use default
+        if (onResend) {
+          await onResend(email, signupData.password, signupData);
+        } else {
+          const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email: email,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`
+            }
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
         }
 
         return true;

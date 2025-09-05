@@ -6,6 +6,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ResendEmailButton } from './ResendEmailButton';
 import { ConfirmationProgress } from './ConfirmationProgress';
 import { EmailConfirmationFAQ } from './EmailConfirmationFAQ';
+import { EmailConfirmationDebug } from './EmailConfirmationDebug';
+import { EmailConfirmationErrorHandler, EmailConfirmationError, getEmailConfirmationErrorType } from './EmailConfirmationErrorHandler';
+import { useEmailConfirmationAnalytics } from '@/hooks/useEmailConfirmationAnalytics';
 
 interface EmailConfirmationScreenProps {
   email: string;
@@ -14,6 +17,7 @@ interface EmailConfirmationScreenProps {
   onBackToSignup: () => void;
   onResendEmail: (email: string, password: string, userData: any) => Promise<void>;
   signupData: any;
+  onSkipConfirmation?: () => void;
 }
 
 export function EmailConfirmationScreen({
@@ -22,13 +26,19 @@ export function EmailConfirmationScreen({
   role,
   onBackToSignup,
   onResendEmail,
-  signupData
+  signupData,
+  onSkipConfirmation
 }: EmailConfirmationScreenProps) {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
   const [showSpamTip, setShowSpamTip] = useState(false);
   const [showDirectSupport, setShowDirectSupport] = useState(false);
   const [showFAQ, setShowFAQ] = useState(false);
+  const [error, setError] = useState<EmailConfirmationError | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Initialize analytics tracking
+  const analytics = useEmailConfirmationAnalytics(email);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -52,6 +62,50 @@ export function EmailConfirmationScreen({
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleResendWithAnalytics = async (email: string, password: string, userData: any) => {
+    try {
+      setError(null);
+      const newRetryCount = retryCount + 1;
+      setRetryCount(newRetryCount);
+      
+      analytics.trackResendAttempt(newRetryCount, {
+        timeElapsed,
+        previousErrors: error ? [error] : []
+      });
+      
+      await onResendEmail(email, password, userData);
+    } catch (err: any) {
+      const errorType = getEmailConfirmationErrorType(err);
+      setError(errorType);
+      
+      analytics.trackHelpAccessed('error_encountered', {
+        errorType,
+        retryCount: retryCount + 1,
+        timeElapsed
+      });
+    }
+  };
+
+  const handleHelpAction = (helpType: string) => {
+    analytics.trackHelpAccessed(helpType, { timeElapsed });
+  };
+
+  const handleSupportContact = (method: string) => {
+    analytics.trackSupportContacted(method, { timeElapsed, retryCount });
+  };
+
+  const handleSkipConfirmation = () => {
+    if (onSkipConfirmation) {
+      analytics.trackConfirmationCompleted({ skipped: true, timeElapsed });
+      onSkipConfirmation();
+    }
+  };
+
+  const handleRetryError = () => {
+    setError(null);
+    // The actual retry logic will be handled by the parent component
   };
 
   return (
@@ -110,6 +164,7 @@ export function EmailConfirmationScreen({
           <ResendEmailButton
             email={signupData.email}
             disabled={timeElapsed < 60}
+            onResend={handleResendWithAnalytics}
           />
         </div>
 
@@ -126,7 +181,10 @@ export function EmailConfirmationScreen({
                 variant="outline"
                 size="sm"
                 className="w-full justify-start"
-                onClick={() => window.location.href = 'mailto:'}
+                onClick={() => {
+                  handleHelpAction('open_email_app');
+                  window.location.href = 'mailto:';
+                }}
               >
                 Open Email App
               </Button>
@@ -134,7 +192,10 @@ export function EmailConfirmationScreen({
                 variant="outline"
                 size="sm"
                 className="w-full justify-start"
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  handleHelpAction('manual_refresh');
+                  window.location.reload();
+                }}
               >
                 I've Already Confirmed
               </Button>
@@ -142,7 +203,10 @@ export function EmailConfirmationScreen({
                 variant="outline"
                 size="sm"
                 className="w-full justify-start"
-                onClick={() => setShowFAQ(!showFAQ)}
+                onClick={() => {
+                  handleHelpAction('faq_opened');
+                  setShowFAQ(!showFAQ);
+                }}
               >
                 Troubleshooting Help
               </Button>
@@ -171,13 +235,25 @@ export function EmailConfirmationScreen({
                 variant="link"
                 size="sm"
                 className="ml-2 p-0 h-auto text-blue-600 dark:text-blue-400"
-                onClick={() => window.location.href = `mailto:support@ogajobs.com?subject=Email Confirmation Help&body=I'm having trouble confirming my email address: ${email}`}
+                onClick={() => {
+                  handleSupportContact('email');
+                  window.location.href = `mailto:support@ogajobs.com?subject=Email Confirmation Help&body=I'm having trouble confirming my email address: ${email}`;
+                }}
               >
                 Contact Support
               </Button>
             </AlertDescription>
           </Alert>
         )}
+
+        {/* Error Handler */}
+        <EmailConfirmationErrorHandler
+          error={error}
+          onRetry={handleRetryError}
+          onFallbackAction={onBackToSignup}
+          retryCount={retryCount}
+          maxRetries={3}
+        />
 
         {/* FAQ Section */}
         {showFAQ && (
@@ -187,10 +263,20 @@ export function EmailConfirmationScreen({
           />
         )}
 
+        {/* Debug Mode - Development Only */}
+        <EmailConfirmationDebug
+          email={email}
+          signupData={signupData}
+          onSkipConfirmation={handleSkipConfirmation}
+        />
+
         <Button
           variant="ghost"
           className="w-full"
-          onClick={onBackToSignup}
+          onClick={() => {
+            analytics.trackConfirmationAbandoned('back_to_signup', { timeElapsed });
+            onBackToSignup();
+          }}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Sign Up
