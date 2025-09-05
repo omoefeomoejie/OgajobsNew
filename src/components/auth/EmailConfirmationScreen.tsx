@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, CheckCircle, Clock, ArrowLeft } from 'lucide-react';
+import { Mail, CheckCircle, Clock, ArrowLeft, AlertTriangle, MessageCircle, HelpCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ResendEmailButton } from './ResendEmailButton';
 import { ConfirmationProgress } from './ConfirmationProgress';
+import { EmailConfirmationFAQ } from './EmailConfirmationFAQ';
 
 interface EmailConfirmationScreenProps {
   email: string;
@@ -25,20 +26,25 @@ export function EmailConfirmationScreen({
 }: EmailConfirmationScreenProps) {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
+  const [showSpamTip, setShowSpamTip] = useState(false);
+  const [showDirectSupport, setShowDirectSupport] = useState(false);
+  const [showFAQ, setShowFAQ] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeElapsed(prev => prev + 1);
     }, 1000);
 
-    // Show help options after 30 seconds
-    const helpTimer = setTimeout(() => {
-      setShowHelp(true);
-    }, 30000);
+    // Progressive help system based on time elapsed
+    const helpTimer = setTimeout(() => setShowHelp(true), 30000); // 30 seconds
+    const spamTimer = setTimeout(() => setShowSpamTip(true), 120000); // 2 minutes
+    const supportTimer = setTimeout(() => setShowDirectSupport(true), 300000); // 5 minutes
 
     return () => {
       clearInterval(timer);
       clearTimeout(helpTimer);
+      clearTimeout(spamTimer);
+      clearTimeout(supportTimer);
     };
   }, []);
 
@@ -107,18 +113,20 @@ export function EmailConfirmationScreen({
           />
         </div>
 
+        {/* Progressive Help System */}
         {showHelp && (
           <div className="border-t pt-4 space-y-3">
-            <h4 className="font-semibold text-foreground">Need help?</h4>
+            <h4 className="font-semibold text-foreground flex items-center gap-2">
+              <HelpCircle className="h-4 w-4" />
+              Need help?
+            </h4>
+            
             <div className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
                 className="w-full justify-start"
-                onClick={() => {
-                  // Open email app
-                  window.location.href = 'mailto:';
-                }}
+                onClick={() => window.location.href = 'mailto:'}
               >
                 Open Email App
               </Button>
@@ -126,15 +134,57 @@ export function EmailConfirmationScreen({
                 variant="outline"
                 size="sm"
                 className="w-full justify-start"
-                onClick={() => {
-                  // Refresh the page to check auth state
-                  window.location.reload();
-                }}
+                onClick={() => window.location.reload()}
               >
                 I've Already Confirmed
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => setShowFAQ(!showFAQ)}
+              >
+                Troubleshooting Help
+              </Button>
             </div>
           </div>
+        )}
+
+        {/* Spam Folder Tip - Shows after 2 minutes */}
+        {showSpamTip && (
+          <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800/30">
+            <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+            <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+              <strong>Still waiting?</strong> The email might be in your spam/junk folder. 
+              This is common with confirmation emails.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Direct Support - Shows after 5 minutes */}
+        {showDirectSupport && (
+          <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800/30">
+            <MessageCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <AlertDescription className="text-blue-800 dark:text-blue-200">
+              <strong>Need immediate help?</strong> Our support team can help you get signed in right away.
+              <Button
+                variant="link"
+                size="sm"
+                className="ml-2 p-0 h-auto text-blue-600 dark:text-blue-400"
+                onClick={() => window.location.href = `mailto:support@ogajobs.com?subject=Email Confirmation Help&body=I'm having trouble confirming my email address: ${email}`}
+              >
+                Contact Support
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* FAQ Section */}
+        {showFAQ && (
+          <EmailConfirmationFAQ
+            email={email}
+            onClose={() => setShowFAQ(false)}
+          />
         )}
 
         <Button
