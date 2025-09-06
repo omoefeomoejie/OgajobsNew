@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/lib/logger';
+import { useAdvancedAuthState } from '@/hooks/useAdvancedAuthState';
+import { useNavigation } from '@/contexts/NavigationContext';
 
 interface Profile {
   id: string;
@@ -19,17 +21,22 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  isInitialized: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  refreshSession: () => Promise<void>;
+  validateSession: () => Promise<boolean>;
+  recoverSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { state: authState, refreshSession, validateSession, recoverSession } = useAdvancedAuthState();
+  const navigation = useNavigation();
+  
+  const { user, session, loading, isInitialized } = authState;
 
   const fetchProfile = async (userId: string): Promise<void> => {
     try {
@@ -124,82 +131,107 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Enhanced auth state management with profile synchronization
   useEffect(() => {
     let isMounted = true;
 
-    const initializeAuth = async () => {
-      try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        
-        if (isMounted) {
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
+    const syncProfile = async (userId: string) => {
+      if (isMounted) {
+        await fetchProfile(userId);
+      }
+    };
+
+    // Handle auth state changes with enhanced error handling
+    const handleAuthChange = async (event: string, currentSession: Session | null) => {
+      if (!isMounted) return;
+
+      logger.debug('Enhanced auth state change', { event, hasSession: !!currentSession });
+
+      if (currentSession?.user) {
+        // Handle successful authentication
+        if (event === 'SIGNED_IN') {
+          // Defer profile fetch to prevent auth deadlock
+          setTimeout(() => {
+            syncProfile(currentSession.user.id);
+          }, 0);
           
-          if (initialSession?.user) {
-            await fetchProfile(initialSession.user.id);
+          // Handle smart redirects for new sign-ins
+          if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isEmailConfirmed = urlParams.get('confirmed') === 'true';
+            
+            if (isEmailConfirmed) {
+              // User just confirmed email - wait for profile then redirect
+              setTimeout(async () => {
+                if (isMounted) {
+                  const { data: profileData } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', currentSession.user.id)
+                    .single();
+                  
+                  if (profileData?.role) {
+                    navigation.redirectAfterAuth(profileData.role);
+                  }
+                }
+              }, 1000);
+            }
           }
-          
-          setLoading(false);
+        } else {
+          // Regular profile sync for other events
+          setTimeout(() => {
+            syncProfile(currentSession.user.id);
+          }, 0);
         }
-      } catch (error) {
-        logger.error('Auth initialization failed');
+      } else {
+        // Clear profile on sign out
         if (isMounted) {
-          setLoading(false);
+          setProfile(null);
+          navigation.clearIntendedDestination();
         }
       }
     };
 
-    initializeAuth();
-
-    // Secure auth state listener - prevents deadlocks
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
-        if (!isMounted) return;
-        
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        
-        if (currentSession?.user) {
-          // Defer profile fetch to prevent auth deadlock
-          setTimeout(() => {
-            if (isMounted) {
-              fetchProfile(currentSession.user.id);
-            }
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
+    // Set up auth state listener only after advanced auth state is initialized
+    let subscription: any;
+    
+    if (isInitialized) {
+      const { data } = supabase.auth.onAuthStateChange(handleAuthChange);
+      subscription = data;
+      
+      // Initial profile fetch if user exists
+      if (user) {
+        syncProfile(user.id);
       }
-    );
+    }
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
+      if (subscription) {
+        subscription.unsubscribe();
+      }
     };
-  }, []);
+  }, [isInitialized, user, navigation]);
 
   const signOut = async (): Promise<void> => {
     try {
-      setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) {
         logger.error('Signout failed', { error: error.message });
       }
       
-      // Clear state
-      setUser(null);
-      setSession(null);
+      // Clear profile state (auth state is handled by useAdvancedAuthState)
       setProfile(null);
+      navigation.clearIntendedDestination();
+      
+      logger.info('User signed out successfully');
     } catch (error) {
       logger.error('Signout exception');
       // Force clear on error
-      setUser(null);
-      setSession(null);
       setProfile(null);
+      navigation.clearIntendedDestination();
     } finally {
-      setLoading(false);
+      // Navigate to home page
       window.location.href = '/';
     }
   };
@@ -209,8 +241,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     profile,
     loading,
+    isInitialized,
     signOut,
     refreshProfile,
+    refreshSession,
+    validateSession,
+    recoverSession,
   };
 
   return (

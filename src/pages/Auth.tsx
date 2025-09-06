@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ROUTES } from '@/config/routes';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ import { ValidatedInput } from '@/components/security/InputValidator';
 import { logger } from '@/lib/logger';
 import { WelcomeEmailService } from '@/components/auth/WelcomeEmailService';
 import { EmailConfirmationScreen } from '@/components/auth/EmailConfirmationScreen';
+import { useNavigation } from '@/contexts/NavigationContext';
 
 // Helper function to create user profile after email confirmation
 const createUserProfile = async (user: any, signupData: any) => {
@@ -71,8 +72,12 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get('redirect') || '/';
+  const location = useLocation();
   const { t } = useTranslation('auth');
+  const navigation = useNavigation();
+
+  // Enhanced redirect handling with navigation context
+  const redirectTo = searchParams.get('redirect') || navigation.getSmartRedirectPath();
 
   // Load stored signup data on component mount
   useEffect(() => {
@@ -88,12 +93,27 @@ export default function Auth() {
     }
   }, []);
 
+  // Track intended destination before requiring auth
+  useEffect(() => {
+    const redirectParam = searchParams.get('redirect');
+    if (redirectParam && redirectParam !== '/') {
+      navigation.setIntendedDestination(redirectParam);
+    }
+  }, [searchParams, navigation]);
+
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate(redirectTo);
+        // Use smart redirect instead of simple redirectTo
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+          
+        navigation.redirectAfterAuth(profile?.role);
       }
     };
     checkUser();
@@ -119,10 +139,12 @@ export default function Auth() {
               description: "Your account is now active. Welcome to OgaJobs!",
             });
             
-            // Clear the confirmed parameter and redirect
+            // Clear the confirmed parameter and use smart redirect
             const newUrl = window.location.pathname;
             window.history.replaceState({}, '', newUrl);
-            navigate(redirectTo);
+            
+            // Smart redirect based on role
+            navigation.redirectAfterAuth(userData.role || 'client');
             
           } catch (error: any) {
             logger.error('Profile creation failed after email confirmation:', error);
@@ -313,7 +335,7 @@ export default function Auth() {
           description: "You have been signed in successfully.",
         });
 
-        // Redirect based on role using React Router
+        // Enhanced redirect with navigation context
         setTimeout(async () => {
           try {
             const { data: profileData } = await supabase
@@ -322,29 +344,12 @@ export default function Auth() {
               .eq('id', authData.user.id)
               .single();
 
-            if (profileData?.role) {
-              switch (profileData.role) {
-                case 'pos_agent':
-                case 'agent':
-                  navigate(ROUTES.AGENT_DASHBOARD);
-                  break;
-                case 'admin':
-                case 'super_admin':
-                  navigate(ROUTES.ADMIN.DASHBOARD);
-                  break;
-                case 'artisan':
-                  navigate(ROUTES.DASHBOARD);
-                  break;
-                case 'client':
-                default:
-                  navigate(ROUTES.DASHBOARD);
-              }
-            } else {
-              navigate(ROUTES.DASHBOARD);
-            }
+            // Use smart redirect from navigation context
+            navigation.redirectAfterAuth(profileData?.role);
           } catch (error) {
             logger.error('Profile fetch error during redirect', { error });
-            navigate(ROUTES.DASHBOARD);
+            // Fallback to basic redirect
+            navigation.redirectAfterAuth();
           }
         }, 500);
       }

@@ -2,10 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { Routes, Route } from "react-router-dom";
 import { SecureErrorBoundary } from "@/components/error/SecureErrorBoundary";
 import { GlobalErrorHandler } from "@/components/error/GlobalErrorHandler";
+import { SessionRecoveryManager } from "@/components/auth/SessionRecoveryManager";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { LegacyRedirect } from "@/components/routing/LegacyRedirect";
@@ -61,15 +61,14 @@ const App = () => {
   return (
     <SecureErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <GlobalErrorHandler>
+        <GlobalErrorHandler>
+          <SessionRecoveryManager>
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <BrowserRouter>
-            <div className="relative min-h-screen">
-              <LegacyRedirect />
-              <Routes>
+              <div className="relative min-h-screen">
+                <LegacyRedirect />
+                <Routes>
                 {/* Public routes */}
                 <Route path={ROUTES.HOME} element={<Index />} />
                 <Route path={ROUTES.AUTH} element={<Auth />} />
@@ -123,19 +122,17 @@ const App = () => {
                 {/* Special routes */}
                 <Route path={ROUTES.PAYMENT_SUCCESS} element={<PaymentSuccess />} />
                 <Route path={ROUTES.NOT_FOUND} element={<NotFound />} />
-              </Routes>
-              
-              {/* Mobile-specific components */}
-              <MobileBottomNav />
-              <InstallPrompt />
-            </div>
-            </BrowserRouter>
-          </TooltipProvider>
+                </Routes>
+                
+                {/* Mobile-specific components */}
+                <MobileBottomNav />
+                <InstallPrompt />
+              </div>
+            </TooltipProvider>
+          </SessionRecoveryManager>
         </GlobalErrorHandler>
-      </AuthProvider>
-    </QueryClientProvider>
-  </SecureErrorBoundary>
+      </QueryClientProvider>
+    </SecureErrorBoundary>
   );
 };
-
 export default App;
