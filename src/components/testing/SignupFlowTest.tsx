@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Users, Briefcase, TestTube } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, XCircle, Clock, Play, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface TestResult {
   step: string;
@@ -16,220 +16,160 @@ interface TestResult {
 
 interface SignupTest {
   role: 'client' | 'artisan';
-  email: string;
   results: TestResult[];
-  completed: boolean;
   success: boolean;
+  completed: boolean;
 }
 
 export function SignupFlowTest() {
   const [tests, setTests] = useState<SignupTest[]>([]);
   const [isRunning, setIsRunning] = useState(false);
-  const { toast } = useToast();
 
-  const generateTestData = (role: 'client' | 'artisan') => ({
-    email: `test-${role}-${Date.now()}@example.com`,
-    password: 'TestPassword123!',
-    fullName: `Test ${role.charAt(0).toUpperCase() + role.slice(1)} User`,
-    phone: `+234${Math.floor(8000000000 + Math.random() * 1000000000)}`,
-    role
-  });
+  const generateTestData = (role: 'client' | 'artisan') => {
+    const timestamp = Date.now();
+    return {
+      email: `test-${role}-${timestamp}@example.com`,
+      password: 'TestPassword123!',
+      full_name: `Test ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+      role
+    };
+  };
 
-  const addTestResult = (testIndex: number, result: TestResult) => {
-    setTests(prev => prev.map((test, index) => 
-      index === testIndex 
+  const addTestResult = (role: 'client' | 'artisan', result: TestResult) => {
+    setTests(prev => prev.map(test => 
+      test.role === role 
         ? { ...test, results: [...test.results, result] }
         : test
     ));
   };
 
-  const completeTest = (testIndex: number, success: boolean) => {
-    setTests(prev => prev.map((test, index) => 
-      index === testIndex 
-        ? { ...test, completed: true, success }
+  const completeTest = (role: 'client' | 'artisan', success: boolean) => {
+    setTests(prev => prev.map(test => 
+      test.role === role 
+        ? { ...test, success, completed: true }
         : test
     ));
   };
 
-  const testSignupFlow = async (role: 'client' | 'artisan', testIndex: number) => {
+  const testSignupFlow = async (role: 'client' | 'artisan') => {
     const testData = generateTestData(role);
-    const startTime = Date.now();
-
+    
     try {
-      // Step 1: Test auth signup
-      addTestResult(testIndex, {
-        step: 'Authentication Creation',
-        success: false,
-        message: 'Creating user authentication...'
-      });
-
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      // Step 1: Test signup
+      const startTime = Date.now();
+      const { data: signupData, error: signupError } = await supabase.auth.signUp({
         email: testData.email,
         password: testData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm`,
           data: {
-            full_name: testData.fullName,
-            phone: testData.phone,
+            full_name: testData.full_name,
             role: testData.role
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/`
         }
       });
 
-      if (signUpError || !data.user) {
-        addTestResult(testIndex, {
-          step: 'Authentication Creation',
+      const signupDuration = Date.now() - startTime;
+
+      if (signupError) {
+        addTestResult(role, {
+          step: 'Authentication Signup',
           success: false,
-          message: `Failed: ${signUpError?.message || 'No user created'}`,
-          duration: Date.now() - startTime
+          message: `Signup failed: ${signupError.message}`,
+          duration: signupDuration
         });
-        completeTest(testIndex, false);
+        completeTest(role, false);
         return;
       }
 
-      addTestResult(testIndex, {
-        step: 'Authentication Creation',
+      addTestResult(role, {
+        step: 'Authentication Signup',
         success: true,
-        message: 'User authentication created successfully',
-        duration: Date.now() - startTime
+        message: 'User successfully created in auth.users',
+        duration: signupDuration
       });
+
+      // Wait a moment for triggers to process
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Step 2: Test profile creation
-      const profileStart = Date.now();
-      addTestResult(testIndex, {
-        step: 'Profile Creation',
-        success: false,
-        message: 'Creating user profile...'
-      });
-
-      const { data: profileResult, error: profileError } = await supabase
-        .rpc('create_user_profile', {
-          p_user_id: data.user.id,
-          p_email: data.user.email!,
-          p_role: testData.role,
-          p_full_name: testData.fullName,
-          p_phone: testData.phone
-        });
-
-      if (profileError || !(profileResult as any)?.success) {
-        addTestResult(testIndex, {
-          step: 'Profile Creation',
-          success: false,
-          message: `Failed: ${profileError?.message || (profileResult as any)?.error || 'Profile creation failed'}`,
-          duration: Date.now() - profileStart
-        });
-        completeTest(testIndex, false);
-        return;
-      }
-
-      addTestResult(testIndex, {
-        step: 'Profile Creation',
-        success: true,
-        message: 'Profile created successfully',
-        duration: Date.now() - profileStart
-      });
-
-      // Step 3: Verify profile exists
-      const verifyStart = Date.now();
-      addTestResult(testIndex, {
-        step: 'Profile Verification',
-        success: false,
-        message: 'Verifying profile exists...'
-      });
-
-      const { data: profile, error: profileFetchError } = await supabase
+      const profileStartTime = Date.now();
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', data.user.id)
+        .eq('id', signupData.user?.id)
         .single();
 
-      if (profileFetchError || !profile || profile.role !== testData.role) {
-        addTestResult(testIndex, {
-          step: 'Profile Verification',
+      const profileDuration = Date.now() - profileStartTime;
+
+      if (profileError || !profileData) {
+        addTestResult(role, {
+          step: 'Profile Creation',
           success: false,
-          message: `Failed: Profile not found or incorrect role (expected: ${testData.role}, got: ${profile?.role})`,
-          duration: Date.now() - verifyStart
+          message: `Profile not found: ${profileError?.message || 'Unknown error'}`,
+          duration: profileDuration
         });
-        completeTest(testIndex, false);
+        completeTest(role, false);
         return;
       }
 
-      addTestResult(testIndex, {
-        step: 'Profile Verification',
+      addTestResult(role, {
+        step: 'Profile Creation',
         success: true,
-        message: `Profile verified with correct role: ${profile.role}`,
-        duration: Date.now() - verifyStart
+        message: `Profile created with role: ${profileData.role}`,
+        duration: profileDuration
       });
 
-      // Step 4: Check trust metrics queue (for artisans)
-      if (role === 'artisan') {
-        const trustStart = Date.now();
-        addTestResult(testIndex, {
-          step: 'Trust Metrics Queue',
-          success: false,
-          message: 'Checking trust metrics queuing...'
-        });
-
-        // Wait a moment for trigger to fire
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        const { data: queueItem } = await supabase
-          .from('trust_metrics_queue')
-          .select('*')
-          .eq('user_id', data.user.id)
-          .single();
-
-        addTestResult(testIndex, {
-          step: 'Trust Metrics Queue',
-          success: !!queueItem,
-          message: queueItem 
-            ? `Trust metrics queued for background processing (status: ${queueItem.status})`
-            : 'Trust metrics not queued (optional - signup still successful)',
-          duration: Date.now() - trustStart
-        });
-      }
-
-      completeTest(testIndex, true);
-
-      toast({
-        title: `${role.toUpperCase()} Signup Test Passed! ✅`,
-        description: `All signup steps completed successfully for ${role} role.`,
+      // Step 3: Test role assignment
+      const roleCorrect = profileData.role === role;
+      addTestResult(role, {
+        step: 'Role Assignment',
+        success: roleCorrect,
+        message: roleCorrect 
+          ? `Role correctly assigned as ${role}` 
+          : `Role mismatch: expected ${role}, got ${profileData.role}`,
+        duration: 0
       });
 
-    } catch (error: any) {
-      addTestResult(testIndex, {
-        step: 'Unexpected Error',
+      // Step 4: Cleanup - sign out
+      await supabase.auth.signOut();
+      
+      addTestResult(role, {
+        step: 'Cleanup',
+        success: true,
+        message: 'Test user signed out successfully',
+        duration: 0
+      });
+
+      completeTest(role, roleCorrect);
+
+    } catch (error) {
+      logger.error('Signup test error', { role, error });
+      addTestResult(role, {
+        step: 'Error Handling',
         success: false,
-        message: `Unexpected error: ${error.message}`,
-        duration: Date.now() - startTime
+        message: `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        duration: 0
       });
-      completeTest(testIndex, false);
+      completeTest(role, false);
     }
   };
 
   const runAllTests = async () => {
     setIsRunning(true);
     setTests([
-      { role: 'client', email: '', results: [], completed: false, success: false },
-      { role: 'artisan', email: '', results: [], completed: false, success: false }
+      { role: 'client', results: [], success: false, completed: false },
+      { role: 'artisan', results: [], success: false, completed: false }
     ]);
 
     try {
-      // Update with actual test emails
-      const clientEmail = generateTestData('client').email;
-      const artisanEmail = generateTestData('artisan').email;
-      
-      setTests(prev => [
-        { ...prev[0], email: clientEmail },
-        { ...prev[1], email: artisanEmail }
-      ]);
-
-      // Run tests for both roles
+      // Run both tests concurrently
       await Promise.all([
-        testSignupFlow('client', 0),
-        testSignupFlow('artisan', 1)
+        testSignupFlow('client'),
+        testSignupFlow('artisan')
       ]);
-
+    } catch (error) {
+      logger.error('Test execution error', { error });
     } finally {
       setIsRunning(false);
     }
@@ -239,96 +179,123 @@ export function SignupFlowTest() {
     setTests([]);
   };
 
+  const getStepIcon = (result: TestResult) => {
+    if (result.success) {
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
+    } else {
+      return <XCircle className="h-4 w-4 text-red-500" />;
+    }
+  };
+
+  const allTestsPassed = tests.length > 0 && tests.every(test => test.completed && test.success);
+  const anyTestsFailed = tests.some(test => test.completed && !test.success);
+
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TestTube className="h-5 w-5" />
-            Signup Flow Testing
-          </CardTitle>
-          <CardDescription>
-            Test both client and artisan signup flows to ensure they work correctly after optimization.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Button 
-              onClick={runAllTests} 
-              disabled={isRunning}
-              className="flex items-center gap-2"
-            >
-              <TestTube className="h-4 w-4" />
-              {isRunning ? 'Running Tests...' : 'Run Signup Tests'}
-            </Button>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Play className="h-5 w-5" />
+          Signup Flow Testing
+        </CardTitle>
+        <CardDescription>
+          Test the complete user signup process for both client and artisan roles to ensure all components work correctly.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex gap-3">
+          <Button 
+            onClick={runAllTests} 
+            disabled={isRunning}
+            className="flex items-center gap-2"
+          >
+            {isRunning ? (
+              <>
+                <Clock className="h-4 w-4 animate-spin" />
+                Running Tests...
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4" />
+                Run All Tests
+              </>
+            )}
+          </Button>
+          
+          {tests.length > 0 && (
             <Button 
               variant="outline" 
               onClick={clearTests}
-              disabled={isRunning || tests.length === 0}
+              className="flex items-center gap-2"
             >
+              <RotateCcw className="h-4 w-4" />
               Clear Results
             </Button>
-          </div>
+          )}
+        </div>
 
-          {tests.length > 0 && (
-            <div className="grid md:grid-cols-2 gap-4">
-              {tests.map((test, index) => (
-                <Card key={test.role} className={`${test.completed ? (test.success ? 'border-green-200' : 'border-red-200') : 'border-blue-200'}`}>
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      {test.role === 'client' ? <Users className="h-5 w-5" /> : <Briefcase className="h-5 w-5" />}
-                      {test.role.toUpperCase()} Role Test
-                      {test.completed && (
-                        <Badge variant={test.success ? 'default' : 'destructive'}>
-                          {test.success ? 'PASSED' : 'FAILED'}
-                        </Badge>
-                      )}
+        {tests.length > 0 && (
+          <div className="space-y-4">
+            {tests.map((test) => (
+              <Card key={test.role} className="border-l-4 border-l-primary/20">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg capitalize">
+                      {test.role} Signup Test
                     </CardTitle>
-                    {test.email && (
-                      <p className="text-sm text-muted-foreground font-mono">{test.email}</p>
-                    )}
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {test.results.map((result, resultIndex) => (
-                      <div key={resultIndex} className="flex items-start gap-2 p-2 rounded-md bg-muted/50">
-                        {result.success ? (
-                          <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm">{result.step}</div>
-                          <div className="text-xs text-muted-foreground break-words">{result.message}</div>
-                          {result.duration && (
-                            <div className="text-xs text-muted-foreground">{result.duration}ms</div>
-                          )}
+                    <Badge variant={
+                      !test.completed ? "secondary" : 
+                      test.success ? "default" : "destructive"
+                    }>
+                      {!test.completed ? "Running..." : 
+                       test.success ? "Passed" : "Failed"}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {test.results.map((result, index) => (
+                      <div key={index} className="flex items-center gap-3 p-2 rounded border">
+                        {getStepIcon(result)}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{result.step}</span>
+                            {result.duration !== undefined && (
+                              <span className="text-sm text-muted-foreground">
+                                {result.duration}ms
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {result.message}
+                          </p>
                         </div>
                       </div>
                     ))}
-                    
-                    {!test.completed && test.results.length === 0 && (
-                      <div className="text-sm text-muted-foreground text-center py-4">
-                        Waiting for test to start...
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
 
-          {tests.length > 0 && tests.every(t => t.completed) && (
-            <Alert className={tests.every(t => t.success) ? 'border-green-200' : 'border-red-200'}>
-              <AlertDescription className="font-medium">
-                {tests.every(t => t.success) 
-                  ? '🎉 All signup flows are working correctly! Both client and artisan registrations completed successfully.'
-                  : '⚠️ Some signup flows failed. Check the results above for details.'
-                }
-              </AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            {tests.every(test => test.completed) && (
+              <Alert className={allTestsPassed ? "border-green-200 bg-green-50" : anyTestsFailed ? "border-red-200 bg-red-50" : ""}>
+                <AlertDescription className="flex items-center gap-2">
+                  {allTestsPassed ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      All signup flows passed successfully! The authentication system is working correctly.
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-4 w-4 text-red-600" />
+                      Some tests failed. Please review the results above and check your authentication configuration.
+                    </>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
