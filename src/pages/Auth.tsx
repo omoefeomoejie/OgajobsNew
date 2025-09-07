@@ -69,6 +69,8 @@ export default function Auth() {
   const [error, setError] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [signupData, setSignupData] = useState<any>(null);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -309,6 +311,37 @@ export default function Auth() {
     }
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Check your email for password reset instructions.",
+      });
+
+      setShowPasswordReset(false);
+      setResetEmail('');
+    } catch (error: any) {
+      setError(error.message || 'Failed to send password reset email');
+      toast({
+        title: "Reset Failed",
+        description: error.message || 'Failed to send password reset email',
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -423,40 +456,92 @@ export default function Auth() {
             </TabsList>
 
             <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t('signIn.emailPlaceholder')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder={t('signIn.emailPlaceholder')}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">{t('signIn.passwordPlaceholder')}</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder={t('signIn.passwordPlaceholder')}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                  />
-                </div>
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {t('signIn.signInButton')}
-                </Button>
-              </form>
+              {showPasswordReset ? (
+                <form onSubmit={handlePasswordReset} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email Address</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="Enter your email address"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  <div className="space-y-2">
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Send Reset Link
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        setShowPasswordReset(false);
+                        setResetEmail('');
+                        setError('');
+                      }}
+                    >
+                      Back to Sign In
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">{t('signIn.emailPlaceholder')}</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder={t('signIn.emailPlaceholder')}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">{t('signIn.passwordPlaceholder')}</Label>
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="text-sm p-0 h-auto font-normal"
+                        onClick={() => {
+                          setShowPasswordReset(true);
+                          setError('');
+                        }}
+                      >
+                        {t('signIn.forgotPassword')}
+                      </Button>
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder={t('signIn.passwordPlaceholder')}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {t('signIn.signInButton')}
+                  </Button>
+                </form>
+              )}
             </TabsContent>
 
             <TabsContent value="signup">
@@ -599,6 +684,32 @@ export default function Auth() {
               </SecureForm>
             </TabsContent>
           </Tabs>
+          
+          {/* Additional Help Section */}
+          <div className="mt-6 pt-4 border-t border-muted">
+            <div className="text-center space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Can't access your account?
+              </p>
+              <div className="flex flex-col gap-2">
+                <Link 
+                  to="/help-center"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Visit Help Center
+                </Link>
+                <a 
+                  href="mailto:support@ogajobs.com?subject=Account Access Help&body=I need help with my account access. Please describe your issue:"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Contact Support
+                </a>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                For forgotten email addresses, please contact our support team with any identifying information you remember.
+              </p>
+            </div>
+          </div>
 
           <div className="mt-6 pt-6 border-t space-y-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">

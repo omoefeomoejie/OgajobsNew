@@ -51,6 +51,7 @@ import {
   LazyMonitoringDashboardWrapper as MonitoringDashboard,
 } from "@/utils/lazyRoutes";
 import TestSignup from '@/pages/TestSignup';
+import ResetPassword from '@/pages/ResetPassword';
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => {
                 <Route path={ROUTES.HOME} element={<Index />} />
                 <Route path={ROUTES.AUTH} element={<Auth />} />
                 <Route path="/auth/confirm" element={<AuthConfirm />} />
+                <Route path="/auth/reset-password" element={<ResetPassword />} />
                 <Route path={ROUTES.HOW_IT_WORKS} element={<HowItWorks />} />
                 <Route path={ROUTES.BECOME_ARTISAN} element={<BecomeArtisan />} />
                 <Route path={ROUTES.HELP_CENTER} element={<HelpCenter />} />
