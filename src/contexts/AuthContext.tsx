@@ -3,7 +3,6 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/lib/logger';
 import { useAdvancedAuthState } from '@/hooks/useAdvancedAuthState';
-import { useNavigation } from '@/contexts/NavigationContext';
 
 interface Profile {
   id: string;
@@ -34,7 +33,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const { state: authState, refreshSession, validateSession, recoverSession } = useAdvancedAuthState();
-  const navigation = useNavigation();
   
   const { user, session, loading, isInitialized } = authState;
 
@@ -155,13 +153,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             syncProfile(currentSession.user.id);
           }, 0);
           
-          // Handle smart redirects for new sign-ins
+          // Emit custom event for email confirmation redirect
           if (typeof window !== 'undefined') {
             const urlParams = new URLSearchParams(window.location.search);
             const isEmailConfirmed = urlParams.get('confirmed') === 'true';
             
             if (isEmailConfirmed) {
-              // User just confirmed email - wait for profile then redirect
+              // Emit event for navigation handler to process
               setTimeout(async () => {
                 if (isMounted) {
                   const { data: profileData } = await supabase
@@ -171,7 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     .single();
                   
                   if (profileData?.role) {
-                    navigation.redirectAfterAuth(profileData.role);
+                    window.dispatchEvent(new CustomEvent('auth:emailConfirmed', {
+                      detail: { role: profileData.role }
+                    }));
                   }
                 }
               }, 1000);
@@ -187,7 +187,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Clear profile on sign out
         if (isMounted) {
           setProfile(null);
-          navigation.clearIntendedDestination();
+          // Emit event for navigation to handle
+          window.dispatchEvent(new CustomEvent('auth:signedOut'));
         }
       }
     };
@@ -211,7 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         subscription.unsubscribe();
       }
     };
-  }, [isInitialized, user, navigation]);
+  }, [isInitialized, user]);
 
   const signOut = async (): Promise<void> => {
     try {
@@ -222,14 +223,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Clear profile state (auth state is handled by useAdvancedAuthState)
       setProfile(null);
-      navigation.clearIntendedDestination();
+      // Emit event for navigation to handle
+      window.dispatchEvent(new CustomEvent('auth:signedOut'));
       
       logger.info('User signed out successfully');
     } catch (error) {
       logger.error('Signout exception');
       // Force clear on error
       setProfile(null);
-      navigation.clearIntendedDestination();
+      // Emit event for navigation to handle
+      window.dispatchEvent(new CustomEvent('auth:signedOut'));
     } finally {
       // Navigate to home page
       window.location.href = '/';

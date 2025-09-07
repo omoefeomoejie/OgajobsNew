@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NavigationProvider } from '@/contexts/NavigationContext';
+import { AuthNavigationHandler } from '@/components/auth/AuthNavigationHandler';
 import App from './App.tsx'
 import './index.css'
 import './i18n/config'
@@ -49,6 +50,7 @@ createRoot(document.getElementById("root")!).render(
           <PerformanceProvider enableMonitoring={enablePerformanceMonitoring}>
             <NavigationProvider>
               <AuthProvider>
+                <AuthNavigationHandler />
                 <NetworkErrorBoundary>
                   <App />
                   <FeedbackContainer />
