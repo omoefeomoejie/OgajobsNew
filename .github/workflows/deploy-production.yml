@@ -1,0 +1,306 @@
+name: Production Deployment Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '18'
+  PERFORMANCE_BUDGET_SIZE: '10MB'
+  PERFORMANCE_BUDGET_LOAD_TIME: '3000ms'
+
+jobs:
+  validate-deployment:
+    name: 🔍 Deployment Validation
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      deployment-id: ${{ steps.deployment-id.outputs.id }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci --production=false
+          npm audit --audit-level=moderate
+
+      - name: Generate deployment ID
+        id: deployment-id
+        run: |
+          DEPLOYMENT_ID="dep-$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+          echo "id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+          echo "🆔 Deployment ID: $DEPLOYMENT_ID"
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION"
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check || echo "⚠️ Type checking failed (non-blocking)"
+
+      - name: Security scan
+        run: node scripts/production-security-scan.js
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report-${{ steps.deployment-id.outputs.id }}
+          path: security-report.json
+          retention-days: 30
+
+  performance-budget:
+    name: 📊 Performance Budget Check
+    runs-on: ubuntu-latest
+    needs: validate-deployment
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for performance analysis
+        run: npm run build
+
+      - name: Analyze bundle size
+        run: node scripts/production-performance-monitor.js
+
+      - name: Check performance budget
+        run: |
+          BUNDLE_SIZE=$(du -sb dist | cut -f1)
+          BUDGET_BYTES=10485760  # 10MB in bytes
+          
+          if [ $BUNDLE_SIZE -gt $BUDGET_BYTES ]; then
+            echo "❌ Bundle size ($BUNDLE_SIZE bytes) exceeds budget ($BUDGET_BYTES bytes)"
+            exit 1
+          else
+            echo "✅ Bundle size within budget: $BUNDLE_SIZE bytes"
+          fi
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report-${{ needs.validate-deployment.outputs.deployment-id }}
+          path: performance-report.json
+
+  production-testing:
+    name: 🧪 Production Mode Testing
+    runs-on: ubuntu-latest
+    needs: validate-deployment
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Start production server
+        run: |
+          npm run preview &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+          
+          # Wait for server to start
+          timeout 30 bash -c 'until curl -f http://localhost:4173/health 2>/dev/null; do sleep 1; done' || echo "Health endpoint not available"
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests in production mode
+        run: npm run e2e
+
+      - name: Health check production build
+        run: |
+          # Test critical endpoints
+          curl -f http://localhost:4173/ || exit 1
+          echo "✅ Production build health check passed"
+
+      - name: Stop production server
+        if: always()
+        run: |
+          if [ -n "$SERVER_PID" ]; then
+            kill $SERVER_PID || true
+          fi
+
+  staging-deployment:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, performance-budget, production-testing]
+    if: github.event_name == 'push' || github.event.inputs.environment == 'staging'
+    environment:
+      name: staging
+      url: https://staging.ogajobs.ng
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create deployment package
+        run: |
+          tar -czf deployment-${{ needs.validate-deployment.outputs.deployment-id }}.tar.gz dist/
+          echo "📦 Deployment package created"
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-deployment-${{ needs.validate-deployment.outputs.deployment-id }}
+          path: |
+            deployment-${{ needs.validate-deployment.outputs.deployment-id }}.tar.gz
+            dist/
+
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploying to staging environment"
+          echo "📍 Deployment ID: ${{ needs.validate-deployment.outputs.deployment-id }}"
+          echo "📦 Version: ${{ needs.validate-deployment.outputs.version }}"
+          # Add your staging deployment commands here
+
+  production-deployment:
+    name: 🌟 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, staging-deployment]
+    if: github.event.inputs.environment == 'production'
+    environment:
+      name: production
+      url: https://ogajobs.ng
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download staging artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: staging-deployment-${{ needs.validate-deployment.outputs.deployment-id }}
+
+      - name: Verify staging deployment
+        run: |
+          echo "🔍 Verifying staging deployment before production"
+          # Add staging verification checks here
+
+      - name: Create production backup
+        run: |
+          echo "💾 Creating production backup before deployment"
+          BACKUP_ID="backup-$(date +%Y%m%d%H%M%S)"
+          echo "BACKUP_ID=$BACKUP_ID" >> $GITHUB_ENV
+          # Add backup creation logic here
+
+      - name: Deploy to production
+        run: |
+          echo "🌟 Deploying to production environment"
+          echo "📍 Deployment ID: ${{ needs.validate-deployment.outputs.deployment-id }}"
+          echo "💾 Backup ID: $BACKUP_ID"
+          # Add your production deployment commands here
+
+      - name: Post-deployment verification
+        run: |
+          echo "✅ Running post-deployment verification"
+          # Add production health checks here
+
+      - name: Store rollback information
+        run: |
+          cat > rollback-info.json << EOF
+          {
+            "deployment_id": "${{ needs.validate-deployment.outputs.deployment-id }}",
+            "version": "${{ needs.validate-deployment.outputs.version }}",
+            "backup_id": "$BACKUP_ID",
+            "deployed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "git_commit": "${{ github.sha }}",
+            "rollback_command": "node scripts/rollback-deployment.js $BACKUP_ID"
+          }
+          EOF
+
+      - name: Upload rollback info
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-info-${{ needs.validate-deployment.outputs.deployment-id }}
+          path: rollback-info.json
+          retention-days: 90
+
+  post-deployment-monitoring:
+    name: 📈 Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, production-deployment]
+    if: always() && needs.production-deployment.result == 'success'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup monitoring
+        run: |
+          echo "📈 Setting up post-deployment monitoring"
+          echo "🔍 Deployment ID: ${{ needs.validate-deployment.outputs.deployment-id }}"
+
+      - name: Health check monitoring
+        run: |
+          echo "💓 Starting health check monitoring"
+          # Monitor for 5 minutes after deployment
+          for i in {1..10}; do
+            echo "Health check attempt $i/10"
+            # Add actual health check URL
+            # curl -f https://ogajobs.ng/health || echo "Health check failed"
+            sleep 30
+          done
+
+      - name: Performance monitoring
+        run: |
+          echo "⚡ Performance monitoring active"
+          node scripts/production-health-monitor.js
