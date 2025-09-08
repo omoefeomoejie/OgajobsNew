@@ -1,0 +1,71 @@
+name: Production CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    name: Security Audit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - run: npm ci
+      - run: npm run security-scan
+      - run: npm audit --audit-level=high
+      
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report.json
+
+  quality-checks:
+    runs-on: ubuntu-latest
+    name: Quality & Performance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm run test
+      - run: npm run performance-audit
+      
+      - name: Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance-report.json
+
+  build-and-validate:
+    runs-on: ubuntu-latest
+    name: Build & Validate
+    needs: [security-audit, quality-checks]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - run: npm ci
+      - run: npm run build:prod
+      - run: npm run prod:validate
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: dist/
