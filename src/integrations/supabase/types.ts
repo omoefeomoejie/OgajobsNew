@@ -114,20 +114,6 @@ export type Database = {
             referencedRelation: "artisans"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "agent_referrals_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "agent_referrals_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_directory"
-            referencedColumns: ["id"]
-          },
         ]
       }
       ai_chat_config: {
@@ -394,20 +380,6 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artisan_reviews_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artisan_reviews_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -788,20 +760,6 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_transactions_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_transactions_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1435,20 +1393,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "job_assignments_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "job_assignments_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_directory"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "job_assignments_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1743,20 +1687,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "matches_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "matches_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_directory"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "matches_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1926,20 +1856,6 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_artisan_id_fkey"
-            columns: ["artisan_id"]
-            isOneToOne: false
-            referencedRelation: "artisans_public_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -3474,81 +3390,7 @@ export type Database = {
       }
     }
     Views: {
-      artisans_directory: {
-        Row: {
-          category: string | null
-          city: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          photo_url: string | null
-          profile_url: string | null
-          skill: string | null
-          slug: string | null
-          suspended: boolean | null
-        }
-        Insert: {
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-          suspended?: boolean | null
-        }
-        Update: {
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-          suspended?: boolean | null
-        }
-        Relationships: []
-      }
-      artisans_public_directory: {
-        Row: {
-          category: string | null
-          city: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          photo_url: string | null
-          profile_url: string | null
-          skill: string | null
-          slug: string | null
-        }
-        Insert: {
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-        }
-        Update: {
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          photo_url?: string | null
-          profile_url?: string | null
-          skill?: string | null
-          slug?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       aggregate_demand_data: {
@@ -3677,6 +3519,28 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_admin_artisan_directory: {
+        Args: {
+          p_category?: string
+          p_city?: string
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          category: string
+          city: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          photo_url: string
+          profile_url: string
+          skill: string
+          slug: string
+          suspended: boolean
+        }[]
+      }
       get_agent_dashboard_stats: {
         Args: { p_agent_user_id: string }
         Returns: Json
@@ -3781,6 +3645,27 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_public_artisan_directory: {
+        Args: {
+          p_category?: string
+          p_city?: string
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          average_rating: number
+          category: string
+          city: string
+          created_at: string
+          full_name: string
+          id: string
+          photo_url: string
+          profile_url: string
+          skill: string
+          slug: string
+          total_reviews: number
+        }[]
       }
       get_security_headers: {
         Args: Record<PropertyKey, never>
