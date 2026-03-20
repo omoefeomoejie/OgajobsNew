@@ -84,16 +84,17 @@ export default function Messages() {
     try {
       const { data, error } = await supabase
         .from('conversations')
-        .select(`
-          *,
-          artisan:artisans!artisan_id(full_name, email, photo_url)
-        `)
-        .or(`client_email.eq.${user?.email},artisan_id.in.(select id from artisans where email = '${user?.email}')`)
-        .order('created_at', { ascending: false });
+        .select('*')
+        .or(`client_email.eq.${user?.email},artisan_id.eq.${user?.id}`)
+        .order('created_at', { ascending: false })
+        .limit(30);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Conversations fetch error:', JSON.stringify(error));
+        throw error;
+      }
 
-      // Fetch last message and unread count for each conversation
+      // Fetch last message, unread count, and artisan info for each conversation
       const conversationsWithDetails = await Promise.all(
         (data || []).map(async (conv: any) => {
           // Get last message
@@ -103,7 +104,7 @@ export default function Messages() {
             .eq('conversation_id', conv.id)
             .order('created_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
           // Get unread count
           const { count } = await supabase
@@ -113,8 +114,20 @@ export default function Messages() {
             .eq('receiver_email', user?.email)
             .eq('read', false);
 
+          // Look up artisan info separately (no FK registered, can't use embedded join)
+          let artisan = null;
+          if (conv.artisan_id) {
+            const { data: artisanData } = await supabase
+              .from('artisans')
+              .select('full_name, email, photo_url')
+              .eq('id', conv.artisan_id)
+              .maybeSingle();
+            artisan = artisanData;
+          }
+
           return {
             ...conv,
+            artisan,
             lastMessage: lastMsg,
             unreadCount: count || 0
           };
@@ -123,7 +136,7 @@ export default function Messages() {
 
       setConversations(conversationsWithDetails);
     } catch (error: any) {
-      console.error('Error fetching conversations:', error);
+      console.error('Error fetching conversations:', JSON.stringify(error));
       toast({
         title: "Error",
         description: "Failed to load conversations.",

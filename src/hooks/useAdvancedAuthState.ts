@@ -55,17 +55,12 @@ export function useAdvancedAuthState(): AuthStateManager {
   const lastSessionRef = useRef<Session | null>(null);
   const sessionValidationTimerRef = useRef<NodeJS.Timeout>();
 
-  // Safe state update with mutex protection
+  // State update — React setState is already safe; mutex here caused deadlocks
   const updateAuthState = useCallback(async (updates: Partial<AuthState>) => {
-    await mutexRef.current.acquire();
-    try {
-      setState(prevState => ({
-        ...prevState,
-        ...updates,
-      }));
-    } finally {
-      mutexRef.current.release();
-    }
+    setState(prevState => ({
+      ...prevState,
+      ...updates,
+    }));
   }, []);
 
   // Validate current session
@@ -205,12 +200,10 @@ export function useAdvancedAuthState(): AuthStateManager {
     let isMounted = true;
 
     const initializeAuth = async () => {
-      await mutexRef.current.acquire();
-      
       try {
         // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (error) {
           logger.error('Initial auth check failed', { error: error.message });
         }
@@ -222,64 +215,60 @@ export function useAdvancedAuthState(): AuthStateManager {
             loading: false,
             isInitialized: true,
           });
-          
+
           lastSessionRef.current = session;
           logger.debug('Auth state initialized', { hasSession: !!session });
         }
-      } finally {
-        mutexRef.current.release();
+      } catch (error) {
+        logger.error('Auth initialization error', { error });
+        if (isMounted) {
+          await updateAuthState({ session: null, user: null, loading: false, isInitialized: true });
+        }
       }
     };
 
     initializeAuth();
 
-    // Set up auth state change listener with enhanced error handling
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return;
 
         logger.debug('Auth state change detected', { event, hasSession: !!session });
 
-        await mutexRef.current.acquire();
-        
-        try {
-          // Handle different auth events
-          switch (event) {
-            case 'SIGNED_IN':
-              await updateAuthState({
-                session,
-                user: session?.user ?? null,
-                loading: false,
-              });
-              break;
-              
-            case 'SIGNED_OUT':
-              await updateAuthState({
-                session: null,
-                user: null,
-                loading: false,
-              });
-              break;
-              
-            case 'TOKEN_REFRESHED':
-              await updateAuthState({
-                session,
-                user: session?.user ?? null,
-              });
-              break;
-              
-            default:
-              await updateAuthState({
-                session,
-                user: session?.user ?? null,
-                loading: false,
-              });
-          }
-          
-          lastSessionRef.current = session;
-        } finally {
-          mutexRef.current.release();
+        switch (event) {
+          case 'SIGNED_IN':
+            await updateAuthState({
+              session,
+              user: session?.user ?? null,
+              loading: false,
+            });
+            break;
+
+          case 'SIGNED_OUT':
+            await updateAuthState({
+              session: null,
+              user: null,
+              loading: false,
+            });
+            break;
+
+          case 'TOKEN_REFRESHED':
+            await updateAuthState({
+              session,
+              user: session?.user ?? null,
+            });
+            break;
+
+          default:
+            await updateAuthState({
+              session,
+              user: session?.user ?? null,
+              loading: false,
+            });
         }
+
+        lastSessionRef.current = session;
       }
     );
 

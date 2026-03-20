@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
 
 const corsHeaders = {
@@ -188,14 +188,32 @@ const handler = async (req: Request): Promise<Response> => {
       let newStatus = 'processing';
       if (verifyResult.data.status === 'success') {
         newStatus = 'completed';
-        
-        // Update artisan earnings status to withdrawn
-        await supabase
+
+        // Fix: Fetch specific earnings records, then mark only enough to cover
+        // the withdrawal amount — not ALL earnings before the request date.
+        const { data: availableEarnings } = await supabase
           .from('artisan_earnings_v2')
-          .update({ status: 'withdrawn' })
+          .select('id, amount')
           .eq('artisan_id', withdrawal.artisan_id)
           .eq('status', 'available')
-          .lte('created_at', withdrawal.created_at);
+          .lte('created_at', withdrawal.created_at)
+          .order('created_at', { ascending: true });
+
+        if (availableEarnings && availableEarnings.length > 0) {
+          let remaining = withdrawal.amount;
+          const idsToMark: string[] = [];
+          for (const earning of availableEarnings) {
+            if (remaining <= 0) break;
+            idsToMark.push(earning.id);
+            remaining -= earning.amount;
+          }
+          if (idsToMark.length > 0) {
+            await supabase
+              .from('artisan_earnings_v2')
+              .update({ status: 'withdrawn' })
+              .in('id', idsToMark);
+          }
+        }
 
       } else if (verifyResult.data.status === 'failed') {
         newStatus = 'failed';

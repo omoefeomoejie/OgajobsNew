@@ -131,11 +131,28 @@ export const MissionControlOptimized = memo(({ setActiveSection }: MissionContro
     }
   ], [stats, handleNavigateToUsers, handleNavigateToBookings, handleNavigateToDisputes, handleNavigateToFinance]);
 
-  // Memoized action items
-  const urgentActions = useMemo(() => [
-    { text: "2 artisans need verification", action: "users", variant: "destructive" as const },
-    { text: "1 payment dispute escalated", action: "disputes", variant: "outline" as const }
-  ], []);
+  // Memoized action items — driven by real stats
+  const urgentActions = useMemo(() => {
+    const actions: Array<{ text: string; action: string; variant: 'destructive' | 'outline' }> = [];
+    if ((stats?.pendingVerifications ?? 0) > 0) {
+      actions.push({
+        text: `${stats!.pendingVerifications} artisan${stats!.pendingVerifications === 1 ? '' : 's'} need verification`,
+        action: 'users',
+        variant: 'destructive',
+      });
+    }
+    if ((stats?.flaggedUsers ?? 0) > 0) {
+      actions.push({
+        text: `${stats!.flaggedUsers} flagged user${stats!.flaggedUsers === 1 ? '' : 's'} require review`,
+        action: 'disputes',
+        variant: 'outline',
+      });
+    }
+    if (actions.length === 0) {
+      actions.push({ text: 'No urgent actions — all clear', action: 'control', variant: 'outline' });
+    }
+    return actions;
+  }, [stats]);
 
   // Memoized today's pulse data
   const todaysPulse = useMemo(() => ({
@@ -171,10 +188,17 @@ export const MissionControlOptimized = memo(({ setActiveSection }: MissionContro
           <p className="text-muted-foreground">Proactive operations command center</p>
         </div>
         <div className="flex gap-2">
-          <Badge variant="destructive" className="animate-pulse">
-            <Bell className="w-3 h-3 mr-1" />
-            3 Critical Alerts
-          </Badge>
+          {((stats?.pendingVerifications ?? 0) + (stats?.flaggedUsers ?? 0)) > 0 ? (
+            <Badge variant="destructive" className="animate-pulse">
+              <Bell className="w-3 h-3 mr-1" />
+              {(stats!.pendingVerifications + stats!.flaggedUsers)} Alert{(stats!.pendingVerifications + stats!.flaggedUsers) === 1 ? '' : 's'}
+            </Badge>
+          ) : (
+            <Badge variant="secondary">
+              <Bell className="w-3 h-3 mr-1" />
+              All Clear
+            </Badge>
+          )}
         </div>
       </div>
 

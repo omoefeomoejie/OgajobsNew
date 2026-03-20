@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -186,12 +186,42 @@ function generateKeyDrivers(data: any, trendDirection: string): string[] {
     drivers.push('Consistent demand');
   }
 
-  // Add seasonal factors
-  const month = new Date().getMonth();
+  // Add seasonal factors (Nigerian calendar)
+  const now = new Date();
+  const month = now.getMonth(); // 0-indexed
+  const day = now.getDate();
+
   if (month >= 5 && month <= 8) { // June to September
     drivers.push('Rainy season impact');
-  } else if (month >= 11 || month <= 1) { // December to February
+  }
+  if (month >= 11 || month <= 1) { // December to February
     drivers.push('Holiday season effect');
+  }
+
+  // Eid al-Fitr — end of Ramadan, shifts ~11 days earlier each Gregorian year
+  // 2025: ~Mar 30, 2026: ~Mar 20, 2027: ~Mar 9
+  const eidAlFitr = [
+    { year: 2025, month: 2, day: 28 }, // March 30 (month 2 = March, ±3 day window)
+    { year: 2026, month: 2, day: 18 },
+    { year: 2027, month: 2, day: 7 },
+  ];
+  // Eid al-Adha — ~70 days after Eid al-Fitr
+  // 2025: ~Jun 6, 2026: ~May 27, 2027: ~May 16
+  const eidAlAdha = [
+    { year: 2025, month: 5, day: 4 },  // June 6
+    { year: 2026, month: 4, day: 25 }, // May 27
+    { year: 2027, month: 4, day: 14 },
+  ];
+
+  const year = now.getFullYear();
+  const isNearEid = (dates: typeof eidAlFitr) =>
+    dates.some(d => d.year === year && d.month === month && Math.abs(d.day - day) <= 10);
+
+  if (isNearEid(eidAlFitr)) {
+    drivers.push('Eid al-Fitr (Sallah) season boost — high demand in Northern Nigeria');
+  }
+  if (isNearEid(eidAlAdha)) {
+    drivers.push('Eid al-Adha (Babban Sallah) season boost — peak demand in Kano, Kaduna, Sokoto');
   }
 
   return drivers;

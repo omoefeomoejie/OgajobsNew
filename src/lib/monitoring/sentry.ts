@@ -3,7 +3,6 @@
  */
 
 import * as Sentry from '@sentry/react';
-import { supabase } from '@/integrations/supabase/client';
 import { configManager } from '@/lib/config';
 
 interface SentryConfig {
@@ -31,7 +30,7 @@ class SentryManager {
     if (this.initialized) return;
 
     try {
-      this.config = await this.getSentryConfig();
+      this.config = this.getSentryConfig();
       
       if (this.config.enabled && this.config.dsn) {
         // Initialize real Sentry
@@ -63,20 +62,12 @@ class SentryManager {
     }
   }
 
-  private async getSentryConfig(): Promise<SentryConfig> {
-    try {
-      const { data, error } = await supabase.functions.invoke('get-sentry-dsn');
-      
-      if (error) {
-        console.error('Error fetching Sentry config:', error);
-        return { dsn: null, enabled: false };
-      }
-      
-      return data || { dsn: null, enabled: false };
-    } catch (error) {
-      console.error('Failed to get Sentry config:', error);
-      return { dsn: null, enabled: false };
-    }
+  private getSentryConfig(): SentryConfig {
+    const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
+    return {
+      dsn: dsn || null,
+      enabled: !!dsn,
+    };
   }
 
   private filterEvent(event: any): any {

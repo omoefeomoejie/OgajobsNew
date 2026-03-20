@@ -6,7 +6,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ResendEmailButton } from './ResendEmailButton';
 import { ConfirmationProgress } from './ConfirmationProgress';
 import { EmailConfirmationFAQ } from './EmailConfirmationFAQ';
-import { EmailConfirmationDebug } from './EmailConfirmationDebug';
 import { EmailConfirmationErrorHandler, EmailConfirmationError, getEmailConfirmationErrorType } from './EmailConfirmationErrorHandler';
 import { useEmailConfirmationAnalytics } from '@/hooks/useEmailConfirmationAnalytics';
 
@@ -262,13 +261,6 @@ export function EmailConfirmationScreen({
             onClose={() => setShowFAQ(false)}
           />
         )}
-
-        {/* Debug Mode - Development Only */}
-        <EmailConfirmationDebug
-          email={email}
-          signupData={signupData}
-          onSkipConfirmation={handleSkipConfirmation}
-        />
 
         <Button
           variant="ghost"

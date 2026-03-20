@@ -38,9 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string): Promise<void> => {
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      const userMetadataRole = userData?.user?.user_metadata?.role;
-
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -53,70 +50,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data) {
-        // Prioritize user metadata role as source of truth
-        if (userMetadataRole && data.role !== userMetadataRole) {
-          const correctedProfile = {
-            ...data,
-            role: userMetadataRole
-          };
-          setProfile(correctedProfile);
-          
-          // Background sync without blocking
-          setTimeout(async () => {
-            try {
-              await supabase
-                .from('profiles')
-                .update({ role: userMetadataRole })
-                .eq('id', userId);
-            } catch (syncError) {
-              logger.warn('Background role sync failed', { userId });
-            }
-          }, 1000);
-        } else {
-          setProfile(data);
-        }
+        // The profiles table is the sole source of truth for roles.
+        // user_metadata is client-writable and must never be trusted for authorization.
+        setProfile(data);
       } else {
-        // Create profile with security defaults
+        // Profile not found — create one with the role from signup metadata.
+        // This only runs once at account creation; thereafter the DB is authoritative.
+        const { data: userData } = await supabase.auth.getUser();
         if (!userData?.user?.email) {
           logger.error('Cannot create profile without email', { userId });
           return;
         }
-        
-        try {
-          const defaultRole = userData.user.user_metadata?.role || 'client';
-          const { data: newProfile, error: upsertError } = await supabase
-            .from('profiles')
-            .upsert({
-              id: userId,
-              email: userData.user.email,
-              role: defaultRole
-            })
-            .select()
-            .single();
 
-          if (upsertError) {
-            logger.error('Profile creation failed', { userId, error: upsertError.message });
-            // Set minimal fallback profile
-            setProfile({
-              id: userId,
-              email: userData.user.email,
-              role: defaultRole,
-              created_at: new Date().toISOString()
-            });
-            return;
-          }
-
-          setProfile(newProfile);
-        } catch (createError) {
-          logger.error('Profile creation exception', { userId });
-          // Fallback profile to prevent app crash
-          setProfile({
+        const { data: newProfile, error: upsertError } = await supabase
+          .from('profiles')
+          .upsert({
             id: userId,
-            email: userData.user.email || '',
-            role: userMetadataRole || 'client',
-            created_at: new Date().toISOString()
-          });
+            email: userData.user.email,
+            role: userData.user.user_metadata?.role || 'client',
+          })
+          .select()
+          .single();
+
+        if (upsertError) {
+          logger.error('Profile creation failed', { userId, error: upsertError.message });
+          return;
         }
+
+        setProfile(newProfile);
       }
     } catch (error) {
       logger.error('Profile fetch error', { userId });
@@ -198,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     if (isInitialized) {
       const { data } = supabase.auth.onAuthStateChange(handleAuthChange);
-      subscription = data;
+      subscription = data.subscription;
       
       // Initial profile fetch if user exists
       if (user) {

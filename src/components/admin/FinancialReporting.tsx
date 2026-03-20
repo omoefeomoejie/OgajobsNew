@@ -215,26 +215,29 @@ export function FinancialReporting() {
       });
 
       // Generate monthly breakdown (last 6 months)
-      const monthlyBreakdown = Array.from({ length: 6 }, (_, i) => {
+      const monthlyRaw = Array.from({ length: 6 }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (5 - i));
         const monthStr = date.toISOString().substring(0, 7);
-        
-        const monthTransactions = transactions?.filter(t => 
+
+        const monthTransactions = transactions?.filter(t =>
           t.created_at?.startsWith(monthStr) && t.payment_status === 'completed'
         ) || [];
-        
-        const monthRevenue = monthTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
-        const monthPlatformFee = monthTransactions.reduce((sum, t) => sum + Number(t.platform_fee || 0), 0);
-        const monthArtisanEarnings = monthTransactions.reduce((sum, t) => sum + Number(t.artisan_earnings || 0), 0);
 
         return {
           month: date.toLocaleDateString('en-US', { month: 'short' }),
-          revenue: monthRevenue,
-          platformFee: monthPlatformFee,
-          artisanEarnings: monthArtisanEarnings,
-          growth: Math.random() * 20 - 10 // Mock growth rate
+          revenue: monthTransactions.reduce((sum, t) => sum + Number(t.amount), 0),
+          platformFee: monthTransactions.reduce((sum, t) => sum + Number(t.platform_fee || 0), 0),
+          artisanEarnings: monthTransactions.reduce((sum, t) => sum + Number(t.artisan_earnings || 0), 0),
         };
+      });
+
+      const monthlyBreakdown = monthlyRaw.map((data, i) => {
+        const prevRevenue = i > 0 ? monthlyRaw[i - 1].revenue : 0;
+        const growth = prevRevenue > 0
+          ? Number(((data.revenue - prevRevenue) / prevRevenue * 100).toFixed(1))
+          : 0;
+        return { ...data, growth };
       });
 
       // Format transaction data

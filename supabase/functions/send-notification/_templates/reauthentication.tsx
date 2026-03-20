@@ -30,7 +30,7 @@ export const ReauthenticationEmail = ({
       <Container style={container}>
         <Section style={header}>
           <Img
-            src={`${appUrl}/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png`}
+            src={`${appUrl}/ogajobs-logo.png`}
             width="120"
             alt="OgaJobs Logo"
             style={logo}

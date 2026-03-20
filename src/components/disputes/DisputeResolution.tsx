@@ -78,6 +78,13 @@ const DisputeResolution: React.FC = () => {
     description: '',
     priority: 1
   });
+  const [userBookings, setUserBookings] = useState<Array<{
+    id: string;
+    work_type: string | null;
+    city: string | null;
+    created_at: string;
+    status: string | null;
+  }>>([]);
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const [evidenceDescription, setEvidenceDescription] = useState('');
 
@@ -97,7 +104,25 @@ const DisputeResolution: React.FC = () => {
   useEffect(() => {
     loadDisputes();
     checkAdminStatus();
+    loadUserBookings();
   }, []);
+
+  const loadUserBookings = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from('bookings')
+        .select('id, work_type, city, created_at, status')
+        .or(`client_email.eq.${user.email},artisan_email.eq.${user.email}`)
+        .in('status', ['accepted', 'paid', 'in_progress', 'awaiting_approval', 'completed'])
+        .order('created_at', { ascending: false })
+        .limit(30);
+      setUserBookings(data || []);
+    } catch (error) {
+      console.error('Error loading user bookings:', error);
+    }
+  };
 
   useEffect(() => {
     if (selectedDispute) {
@@ -493,14 +518,22 @@ const DisputeResolution: React.FC = () => {
           <CardContent>
             <form onSubmit={createDispute} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="booking_id">Booking ID</Label>
-                <Input
-                  id="booking_id"
-                  placeholder="Enter booking ID"
+                <Label htmlFor="booking_id">Booking</Label>
+                <Select
                   value={newDispute.booking_id}
-                  onChange={(e) => setNewDispute(prev => ({ ...prev, booking_id: e.target.value }))}
-                  required
-                />
+                  onValueChange={(value) => setNewDispute(prev => ({ ...prev, booking_id: value }))}
+                >
+                  <SelectTrigger id="booking_id">
+                    <SelectValue placeholder={userBookings.length === 0 ? 'No eligible bookings found' : 'Select a booking'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {userBookings.map((booking) => (
+                      <SelectItem key={booking.id} value={booking.id}>
+                        {booking.work_type || 'Service'} — {booking.city || 'Unknown city'} ({new Date(booking.created_at).toLocaleDateString()})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">

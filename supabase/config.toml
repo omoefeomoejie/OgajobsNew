@@ -1,11 +1,15 @@
 project_id = "vclzkuzexsuhaaliweey"
 
-[auth.email.template.confirmation]
-subject = "Confirm Your Signup - OgaJobs"
-content_path = "./templates/confirmation.html"
+# Custom email templates are managed in the Supabase dashboard.
+# Uncomment below only for local development with supabase start.
+# [auth.email.template.confirmation]
+# subject = "Confirm Your Signup - OgaJobs"
+# content_path = "./templates/confirmation.html"
 
+# Email hook is configured in the Supabase dashboard for the remote project.
+# For local development, disable this hook to avoid requiring a webhook secret.
 [auth.hook.send_email]
-enabled = true
+enabled = false
 uri = "https://vclzkuzexsuhaaliweey.supabase.co/functions/v1/auth-email-webhook"
 
 [api]
@@ -120,4 +124,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.auth-email-webhook]
+verify_jwt = false
+
+[functions.paystack-webhook]
 verify_jwt = false

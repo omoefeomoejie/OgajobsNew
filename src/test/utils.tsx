@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NavigationProvider } from '@/contexts/NavigationContext';
 import { vi } from 'vitest';
 
 // Create a test query client
@@ -38,8 +39,10 @@ const AllTheProviders = ({ children }: AllTheProvidersProps) => {
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
-            <Toaster />
+            <NavigationProvider>
+              {children}
+              <Toaster />
+            </NavigationProvider>
           </AuthProvider>
         </ThemeProvider>
       </BrowserRouter>

@@ -237,7 +237,7 @@ export function AdvancedPerformanceMetrics() {
           completionRate: data.total ? (data.completed / data.total) * 100 : 0,
           totalJobs: data.total,
           avgRating,
-          responseTime: 2.5 + Math.random() * 3 // Mock response time
+          responseTime: 0
         };
       }).slice(0, 10);
 
@@ -323,7 +323,7 @@ export function AdvancedPerformanceMetrics() {
           totalBookings: data.total,
           revenue: data.revenue,
           artisanCount: data.artisans.size,
-          marketPenetration: Math.min(95, 20 + Math.random() * 60) // Mock penetration rate
+          marketPenetration: data.total > 0 ? Math.min(95, (data.total / (bookings?.length || 1)) * 100) : 0
         };
       }).sort((a, b) => b.totalBookings - a.totalBookings).slice(0, 10);
 
@@ -345,7 +345,7 @@ export function AdvancedPerformanceMetrics() {
         return {
           month: date.toLocaleDateString('en-US', { month: 'short' }),
           completionRate: monthCompletionRate,
-          satisfactionScore: 4.2 + Math.random() * 0.6 // Mock satisfaction
+          satisfactionScore: monthCompletionRate > 0 ? (monthCompletionRate / 25) : 0
         };
       });
 
@@ -368,7 +368,7 @@ export function AdvancedPerformanceMetrics() {
               artisanId: a.artisanId,
               artisanName: a.artisanName,
               avgRating: a.avgRating,
-              totalReviews: Math.floor(Math.random() * 50) + 10,
+              totalReviews: reviews?.filter(r => r.artisan_id === a.artisanId).length ?? 0,
               category: 'Service Provider'
             }))
         },

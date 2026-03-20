@@ -236,7 +236,7 @@ export const AnalyticsDashboard = memo(() => {
         category,
         count: data.count,
         revenue: data.revenue,
-        avgRating: 4.2 + Math.random() * 0.8, // Mock rating data
+        avgRating: 0,
         completionRate: data.count ? (data.completed / data.count) * 100 : 0
       }));
 
@@ -258,7 +258,7 @@ export const AnalyticsDashboard = memo(() => {
           month: date.toLocaleDateString('en-US', { month: 'short' }),
           artisans: monthlyArtisans,
           clients: monthlyClients,
-          retention: 75 + Math.random() * 20 // Mock retention rate
+          retention: 0
         };
       });
 
@@ -293,7 +293,7 @@ export const AnalyticsDashboard = memo(() => {
         bookings: data.bookings,
         revenue: data.revenue,
         artisans: data.artisans,
-        avgRating: 4.0 + Math.random() * 1.0 // Mock rating
+        avgRating: 0
       })).slice(0, 10); // Top 10 cities
 
       // Performance metrics

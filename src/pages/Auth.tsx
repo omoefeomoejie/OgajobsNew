@@ -21,6 +21,7 @@ import { logger } from '@/lib/logger';
 import { WelcomeEmailService } from '@/components/auth/WelcomeEmailService';
 import { EmailConfirmationScreen } from '@/components/auth/EmailConfirmationScreen';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { NIGERIAN_CITIES, SERVICE_CATEGORIES } from '@/lib/nigeria';
 
 // Helper function to create user profile after email confirmation
 const createUserProfile = async (user: any, signupData: any) => {
@@ -41,6 +42,18 @@ const createUserProfile = async (user: any, signupData: any) => {
   if (!(profileResult as any)?.success) {
     const errorMsg = (profileResult as any)?.error || 'Profile setup failed';
     throw new Error(errorMsg);
+  }
+
+  // For artisans, also create their entry in the artisans table
+  if (signupData.role === 'artisan' && signupData.category) {
+    await supabase.from('artisans').upsert({
+      email: user.email,
+      full_name: signupData.fullName,
+      phone: signupData.phone,
+      category: signupData.category,
+      city: signupData.city || null,
+      skill: signupData.category,
+    }, { onConflict: 'email' });
   }
 
   // Send welcome email after profile is created
@@ -133,7 +146,9 @@ export default function Auth() {
               role: userData.role || 'client',
               fullName: userData.full_name || 'User',
               phone: userData.phone || '',
-              email: session.user.email
+              email: session.user.email,
+              category: userData.category || '',
+              city: userData.city || '',
             });
             
             toast({
@@ -215,7 +230,9 @@ export default function Auth() {
         password: formData?.password || password,
         fullName: formData?.fullName || fullName,
         phone: formData?.phone || phone,
-        role: formData?.role || role
+        role: formData?.role || role,
+        category: formData?.category || '',
+        city: formData?.city || '',
       };
 
       logger.debug('Signup process initiated', {
@@ -241,7 +258,9 @@ export default function Auth() {
           data: {
             full_name: signupData.fullName,
             phone: signupData.phone,
-            role: signupData.role
+            role: signupData.role,
+            category: signupData.category,
+            city: signupData.city,
           }
         }
       });
@@ -667,11 +686,48 @@ export default function Auth() {
                   {/* Role Selection Validation Warning */}
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
                     <p className="text-xs text-blue-800">
-                      <strong>Important:</strong> Your role determines your dashboard and available features. 
+                      <strong>Important:</strong> Your role determines your dashboard and available features.
                       Choose carefully as this affects your entire experience on the platform.
                     </p>
                   </div>
                 </div>
+
+                {/* Artisan-only fields */}
+                {role === 'artisan' && (
+                  <div className="space-y-4 p-4 border-2 border-green-200 rounded-lg bg-green-50/50">
+                    <p className="text-sm font-medium text-green-800">Tell clients what you do:</p>
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Your Trade / Skill <span className="text-destructive">*</span></Label>
+                      <select
+                        id="category"
+                        name="category"
+                        required
+                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                        defaultValue=""
+                      >
+                        <option value="" disabled>Select your trade...</option>
+                        {SERVICE_CATEGORIES.map(c => (
+                          <option key={c.value} value={c.value}>{c.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City you operate in <span className="text-destructive">*</span></Label>
+                      <select
+                        id="city"
+                        name="city"
+                        required
+                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                        defaultValue=""
+                      >
+                        <option value="" disabled>Select your city...</option>
+                        {NIGERIAN_CITIES.map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
                 {error && (
                   <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>

@@ -87,7 +87,7 @@ export function AppSidebar() {
         { title: 'Admin Panel', url: ROUTES.ADMIN.DASHBOARD, icon: Shield },
         { title: 'User Management', url: '/admin/users', icon: Users },
         { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
-        { title: 'Dashboard', url: '/dashboard', icon: Home },
+        { title: 'Dashboard', url: ROUTES.ADMIN.DASHBOARD, icon: Home },
         { title: 'Messages', url: '/messages', icon: MessageSquare },
         { title: 'Reviews', url: '/reviews', icon: Star },
         { title: 'Disputes', url: '/disputes', icon: AlertTriangle },

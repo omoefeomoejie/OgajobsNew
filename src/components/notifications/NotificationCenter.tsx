@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+
 import { Bell, X, Check, Clock, AlertCircle, MessageSquare, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,7 +47,7 @@ export function NotificationCenter() {
   });
   const [pushSupported, setPushSupported] = useState(false);
   const [pushPermission, setPushPermission] = useState<NotificationPermission>('default');
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -159,43 +160,34 @@ export function NotificationCenter() {
   };
 
   const fetchNotifications = async () => {
+    if (!user) return;
     try {
-      // Using mock data until notification table is available in Supabase
-      // Will be replaced with actual query: 
-      // const { data, error } = await supabase.from('notifications').select('*')
+      // Build audience filter: show 'all' notifications plus role-specific ones
+      const roleAudience = profile?.role ? `${profile.role}s` : null;
+      const audienceFilter = roleAudience
+        ? `target_audience.eq.all,target_audience.eq.${roleAudience}`
+        : 'target_audience.eq.all';
 
-      // Mock notifications for demo
-      const mockNotifications: Notification[] = [
-        {
-          id: '1',
-          title: 'New Booking Request',
-          message: 'You have a new plumbing job request in Lagos',
-          type: 'booking',
-          read: false,
-          created_at: new Date().toISOString(),
-          action_url: '/bookings'
-        },
-        {
-          id: '2',
-          title: 'Payment Received',
-          message: 'Payment of ₦15,000 has been received for completed job',
-          type: 'payment',
-          read: false,
-          created_at: new Date(Date.now() - 3600000).toISOString()
-        },
-        {
-          id: '3',
-          title: 'New Message',
-          message: 'Client has sent you a message about the ongoing project',
-          type: 'message',
-          read: true,
-          created_at: new Date(Date.now() - 7200000).toISOString(),
-          action_url: '/messages'
-        }
-      ];
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .or(audienceFilter)
+        .order('created_at', { ascending: false })
+        .limit(20);
 
-      setNotifications(mockNotifications);
-      setUnreadCount(mockNotifications.filter(n => !n.read).length);
+      if (error) throw error;
+
+      const mapped: Notification[] = (data || []).map((n: any) => ({
+        id: n.id,
+        title: n.title,
+        message: n.message,
+        type: 'system' as const,
+        read: n.read ?? false,
+        created_at: n.created_at,
+      }));
+
+      setNotifications(mapped);
+      setUnreadCount(mapped.filter((n) => !n.read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }

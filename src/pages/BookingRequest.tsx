@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,111 +9,92 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CalendarIcon, MapPin, User, Briefcase, CheckCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { User, Briefcase, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SecureForm } from '@/components/security/SecureForm';
-import { ValidatedInput } from '@/components/security/InputValidator';
-import { validateBookingRequest } from '@/lib/security';
-
-const cities = [
-  'Lagos',
-  'Abuja', 
-  'Benin City',
-  'Port Harcourt',
-  'Kano',
-  'Ibadan',
-  'Kaduna'
-];
-
-const serviceTypes = [
-  'Plumbing',
-  'Electrical',
-  'Carpentry', 
-  'Painting',
-  'Cleaning',
-  'Garden',
-  'HVAC',
-  'Roofing',
-  'Other'
-];
+import { NIGERIAN_CITIES, SERVICE_CATEGORIES } from '@/lib/nigeria';
 
 export default function BookingRequest() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  
-  const [formData, setFormData] = useState({
-    workType: searchParams.get('service') || '',
-    city: '',
-    preferredDate: null as Date | null,
-    description: '',
-    urgency: 'normal',
-    budget: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [bookingId, setBookingId] = useState<string | null>(null);
-  const [showPayment, setShowPayment] = useState(false);
 
   const preselectedArtisan = searchParams.get('artisan');
 
-  const handleSecureSubmit = async (data: any) => {
+  const [workType, setWorkType] = useState(searchParams.get('service') || '');
+  const [city, setCity] = useState('');
+  const [description, setDescription] = useState('');
+  const [urgency, setUrgency] = useState('normal');
+  const [budget, setBudget] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!user?.email) {
       toast({
-        title: "Authentication required",
-        description: "Please log in to make a booking request.",
-        variant: "destructive",
+        title: 'Authentication required',
+        description: 'Please log in to make a booking request.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!workType || !city) {
+      toast({
+        title: 'Missing fields',
+        description: 'Please select a service type and city.',
+        variant: 'destructive',
       });
       return;
     }
 
     setLoading(true);
     try {
-      const bookingData = {
+      const { data: booking, error } = await supabase.from('bookings').insert({
         client_email: user.email,
-        work_type: data.workType,
-        city: data.city,
-        preferred_date: formData.preferredDate?.toISOString().split('T')[0],
-        description: data.description,
-        urgency: data.urgency || 'normal',
-        budget: data.budget ? parseFloat(data.budget) : null,
-        artisan_email: preselectedArtisan,
+        work_type: workType,
+        city,
+        description: description || null,
+        urgency,
+        budget: budget ? parseFloat(budget) : null,
+        artisan_email: preselectedArtisan || null,
         status: 'pending',
         payment_status: 'unpaid',
-        created_at: new Date().toISOString()
-      };
-
-      const { data: booking, error } = await supabase
-        .from('bookings')
-        .insert(bookingData)
-        .select()
-        .single();
+        created_at: new Date().toISOString(),
+      }).select().single();
 
       if (error) throw error;
 
-      setBookingId(booking.id);
+      // Attempt automatic artisan matching in the background
+      if (booking?.id) {
+        try {
+          await supabase.rpc('auto_assign_artisans', {
+            booking_id_param: booking.id,
+            max_assignments: 5,
+          });
+        } catch (matchError) {
+          console.error('Auto-match attempted:', matchError);
+        }
+      }
+
       setSubmitted(true);
       toast({
-        title: "Booking request submitted!",
-        description: "We'll match you with the best artisan for your needs.",
+        title: 'Booking request submitted!',
+        description: "We're finding the best artisans for your job.",
       });
 
-      // Redirect after a short delay
       setTimeout(() => {
-        navigate('/bookings');
+        navigate('/my-bookings');
       }, 3000);
-
     } catch (error: any) {
       console.error('Error submitting booking:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to submit booking request. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to submit booking request. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -144,7 +125,6 @@ export default function BookingRequest() {
   return (
     <AppLayout>
       <div className="p-6 max-w-2xl mx-auto space-y-6">
-        {/* Header */}
         <div>
           <h1 className="text-3xl font-bold">Request a Service</h1>
           <p className="text-muted-foreground">
@@ -169,58 +149,87 @@ export default function BookingRequest() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <SecureForm
-              onSubmit={async (data) => await handleSecureSubmit(data)}
-              rateLimitKey="booking-request"
-              validationSchema={validateBookingRequest}
-              className="space-y-6"
-            >
-              <ValidatedInput
-                name="workType"
-                label="Service Type"
-                placeholder="Select service type"
-                required
-              />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="workType">Service Type *</Label>
+                <Select value={workType} onValueChange={setWorkType}>
+                  <SelectTrigger id="workType">
+                    <SelectValue placeholder="Select service type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <ValidatedInput
-                name="city"
-                label="City"
-                placeholder="Select your city"
-                required
-              />
+              <div className="space-y-2">
+                <Label htmlFor="city">City *</Label>
+                <Select value={city} onValueChange={setCity}>
+                  <SelectTrigger id="city">
+                    <SelectValue placeholder="Select your city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {NIGERIAN_CITIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <ValidatedInput
-                name="description"
-                label="Description"
-                type="textarea"
-                placeholder="Describe what work you need done..."
-                maxLength={500}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe what work you need done..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  maxLength={500}
+                  rows={4}
+                />
+              </div>
 
-              <ValidatedInput
-                name="urgency"
-                label="Urgency Level"
-                placeholder="Select urgency"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="urgency">Urgency Level</Label>
+                <Select value={urgency} onValueChange={setUrgency}>
+                  <SelectTrigger id="urgency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="urgent">Urgent (within 24h)</SelectItem>
+                    <SelectItem value="flexible">Flexible</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <ValidatedInput
-                name="budget"
-                label="Estimated Budget (₦)"
-                type="number"
-                placeholder="e.g. 50000"
-              />
-              <p className="text-sm text-muted-foreground">
-                Optional: This helps us match you with artisans in your price range
-              </p>
+              <div className="space-y-2">
+                <Label htmlFor="budget">Estimated Budget (₦)</Label>
+                <Input
+                  id="budget"
+                  type="number"
+                  placeholder="e.g. 50000"
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  min="0"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Optional: This helps us match you with artisans in your price range
+                </p>
+              </div>
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Submitting..." : "Submit Request"}
+                {loading ? 'Submitting...' : 'Submit Request'}
               </Button>
-            </SecureForm>
+            </form>
           </CardContent>
         </Card>
 
-        {/* How it Works */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

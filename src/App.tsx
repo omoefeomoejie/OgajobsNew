@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route } from "react-router-dom";
 import { SecureErrorBoundary } from "@/components/error/SecureErrorBoundary";
 import { GlobalErrorHandler } from "@/components/error/GlobalErrorHandler";
@@ -53,15 +52,12 @@ import {
 import TestSignup from '@/pages/TestSignup';
 import ResetPassword from '@/pages/ResetPassword';
 
-const queryClient = new QueryClient();
-
 const App = () => {
   // Initialize welcome email queue processing
   useWelcomeEmailQueue();
 
   return (
     <SecureErrorBoundary>
-      <QueryClientProvider client={queryClient}>
         <GlobalErrorHandler>
           <SessionRecoveryManager>
             <TooltipProvider>
@@ -87,8 +83,8 @@ const App = () => {
                 <Route path={ROUTES.TERMS_OF_SERVICE} element={<TermsOfService />} />
                 <Route path={ROUTES.COOKIE_POLICY} element={<CookiePolicy />} />
                 
-                {/* Testing routes */}
-                <Route path="/test-signup" element={<TestSignup />} />
+                {/* Testing routes — dev only */}
+                {import.meta.env.DEV && <Route path="/test-signup" element={<TestSignup />} />}
                 
                 {/* Main application routes */}
                 <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
@@ -133,7 +129,6 @@ const App = () => {
             </TooltipProvider>
           </SessionRecoveryManager>
         </GlobalErrorHandler>
-      </QueryClientProvider>
     </SecureErrorBoundary>
   );
 };

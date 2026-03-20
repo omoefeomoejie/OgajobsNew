@@ -72,13 +72,24 @@ export const ProductionMonitor: React.FC = () => {
 
   const fetchSystemMetrics = async () => {
     try {
-      // Simulate fetching system metrics (in real app, this would come from monitoring service)
+      const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+      const [{ count: activeUsers }, { count: totalBookings }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .gte('updated_at', since24h),
+        supabase
+          .from('bookings')
+          .select('*', { count: 'exact', head: true }),
+      ]);
+
       const metrics: SystemMetrics = {
-        activeUsers: Math.floor(Math.random() * 500) + 100,
-        totalRequests: Math.floor(Math.random() * 10000) + 5000,
-        errorRate: Math.random() * 0.05, // 0-5% error rate
-        avgResponseTime: Math.random() * 500 + 200, // 200-700ms
-        uptime: 99.95 + Math.random() * 0.05, // 99.95-100%
+        activeUsers: activeUsers ?? 0,
+        totalRequests: totalBookings ?? 0,
+        errorRate: 0,
+        avgResponseTime: healthStatus?.metrics?.responseTime ?? 0,
+        uptime: healthStatus?.status === 'healthy' ? 100 : 99.5,
       };
 
       setSystemMetrics(metrics);

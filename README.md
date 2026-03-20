@@ -1,132 +1,62 @@
-# OgaJobs - Nigerian Artisan Services Marketplace
+# OgaJobs — Nigerian Artisan Services Marketplace
 
 > Connecting skilled artisans with clients across Nigeria through a modern, multilingual platform
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 
-## 🌟 Overview
+## What This Is
 
-OgaJobs is a comprehensive marketplace platform designed specifically for the Nigerian market, connecting skilled artisans with clients who need services. Built with modern web technologies and featuring extensive multilingual support, real-time communication, and mobile-first design.
+OgaJobs is a marketplace for Nigerian artisans — plumbers, electricians, carpenters, and other skilled tradespeople — to connect with clients who need their services. The platform handles booking, escrow payment, and dispute resolution.
 
-### Key Features
+**Current status**: Active development. Core booking loop is functional end-to-end. Real artisan onboarding underway in Abuja.
 
-- 🌍 **Multilingual Support**: English, Hausa, Igbo, Pidgin English, and Yoruba
-- 💬 **Real-time Chat**: Instant messaging with AI-powered support
-- 📱 **Mobile PWA**: Native mobile app experience with offline capabilities
-- 💳 **Secure Payments**: Integrated payment system with escrow protection
-- 🔍 **Smart Matching**: AI-powered artisan-client matching algorithm
-- 📊 **Advanced Analytics**: Comprehensive dashboard with predictive insights
-- ♿ **Accessibility First**: WCAG 2.1 AA compliant with extensive accessibility features
-- 🔒 **Enterprise Security**: Row-level security, audit logging, and fraud detection
+## Core Features (Working)
 
-## 🏗️ Architecture
+- **Booking flow**: Client submits request → artisan accepts → client pays via Paystack → escrow held → job completed → payment released
+- **Role-based dashboards**: Separate views for clients, artisans, and admins
+- **Multilingual UI**: English, Hausa, Igbo, Yoruba, Pidgin English
+- **Admin portal**: User verification queue, booking management, dispute resolution
+- **Paystack integration**: Payment processing and webhook-based escrow
+- **Real-time messaging**: Conversations between clients and artisans
 
-```mermaid
-graph TB
-    A[React Frontend] --> B[Supabase Backend]
-    A --> C[Real-time Services]
-    B --> D[PostgreSQL Database]
-    B --> E[Edge Functions]
-    B --> F[Authentication]
-    B --> G[Storage]
-    E --> H[AI Services]
-    E --> I[Payment Gateway]
-    E --> J[Notification Services]
-    C --> K[Live Chat]
-    C --> L[Presence System]
-```
-
-## 🚀 Technology Stack
+## Technology Stack
 
 ### Frontend
-- **React 18** - UI framework with concurrent features
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **shadcn/ui** - High-quality component library
-- **React Query** - Server state management
-- **React Router** - Client-side routing
-- **i18next** - Internationalization framework
+- **React 18** + **TypeScript** — UI framework
+- **Vite** — Build tool and dev server
+- **Tailwind CSS** + **shadcn/ui** — Styling and components
+- **React Router** — Client-side routing
+- **i18next** — Internationalization (5 Nigerian languages)
 
-### Backend & Services
-- **Supabase** - Backend-as-a-Service platform
-- **PostgreSQL** - Primary database
-- **Edge Functions** - Serverless API endpoints (26 functions)
-- **Row Level Security** - Database-level authorization
-- **Real-time Subscriptions** - Live data updates
+### Backend
+- **Supabase** — Database (PostgreSQL), auth, storage, real-time
+- **Edge Functions** — Serverless API (Deno runtime)
+- **Row Level Security** — Database-level access control
+- **Paystack** — Payment gateway (Nigerian market)
 
-### Mobile & PWA
-- **Capacitor** - Native mobile app wrapper
-- **Service Worker** - Offline functionality
-- **Push Notifications** - Real-time alerts
-- **Camera Integration** - Photo capture for portfolios
-- **GPS Tracking** - Location services
+### Mobile
+- **Capacitor** — iOS/Android wrapper (in progress)
 
-### DevOps & Monitoring
-- **Vitest** - Unit and integration testing
-- **React Testing Library** - Component testing
-- **Accessibility Testing** - WCAG compliance testing
-- **Performance Monitoring** - Real-time metrics
-- **Security Scanning** - Automated vulnerability detection
-
-## 🌍 Internationalization
-
-OgaJobs supports 5 languages to serve Nigeria's diverse population:
-
-- **English** (en) - Primary language
-- **Hausa** (ha) - Northern Nigeria
-- **Igbo** (ig) - Southeastern Nigeria  
-- **Pidgin English** (pcn) - Widely spoken across Nigeria
-- **Yoruba** (yo) - Southwestern Nigeria
-
-All UI elements, error messages, and user communications are fully localized.
-
-## 📱 Mobile Features
-
-### PWA Capabilities
-- **Offline Mode**: Core functionality works without internet
-- **Install Prompt**: Add to home screen
-- **Push Notifications**: Real-time updates
-- **Background Sync**: Data synchronization when online
-
-### Native Mobile (Capacitor)
-- **Camera Access**: Portfolio photo capture
-- **GPS Location**: Service area mapping
-- **Haptic Feedback**: Enhanced user experience
-- **Status Bar**: Custom styling
-- **Splash Screen**: Branded loading experience
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm
-- Git
+- Node.js 18+
+- Supabase CLI
 
 ### Development Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/ogajobs.git
-cd ogajobs
-
-# Install dependencies
+git clone <repo-url>
+cd OgajobsNew
 npm install
 
-# Set up environment variables
+# Set environment variables
 cp .env.example .env.local
-# Edit .env.local with your Supabase credentials
+# Add VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_PAYSTACK_PUBLIC_KEY
 
-# Start development server
 npm run dev
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
 ```
 
 ### Environment Variables
@@ -134,87 +64,65 @@ npm run build
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_PAYSTACK_PUBLIC_KEY=your_paystack_public_key
+VITE_SENTRY_DSN=your_sentry_dsn   # optional
 ```
 
-## 📚 Documentation
+## Project Structure
 
-- [API Documentation](./docs/API_DOCUMENTATION.md) - Complete API reference
-- [Architecture Guide](./docs/ARCHITECTURE.md) - System design and patterns
-- [Security Guide](./docs/SECURITY.md) - Security implementation details
-- [Accessibility Guide](./docs/ACCESSIBILITY.md) - Accessibility features and testing
-- [Contributing Guide](./CONTRIBUTING.md) - Development guidelines
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Production deployment
+```
+src/
+  components/     # Reusable UI components
+    admin/        # Admin portal components
+    dashboard/    # Role-based dashboard panels
+    disputes/     # Dispute resolution UI
+    home/         # Landing page sections
+  contexts/       # React context providers (Auth)
+  hooks/          # Custom hooks
+  lib/            # Utilities (security, nigeria data, logger)
+  pages/          # Route-level page components
+  integrations/   # Supabase client
+supabase/
+  functions/      # Edge functions (payments, webhooks, etc.)
+  migrations/     # Database migrations
+```
 
-## 🧪 Testing
+## Roadmap
+
+### Near-term
+- [ ] Neighbourhood-level location filtering (Lekki, VI, Surulere)
+- [ ] Artisan profile pages with portfolio
+- [ ] SMS notifications (Termii)
+- [ ] iOS/Android builds via Capacitor
+
+### Medium-term
+- [ ] POS agent network for offline bookings
+- [ ] Artisan skill verification with document upload
+- [ ] Client review and rating system
+- [ ] Analytics dashboard for artisans
+
+## Testing
 
 ```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run accessibility tests
-npm run test:a11y
-
-# Generate coverage report
-npm run test:coverage
+npm test              # Run test suite
+npm run test:watch    # Watch mode
+npm run build         # Production build (zero TS errors required)
 ```
 
-Our test suite includes:
-- Unit tests for components and utilities
-- Integration tests for user flows
-- Accessibility compliance tests
-- API endpoint tests
-- Mobile-specific functionality tests
+The test suite covers auth flows and booking form behaviour. E2E tests for the full booking loop are planned.
 
-## 🔒 Security
+## Security
 
-OgaJobs implements enterprise-grade security:
+- Row Level Security on all Supabase tables
+- JWT authentication via Supabase Auth
+- Paystack webhook signature verification (HMAC-SHA512)
+- Input sanitisation and XSS prevention
+- Content Security Policy (no unsafe-inline for scripts)
 
-- **Row Level Security (RLS)**: Database-level access control
-- **JWT Authentication**: Secure user sessions
-- **Input Validation**: XSS and SQL injection prevention
-- **Rate Limiting**: API abuse protection
-- **Audit Logging**: Complete action tracking
-- **Fraud Detection**: AI-powered security monitoring
+## Contributing
 
-## 📊 Key Metrics
-
-- **Languages Supported**: 5
-- **Edge Functions**: 26
-- **Database Tables**: 50+
-- **Test Coverage**: 90%+
-- **WCAG Compliance**: AA Level
-- **Lighthouse Score**: 95+
-
-## 🤝 Contributing
-
-We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md) for details on:
-
-- Code of conduct
-- Development workflow
-- Coding standards
-- Pull request process
-- Issue reporting
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- UI components from [shadcn/ui](https://ui.shadcn.com/)
-- Icons from [Lucide React](https://lucide.dev/)
-- Powered by [Supabase](https://supabase.com/)
-
-## 📞 Support
-
-- **Documentation**: Check our comprehensive guides above
-- **Issues**: Report bugs on GitHub Issues
-- **Discussions**: Join community discussions
-- **Email**: support@ogajobs.ng
+This project is under active development. Issues and PRs welcome.
 
 ---
 
-Built with dedication for Nigeria's artisan community
+Built for Nigeria's artisan community.

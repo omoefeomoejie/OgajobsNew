@@ -7,11 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Calendar, 
-  MapPin, 
-  User, 
-  Phone, 
+import {
+  Calendar,
+  MapPin,
+  User,
   Mail,
   Clock,
   CheckCircle,
@@ -20,9 +19,19 @@ import {
   CreditCard,
   DollarSign,
   MessageSquare,
-  Briefcase
+  Briefcase,
+  MoreVertical,
+  Trash2,
+  XCircle,
+  MessageCircle
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PaymentForm from '@/components/payment/PaymentForm';
 import EscrowManager from '@/components/payment/EscrowManager';
@@ -47,10 +56,13 @@ interface Booking {
 export default function MyBookings() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.email) {
@@ -64,7 +76,8 @@ export default function MyBookings() {
         .from('bookings')
         .select('*')
         .eq('client_email', user?.email)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (error) throw error;
       setBookings(data || []);
@@ -108,12 +121,55 @@ export default function MyBookings() {
     }
   };
 
+  const handleCancelBooking = async (bookingId: string) => {
+    setCancellingId(bookingId);
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .eq('id', bookingId)
+        .eq('client_email', user?.email);
+
+      if (error) throw error;
+
+      toast({ title: 'Booking cancelled', description: 'Your booking request has been cancelled.' });
+      fetchBookings();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  const handleDeleteBooking = async (bookingId: string) => {
+    setDeletingId(bookingId);
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .delete()
+        .eq('id', bookingId)
+        .eq('client_email', user?.email)
+        .in('status', ['cancelled', 'completed']);
+
+      if (error) throw error;
+
+      toast({ title: 'Booking deleted', description: 'The booking has been removed.' });
+      fetchBookings();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const getStatusBadge = (booking: Booking) => {
     const statusMap = {
       'pending': { label: 'Pending', variant: 'secondary' as const },
+      'accepted': { label: 'Artisan Assigned', variant: 'default' as const },
       'assigned': { label: 'Assigned', variant: 'default' as const },
       'paid': { label: 'Paid', variant: 'default' as const },
       'in_progress': { label: 'In Progress', variant: 'default' as const },
+      'awaiting_approval': { label: 'Awaiting Your Approval', variant: 'outline' as const },
       'completed': { label: 'Completed', variant: 'default' as const },
       'cancelled': { label: 'Cancelled', variant: 'destructive' as const }
     };
@@ -148,6 +204,7 @@ export default function MyBookings() {
       case 'completed': return 'border-green-200 bg-green-50';
       case 'in_progress': return 'border-blue-200 bg-blue-50';
       case 'paid': return 'border-purple-200 bg-purple-50';
+      case 'accepted': return 'border-yellow-200 bg-yellow-50';
       case 'assigned': return 'border-yellow-200 bg-yellow-50';
       case 'cancelled': return 'border-red-200 bg-red-50';
       default: return 'border-gray-200 bg-gray-50';
@@ -156,7 +213,7 @@ export default function MyBookings() {
 
   // Filter bookings by status
   const pendingBookings = bookings.filter(b => b.status === 'pending');
-  const assignedBookings = bookings.filter(b => ['assigned', 'paid', 'in_progress'].includes(b.status));
+  const assignedBookings = bookings.filter(b => ['accepted', 'assigned', 'paid', 'in_progress', 'awaiting_approval'].includes(b.status));
   const completedBookings = bookings.filter(b => b.status === 'completed');
 
   if (loading) {
@@ -181,9 +238,43 @@ export default function MyBookings() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{booking.work_type}</CardTitle>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             {getStatusBadge(booking)}
             {getPaymentBadge(booking)}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-1 rounded hover:bg-muted transition-colors">
+                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {booking.status === 'pending' && (
+                  <DropdownMenuItem
+                    onClick={() => handleCancelBooking(booking.id)}
+                    disabled={cancellingId === booking.id}
+                    className="text-orange-600 focus:text-orange-600"
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Request'}
+                  </DropdownMenuItem>
+                )}
+                {(booking.status === 'cancelled' || booking.status === 'completed') && (
+                  <DropdownMenuItem
+                    onClick={() => handleDeleteBooking(booking.id)}
+                    disabled={deletingId === booking.id}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {deletingId === booking.id ? 'Deleting...' : 'Delete Booking'}
+                  </DropdownMenuItem>
+                )}
+                {!['pending', 'cancelled', 'completed'].includes(booking.status || '') && (
+                  <DropdownMenuItem disabled className="text-muted-foreground">
+                    Cannot modify active booking
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
         <CardDescription className="flex items-center gap-4 flex-wrap">
@@ -274,7 +365,9 @@ export default function MyBookings() {
                     <div>
                       <span className="text-muted-foreground">Date:</span>
                       <p className="font-medium">
-                        {booking.preferred_date ? new Date(booking.preferred_date).toLocaleDateString() : 'Flexible'}
+                        {booking.preferred_date && booking.preferred_date !== '1970-01-01'
+                          ? new Date(booking.preferred_date).toLocaleDateString()
+                          : 'Flexible'}
                       </p>
                     </div>
                     {booking.budget && (
@@ -300,7 +393,7 @@ export default function MyBookings() {
               </DialogContent>
             </Dialog>
 
-            {booking.status === 'assigned' && booking.payment_status === 'unpaid' && (
+            {['accepted', 'assigned'].includes(booking.status) && booking.payment_status === 'unpaid' && (
               <Button 
                 size="sm" 
                 onClick={() => {
@@ -314,10 +407,16 @@ export default function MyBookings() {
               </Button>
             )}
 
-            {booking.artisan_email && booking.status !== 'completed' && (
-              <Button variant="outline" size="sm">
-                <MessageSquare className="h-3 w-3 mr-1" />
-                Message
+
+            {(booking.status === 'accepted' || booking.status === 'paid') && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/messages')}
+                className="flex items-center gap-2"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Message Artisan
               </Button>
             )}
 
@@ -403,13 +502,13 @@ export default function MyBookings() {
         {bookings.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
-              <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">No bookings yet</h3>
               <p className="text-muted-foreground mb-4">
-                Start by requesting your first service from our skilled artisans
+                Book a verified artisan and your jobs will appear here.
               </p>
               <Button asChild>
-                <Link to="/services">Browse Artisans</Link>
+                <Link to="/services">Find an Artisan</Link>
               </Button>
             </CardContent>
           </Card>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { NIGERIAN_CITIES } from '@/lib/nigeria';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -102,10 +103,7 @@ export const Header = () => {
             <div className="hidden lg:flex items-center gap-1 bg-muted px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg">
               <MapPin className="w-3 h-3 lg:w-4 lg:h-4 text-muted-foreground" />
               <select className="bg-transparent border-none outline-none text-xs lg:text-sm min-w-0">
-                <option>Lagos</option>
-                <option>Abuja</option>
-                <option>Port Harcourt</option>
-                <option>Kano</option>
+                {NIGERIAN_CITIES.map(c => <option key={c}>{c}</option>)}
               </select>
             </div>
 
@@ -185,9 +183,7 @@ export const Header = () => {
               <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
                 <MapPin className="w-4 h-4 text-muted-foreground" />
                 <select className="bg-transparent border-none outline-none text-sm flex-1">
-                  <option>Lagos</option>
-                  <option>Abuja</option>
-                  <option>Benin City</option>
+                  {NIGERIAN_CITIES.map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
               

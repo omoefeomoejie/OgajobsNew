@@ -1,16 +1,17 @@
-import { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ROUTES } from '@/config/routes';
-import { 
-  Search, 
-  Shield, 
-  Clock, 
-  Star, 
-  MapPin, 
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Search,
+  Shield,
+  Clock,
+  Star,
+  MapPin,
   TrendingUp,
   CheckCircle
 } from 'lucide-react';
@@ -19,8 +20,23 @@ import { serviceCategories } from '@/data/serviceCategories';
 export const HeroSection = memo(() => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Lagos');
+  const [liveStats, setLiveStats] = useState({ artisans: 0, bookings: 0 });
   const navigate = useNavigate();
   const { t } = useTranslation('home');
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [artisansRes, bookingsRes] = await Promise.all([
+        supabase.from('artisans').select('id', { count: 'exact', head: true }),
+        supabase.from('bookings').select('id', { count: 'exact', head: true }),
+      ]);
+      setLiveStats({
+        artisans: artisansRes.count ?? 0,
+        bookings: bookingsRes.count ?? 0,
+      });
+    };
+    fetchStats();
+  }, []);
 
   const handleSearch = useCallback(() => {
     navigate(`${ROUTES.SERVICES}?search=${encodeURIComponent(searchQuery)}&city=${encodeURIComponent(selectedCity)}`);
@@ -40,10 +56,18 @@ export const HeroSection = memo(() => {
   ];
 
   const trustStats = [
-    { label: t('hero.trustStats.artisans'), value: '5,000+', icon: Shield },
-    { label: t('hero.trustStats.bookings'), value: '50,000+', icon: CheckCircle },
-    { label: 'Average Response', value: '< 5 mins', icon: Clock },
-    { label: t('hero.trustStats.rating'), value: '4.9/5', icon: Star }
+    {
+      label: t('hero.trustStats.artisans'),
+      value: liveStats.artisans > 0 ? `${liveStats.artisans.toLocaleString()}` : 'Launching in Abuja',
+      icon: Shield
+    },
+    {
+      label: t('hero.trustStats.bookings'),
+      value: liveStats.bookings > 0 ? `${liveStats.bookings.toLocaleString()}` : 'Be among our first clients',
+      icon: CheckCircle
+    },
+    { label: 'Average Response', value: '< 2 hrs', icon: Clock },
+    { label: 'Pay only when satisfied', value: '100%', icon: Star }
   ];
 
   return (

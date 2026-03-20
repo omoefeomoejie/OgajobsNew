@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -7,20 +7,30 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { serviceCategories } from '@/data/serviceCategories';
 import { ROUTES } from '@/config/routes';
-import { 
-  Search, 
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Search,
   Filter,
-  Home, 
-  Building, 
-  User, 
-  Truck, 
-  Briefcase, 
-  Star, 
+  Home,
+  Building,
+  User,
+  Truck,
+  Briefcase,
+  Star,
   Cog,
   ArrowRight,
   MapPin
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+
+interface FeaturedArtisan {
+  id: string;
+  full_name: string;
+  work_type: string;
+  city: string;
+  rating: number;
+  photo_url: string | null;
+}
 
 const iconMap = {
   Home,
@@ -37,6 +47,19 @@ export default function Services() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [featuredArtisans, setFeaturedArtisans] = useState<FeaturedArtisan[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('artisans')
+      .select('id, full_name, work_type, city, rating, photo_url')
+      .eq('is_verified', true)
+      .order('rating', { ascending: false })
+      .limit(6)
+      .then(({ data }) => {
+        if (data) setFeaturedArtisans(data);
+      });
+  }, []);
   
   const filteredCategories = serviceCategories.filter(category => {
     const matchesSearch = searchQuery === '' || 
@@ -206,6 +229,45 @@ export default function Services() {
             )}
           </div>
         </section>
+
+        {/* Featured Verified Artisans */}
+        {featuredArtisans.length > 0 && (
+          <section className="py-12 bg-muted/40">
+            <div className="container mx-auto px-4">
+              <h2 className="text-2xl font-bold mb-2">Featured Artisans</h2>
+              <p className="text-muted-foreground mb-8">Verified professionals ready to help</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {featuredArtisans.map((artisan) => (
+                  <Card
+                    key={artisan.id}
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => navigate(`${ROUTES.BOOK}?artisan=${artisan.id}`)}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                        {artisan.photo_url ? (
+                          <img src={artisan.photo_url} alt={artisan.full_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-7 h-7 text-primary" />
+                        )}
+                      </div>
+                      <p className="font-medium text-sm leading-tight">{artisan.full_name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{artisan.work_type}</p>
+                      <div className="flex items-center justify-center gap-1 mt-2">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs">{artisan.rating?.toFixed(1) ?? '—'}</span>
+                      </div>
+                      <div className="flex items-center justify-center gap-1 mt-1">
+                        <MapPin className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">{artisan.city}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* CTA Section */}
         <section className="py-16 bg-primary text-white">

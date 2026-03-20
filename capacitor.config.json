@@ -1,11 +1,7 @@
 {
-  "appId": "app.lovable.bb8e692839bd40e38d3e4bb366fc4bdc",
-  "appName": "craft-connect-ng",
+  "appId": "com.ogajobs.app",
+  "appName": "OgaJobs",
   "webDir": "dist",
-  "server": {
-    "url": "https://bb8e6928-39bd-40e3-8d3e-4bb366fc4bdc.lovableproject.com?forceHideBadge=true",
-    "cleartext": true
-  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 3000,
