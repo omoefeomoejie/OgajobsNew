@@ -16,19 +16,18 @@ import {
   User,
   Truck,
   Briefcase,
-  Star,
   Cog,
   ArrowRight,
   MapPin
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LocationSelector } from '@/components/ui/LocationSelector';
 
 interface FeaturedArtisan {
   id: string;
   full_name: string;
-  work_type: string;
-  city: string;
-  rating: number;
+  skill: string | null;
+  city: string | null;
   photo_url: string | null;
 }
 
@@ -38,7 +37,6 @@ const iconMap = {
   User,
   Truck,
   Briefcase,
-  Star,
   Cog
 };
 
@@ -47,19 +45,25 @@ export default function Services() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [selectedLocation, setSelectedLocation] = useState(searchParams.get('city') || '');
   const [featuredArtisans, setFeaturedArtisans] = useState<FeaturedArtisan[]>([]);
 
   useEffect(() => {
-    supabase
+    let query = supabase
       .from('artisans')
-      .select('id, full_name, work_type, city, rating, photo_url')
-      .eq('is_verified', true)
-      .order('rating', { ascending: false })
+      .select('id, full_name, skill, city, photo_url');
+
+    if (selectedLocation) {
+      query = query.ilike('city', `%${selectedLocation.split(' - ').pop()}%`);
+    }
+
+    query
+      .order('created_at', { ascending: false })
       .limit(6)
       .then(({ data }) => {
-        if (data) setFeaturedArtisans(data);
+        if (data) setFeaturedArtisans(data as FeaturedArtisan[]);
       });
-  }, []);
+  }, [selectedLocation]);
   
   const filteredCategories = serviceCategories.filter(category => {
     const matchesSearch = searchQuery === '' || 
@@ -114,6 +118,13 @@ export default function Services() {
                     <Search className="w-5 h-5 mr-2" />
                     Search
                   </Button>
+                </div>
+                <div className="mt-4">
+                  <LocationSelector
+                    value={selectedLocation}
+                    onChange={setSelectedLocation}
+                    placeholder="Filter by area"
+                  />
                 </div>
               </div>
             </div>
@@ -252,11 +263,7 @@ export default function Services() {
                         )}
                       </div>
                       <p className="font-medium text-sm leading-tight">{artisan.full_name}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{artisan.work_type}</p>
-                      <div className="flex items-center justify-center gap-1 mt-2">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs">{artisan.rating?.toFixed(1) ?? '—'}</span>
-                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{artisan.skill}</p>
                       <div className="flex items-center justify-center gap-1 mt-1">
                         <MapPin className="w-3 h-3 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">{artisan.city}</span>

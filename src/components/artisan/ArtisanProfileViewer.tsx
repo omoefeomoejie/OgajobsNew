@@ -1,4 +1,5 @@
 import { useState, useEffect, memo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,6 +47,7 @@ interface ArtisanProfileViewerProps {
 
 export const ArtisanProfileViewer = memo(({ artisanId, showContactInfo = false }: ArtisanProfileViewerProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [artisan, setArtisan] = useState<ArtisanProfile | null>(null);
   const [contactInfo, setContactInfo] = useState<ArtisanContact | null>(null);
   const [loading, setLoading] = useState(true);
@@ -268,11 +270,11 @@ export const ArtisanProfileViewer = memo(({ artisanId, showContactInfo = false }
 
         {/* Action Buttons */}
         <div className="flex space-x-2">
-          <Button className="flex-1">
+          <Button className="flex-1" onClick={() => navigate(`/messages?artisan=${artisan.id}`)}>
             <MessageSquare className="w-4 h-4 mr-2" />
             Message
           </Button>
-          <Button variant="outline" className="flex-1">
+          <Button variant="outline" className="flex-1" onClick={() => navigate(`/book?artisan=${artisan.id}`)}>
             <Calendar className="w-4 h-4 mr-2" />
             Book Service
           </Button>

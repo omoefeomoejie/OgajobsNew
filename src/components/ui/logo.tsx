@@ -35,8 +35,8 @@ export function Logo({
   if (variant === 'icon') {
     return (
       <img 
-        src="/ogajobs-logo.png"
-        alt="OgaJobs" 
+        src="/ogajobs-logo.svg"
+        alt="OgaJobs"
         className={cn(
           logoSize,
           'object-contain aspect-square',
@@ -50,8 +50,8 @@ export function Logo({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <img 
-        src="/ogajobs-logo.png"
-        alt="OgaJobs Logo" 
+        src="/ogajobs-logo.svg"
+        alt="OgaJobs Logo"
         className={cn(logoSize, 'object-contain aspect-square')}
         loading="lazy"
       />

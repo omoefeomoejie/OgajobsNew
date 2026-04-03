@@ -102,6 +102,38 @@ export const ROUTE_CONFIG: Record<string, RouteConfig> = {
     requiresAuth: true,
     roles: ['admin', 'super_admin'],
   },
+  [ROUTES.VERIFICATION]: {
+    path: ROUTES.VERIFICATION,
+    title: 'Identity Verification',
+    requiresAuth: true,
+    roles: ['artisan'],
+  },
+  [ROUTES.PORTFOLIO]: {
+    path: ROUTES.PORTFOLIO,
+    title: 'Portfolio',
+    requiresAuth: true,
+    roles: ['artisan'],
+  },
+  [ROUTES.DISPUTES]: {
+    path: ROUTES.DISPUTES,
+    title: 'Disputes',
+    requiresAuth: true,
+  },
+  [ROUTES.MESSAGES]: {
+    path: ROUTES.MESSAGES,
+    title: 'Messages',
+    requiresAuth: true,
+  },
+  [ROUTES.BOOKINGS]: {
+    path: ROUTES.BOOKINGS,
+    title: 'My Bookings',
+    requiresAuth: true,
+  },
+  [ROUTES.PROFILE]: {
+    path: ROUTES.PROFILE,
+    title: 'Profile',
+    requiresAuth: true,
+  },
   // Add more route configs as needed
 };
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -34,15 +35,10 @@ interface Conversation {
   id: string;
   client_email: string;
   artisan_id: string;
+  artisan_email?: string;
+  artisan_name?: string;
+  client_name?: string;
   created_at: string;
-  artisan?: {
-    full_name: string;
-    email: string;
-    photo_url: string;
-  };
-  client?: {
-    email: string;
-  };
   lastMessage?: Message;
   unreadCount: number;
 }
@@ -50,6 +46,7 @@ interface Conversation {
 export default function Messages() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -61,9 +58,19 @@ export default function Messages() {
   useEffect(() => {
     if (user) {
       fetchConversations();
-      subscribeToMessages();
+      const cleanup = subscribeToMessages();
+      return cleanup;
     }
   }, [user]);
+
+  // Auto-select conversation when ?artisan=<artisan_id> is in the URL
+  useEffect(() => {
+    const artisanParam = searchParams.get('artisan');
+    if (artisanParam && conversations.length > 0 && !selectedConversation) {
+      const match = conversations.find(c => c.artisan_id === artisanParam);
+      if (match) setSelectedConversation(match);
+    }
+  }, [conversations, searchParams]);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -94,10 +101,11 @@ export default function Messages() {
         throw error;
       }
 
-      // Fetch last message, unread count, and artisan info for each conversation
+      // Fetch last message and unread count for each conversation.
+      // Name/email are stored directly on the conversation row — no cross-user
+      // profiles lookup needed (which RLS would block anyway).
       const conversationsWithDetails = await Promise.all(
         (data || []).map(async (conv: any) => {
-          // Get last message
           const { data: lastMsg } = await supabase
             .from('messages')
             .select('*')
@@ -106,7 +114,6 @@ export default function Messages() {
             .limit(1)
             .maybeSingle();
 
-          // Get unread count
           const { count } = await supabase
             .from('messages')
             .select('*', { count: 'exact', head: true })
@@ -114,20 +121,8 @@ export default function Messages() {
             .eq('receiver_email', user?.email)
             .eq('read', false);
 
-          // Look up artisan info separately (no FK registered, can't use embedded join)
-          let artisan = null;
-          if (conv.artisan_id) {
-            const { data: artisanData } = await supabase
-              .from('artisans')
-              .select('full_name, email, photo_url')
-              .eq('id', conv.artisan_id)
-              .maybeSingle();
-            artisan = artisanData;
-          }
-
           return {
             ...conv,
-            artisan,
             lastMessage: lastMsg,
             unreadCount: count || 0
           };
@@ -185,8 +180,9 @@ export default function Messages() {
 
     setSending(true);
     try {
-      const receiverEmail = selectedConversation.client_email === user.email 
-        ? selectedConversation.artisan?.email 
+      // artisan_email is stored on the conversation row — no profiles lookup needed.
+      const receiverEmail = selectedConversation.client_email === user.email
+        ? selectedConversation.artisan_email
         : selectedConversation.client_email;
 
       const { error } = await supabase
@@ -299,13 +295,14 @@ export default function Messages() {
               ) : (
                 conversations.map((conv) => {
                   const isSelected = selectedConversation?.id === conv.id;
-                  const otherParty = conv.client_email === user?.email 
-                    ? conv.artisan 
-                    : { email: conv.client_email, full_name: conv.client_email };
+                  const isClient = conv.client_email === user?.email;
+                  const otherPartyName = isClient
+                    ? (conv.artisan_name || conv.artisan_email || 'Artisan')
+                    : (conv.client_name || conv.client_email.split('@')[0]);
 
                   return (
-                    <Card 
-                      key={conv.id} 
+                    <Card
+                      key={conv.id}
                       className={`cursor-pointer transition-colors ${
                         isSelected ? 'ring-2 ring-primary' : 'hover:bg-muted/50'
                       }`}
@@ -314,9 +311,6 @@ export default function Messages() {
                       <CardContent className="p-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={
-                              (otherParty as any)?.photo_url
-                            } />
                             <AvatarFallback>
                               <User className="h-5 w-5" />
                             </AvatarFallback>
@@ -324,7 +318,7 @@ export default function Messages() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <p className="font-medium truncate">
-                                {otherParty?.full_name || otherParty?.email}
+                                {otherPartyName}
                               </p>
                               {conv.unreadCount > 0 && (
                                 <Badge variant="default" className="ml-2">
@@ -359,20 +353,15 @@ export default function Messages() {
               <div className="p-4 border-b bg-background">
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarImage src={
-                      selectedConversation.client_email === user?.email 
-                        ? selectedConversation.artisan?.photo_url 
-                        : undefined
-                    } />
                     <AvatarFallback>
                       <User className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <h3 className="font-medium">
-                      {selectedConversation.client_email === user?.email 
-                        ? selectedConversation.artisan?.full_name 
-                        : selectedConversation.client_email}
+                      {selectedConversation.client_email === user?.email
+                        ? (selectedConversation.artisan_name || selectedConversation.artisan_email || 'Artisan')
+                        : (selectedConversation.client_name || selectedConversation.client_email.split('@')[0])}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {selectedConversation.client_email === user?.email ? 'Artisan' : 'Client'}

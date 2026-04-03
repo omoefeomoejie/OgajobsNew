@@ -106,7 +106,7 @@ export const SupportAgentDashboard: React.FC = () => {
     try {
       let query = supabase
         .from('support_tickets_v2')
-        .select('*')
+        .select('*, profile:profiles!support_tickets_v2_user_id_fkey(email)')
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') {
@@ -121,11 +121,10 @@ export const SupportAgentDashboard: React.FC = () => {
 
       if (error) throw error;
 
-      // Add mock user email for now
-      const ticketsWithEmail = data?.map(ticket => ({
+      const ticketsWithEmail = (data || []).map((ticket: any) => ({
         ...ticket,
-        user_email: 'user@example.com'
-      })) || [];
+        user_email: ticket.profile?.email || ticket.user_email || 'Unknown',
+      }));
 
       setTickets(ticketsWithEmail);
 
@@ -163,9 +162,19 @@ export const SupportAgentDashboard: React.FC = () => {
         new Date(t.created_at) < new Date(Date.now() - 24 * 60 * 60 * 1000)
       ).length || 0;
 
-      // Mock calculations for avg response time and resolution rate
-      const avgResponseTime = 2.5; // hours
-      const resolutionRate = 85; // percentage
+      // Avg first-response time from tickets that have been responded to
+      const responded = (allTickets || []).filter(t => t.first_response_at);
+      const avgResponseTime = responded.length > 0
+        ? responded.reduce((sum: number, t: any) => {
+            const ms = new Date(t.first_response_at).getTime() - new Date(t.created_at).getTime();
+            return sum + ms / 3600000;
+          }, 0) / responded.length
+        : 0;
+
+      const resolved = (allTickets || []).filter(t => t.status === 'resolved' || t.status === 'closed');
+      const resolutionRate = totalTickets > 0
+        ? Math.round((resolved.length / totalTickets) * 100)
+        : 0;
 
       setStats({
         totalTickets,

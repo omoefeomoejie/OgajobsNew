@@ -9,26 +9,29 @@ import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { 
-  User, 
-  Bell, 
-  Shield, 
-  CreditCard, 
-  Phone, 
-  Mail, 
+import {
+  User,
+  Bell,
+  Shield,
+  CreditCard,
+  Phone,
+  Mail,
   Camera,
   Save,
-  AlertTriangle
+  AlertTriangle,
+  Briefcase,
+  CheckCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function Settings() {
-  const { profile, user } = useAuth();
+  const { profile, user, refreshProfile } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [enablingArtisan, setEnablingArtisan] = useState(false);
   const [formData, setFormData] = useState({
-    full_name: user?.user_metadata?.full_name || '',
-    phone: user?.phone || '',
+    full_name: profile?.full_name || '',
+    phone: profile?.phone || '',
     email: user?.email || '',
   });
 
@@ -48,12 +51,14 @@ export default function Settings() {
   const handleSaveProfile = async () => {
     setLoading(true);
     try {
-      // Update user metadata
-      const { error } = await supabase.auth.updateUser({
-        data: {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
           full_name: formData.full_name,
-        }
-      });
+          phone: formData.phone,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user!.id);
 
       if (error) throw error;
       toast.success('Profile updated successfully');
@@ -62,6 +67,24 @@ export default function Settings() {
       toast.error('Failed to update profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEnableArtisanMode = async () => {
+    if (!user?.id) return;
+    setEnablingArtisan(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ available_as_artisan: true, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast.success('Artisan mode enabled! Use the sidebar switch to toggle between modes.');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to enable artisan mode');
+    } finally {
+      setEnablingArtisan(false);
     }
   };
 
@@ -360,6 +383,43 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+
+          {profile?.role !== 'admin' && profile?.role !== 'pos_agent' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="w-5 h-5" />
+                  Artisan Mode
+                </CardTitle>
+                <CardDescription>
+                  Offer your services as an artisan while keeping your client account
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {profile?.available_as_artisan || profile?.role === 'artisan' ? (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="font-medium">Artisan mode is active. Use the sidebar switch to toggle between modes.</span>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Enable artisan mode to offer services on OgaJobs. You can switch between client and artisan views from your dashboard sidebar at any time.
+                    </p>
+                    <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
+                      <li>Accept job requests from clients</li>
+                      <li>Build your portfolio and reputation</li>
+                      <li>Receive payments securely through escrow</li>
+                    </ul>
+                    <Button onClick={handleEnableArtisanMode} disabled={enablingArtisan} className="w-full">
+                      <Briefcase className="w-4 h-4 mr-2" />
+                      {enablingArtisan ? 'Enabling...' : 'Enable Artisan Mode'}
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </AppLayout>

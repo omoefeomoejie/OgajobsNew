@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AdvancedSearch } from '@/components/search/AdvancedSearch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,6 +69,7 @@ export default function ServiceDirectory() {
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [selectedCity, setSelectedCity] = useState('All Cities');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchArtisans();
@@ -332,8 +334,12 @@ export default function ServiceDirectory() {
                     >
                       Book Now
                     </Button>
-                    <Button variant="outline" size="sm">
-                      View Profile
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/artisan/${artisan.id}/portfolio`)}
+                    >
+                      View Portfolio
                     </Button>
                   </div>
                 </CardContent>

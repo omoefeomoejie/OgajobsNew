@@ -108,11 +108,14 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
       try {
         await supabase.functions.invoke('send-notification', {
           body: {
-            type: 'welcome_artisan',
-            email: formData.email,
-            full_name: formData.fullName,
-            agent_name: user.email?.split('@')[0] || 'POS Agent',
-            referral_code: referralCode
+            type: 'email',
+            template: 'welcome_artisan',
+            data: {
+              email: formData.email,
+              full_name: formData.fullName,
+              agent_name: user.email?.split('@')[0] || 'POS Agent',
+              referral_code: referralCode
+            }
           }
         });
       } catch (emailError) {

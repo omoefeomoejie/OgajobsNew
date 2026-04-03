@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import {
   Sidebar,
@@ -18,7 +18,6 @@ import {
   Calendar,
   MessageSquare,
   Star,
-  CreditCard,
   Settings,
   Users,
   Shield,
@@ -32,44 +31,39 @@ import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
 
 export function AppSidebar() {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, activeMode, setActiveMode, canSwitchMode } = useAuth();
   const { state } = useSidebar();
-  const location = useLocation();
-  const currentPath = location.pathname;
+  const navigate = useNavigate();
 
-  const isActive = (path: string) => currentPath === path;
+  const isArtisanSetup = profile?.role === 'artisan' || profile?.available_as_artisan;
+
+  const handleModeSwitch = () => {
+    if (activeMode === 'client' && !isArtisanSetup) {
+      // Client not yet registered as artisan — take them to registration
+      navigate(ROUTES.BECOME_ARTISAN);
+    } else {
+      setActiveMode(activeMode === 'client' ? 'artisan' : 'client');
+    }
+  };
+
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/50';
+    isActive ? 'bg-white/20 text-white font-semibold' : 'text-white/80 hover:bg-white/10 hover:text-white';
 
-  // Different navigation items based on user role
+  // Navigation items driven by activeMode for client/artisan; role for admin/agent
   const getNavigationItems = () => {
-    if (profile?.role === 'client') {
+    if (profile?.role === 'admin' || profile?.role === 'super_admin') {
       return [
-        { title: 'Dashboard', url: ROUTES.DASHBOARD, icon: Home },
-        { title: 'Find Services', url: ROUTES.SERVICES, icon: Search },
-        { title: 'My Bookings', url: ROUTES.BOOKINGS, icon: Calendar },
+        { title: 'Mission Control', url: ROUTES.ADMIN.CONTROL_PANEL, icon: Shield },
+        { title: 'User Management', url: ROUTES.ADMIN.USERS, icon: Users },
+        { title: 'Financial Reports', url: ROUTES.ADMIN.FINANCIAL_REPORTS, icon: Briefcase },
+        { title: 'Monitoring', url: ROUTES.ADMIN.MONITORING, icon: AlertTriangle },
+        { title: 'Live Chat', url: '/agent-chat', icon: Headphones },
         { title: 'Messages', url: '/messages', icon: MessageSquare },
-        { title: 'Favorites', url: '/favorites', icon: Star },
-        { title: 'Reviews', url: '/reviews', icon: Star },
-        { title: 'Verification', url: '/verification', icon: Shield },
-        { title: 'Profile', url: '/profile', icon: User },
+        { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
         { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
 
-    if (profile?.role === 'artisan') {
-      return [
-        { title: 'Dashboard', url: '/dashboard', icon: Home },
-        { title: 'Messages', url: '/messages', icon: MessageSquare },
-        { title: 'Reviews', url: '/reviews', icon: Star },
-        { title: 'Portfolio', url: '/portfolio', icon: Briefcase },
-        { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
-        { title: 'Verification', url: '/verification', icon: Shield },
-        { title: 'Profile', url: '/profile', icon: User },
-        { title: 'Settings', url: '/settings', icon: Settings },
-      ];
-    }
-    
     if (profile?.role === 'agent') {
       return [
         { title: 'Agent Dashboard', url: '/agent-dashboard', icon: Briefcase },
@@ -82,35 +76,46 @@ export function AppSidebar() {
       ];
     }
 
-    if (profile?.role === 'admin') {
+    if (activeMode === 'artisan') {
       return [
-        { title: 'Admin Panel', url: ROUTES.ADMIN.DASHBOARD, icon: Shield },
-        { title: 'User Management', url: '/admin/users', icon: Users },
-        { title: 'Live Chat Support', url: '/agent-chat', icon: Headphones },
-        { title: 'Dashboard', url: ROUTES.ADMIN.DASHBOARD, icon: Home },
+        { title: 'Dashboard', url: '/dashboard', icon: Home },
         { title: 'Messages', url: '/messages', icon: MessageSquare },
         { title: 'Reviews', url: '/reviews', icon: Star },
+        { title: 'Portfolio', url: '/portfolio', icon: Briefcase },
         { title: 'Disputes', url: '/disputes', icon: AlertTriangle },
+        { title: 'Verification', url: '/verification', icon: Shield },
+        { title: 'Profile', url: '/profile', icon: User },
         { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
 
-    // Default fallback for any other roles
+    // Default: client nav
     return [
-      { title: 'Dashboard', url: '/dashboard', icon: Home },
+      { title: 'Dashboard', url: ROUTES.DASHBOARD, icon: Home },
+      { title: 'Find Services', url: ROUTES.SERVICES, icon: Search },
+      { title: 'My Bookings', url: ROUTES.BOOKINGS, icon: Calendar },
       { title: 'Messages', url: '/messages', icon: MessageSquare },
+      { title: 'Favorites', url: '/favorites', icon: Star },
       { title: 'Reviews', url: '/reviews', icon: Star },
+      { title: 'Verification', url: '/verification', icon: Shield },
+      { title: 'Profile', url: '/profile', icon: User },
       { title: 'Settings', url: '/settings', icon: Settings },
     ];
   };
 
   const navigationItems = getNavigationItems();
 
+  const portalLabel =
+    (profile?.role === 'admin' || profile?.role === 'super_admin') ? 'Mission Control' :
+    profile?.role === 'agent' ? 'Agent Dashboard' :
+    activeMode === 'artisan' ? 'Artisan Hub' :
+    'Client Portal';
+
   return (
     <Sidebar className={state === "collapsed" ? 'w-14' : 'w-60'}>
       <SidebarContent>
         {/* Logo Section */}
-        <div className="p-4 border-b">
+        <div className="p-4 border-b border-white/10">
           <NavLink to="/" className="hover:opacity-80 transition-opacity">
             {state === "collapsed" ? (
               <Logo variant="icon" size="md" />
@@ -118,19 +123,16 @@ export function AppSidebar() {
               <div className="flex items-center gap-3">
                 <Logo variant="icon" size="md" />
                 <div>
-                  <h2 className="font-black text-2xl tracking-tight">OgaJobs</h2>
-                  <p className="text-sm text-muted-foreground capitalize font-semibold">
+                  <h2 className="font-black text-2xl tracking-tight text-white">OgaJobs</h2>
+                  <p className="text-sm text-white/60 capitalize font-semibold">
                     {profile?.role ? (
                       <>
-                        <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                        {profile.role === 'client' ? 'Client Portal' : 
-                         profile.role === 'artisan' ? 'Artisan Hub' : 
-                         profile.role === 'admin' ? 'Admin Panel' : 
-                         'User Dashboard'}
+                        <span className="inline-block w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                        {portalLabel}
                       </>
                     ) : (
                       <>
-                        <span className="inline-block w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                        <span className="inline-block w-2 h-2 bg-white/40 rounded-full mr-2"></span>
                         Loading...
                       </>
                     )}
@@ -143,7 +145,7 @@ export function AppSidebar() {
 
         {/* Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-white/40 uppercase text-xs tracking-widest">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
@@ -160,12 +162,48 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Mode Toggle — shown to all non-admin/non-agent users */}
+        {canSwitchMode && (
+          <div className="px-4 pb-3">
+            <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg">
+              <div className="flex items-center gap-2">
+                {activeMode === 'client' ? (
+                  <Search className="h-4 w-4 text-white/70" />
+                ) : (
+                  <Briefcase className="h-4 w-4 text-white/70" />
+                )}
+                {state !== 'collapsed' && (
+                  <span className="text-sm font-medium text-white/80">
+                    {activeMode === 'artisan'
+                      ? 'Artisan Mode'
+                      : isArtisanSetup
+                      ? 'Client Mode'
+                      : 'Want to offer services?'}
+                  </span>
+                )}
+              </div>
+              {state !== 'collapsed' && (
+                <button
+                  onClick={handleModeSwitch}
+                  className="text-xs text-green-300 hover:underline font-medium"
+                >
+                  {activeMode === 'client' && !isArtisanSetup
+                    ? 'Get Started →'
+                    : activeMode === 'client'
+                    ? 'Switch to Artisan'
+                    : 'Switch to Client'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* User Actions */}
-        <div className="mt-auto p-4 border-t">
+        <div className="mt-auto p-4 border-t border-white/10">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={signOut}
-            className="w-full justify-start"
+            className="w-full justify-start text-white/70 hover:bg-white/10 hover:text-white"
             size={state === "collapsed" ? 'icon' : 'default'}
           >
             <LogOut className="h-4 w-4" />

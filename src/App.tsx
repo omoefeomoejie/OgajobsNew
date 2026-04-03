@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { SecureErrorBoundary } from "@/components/error/SecureErrorBoundary";
 import { GlobalErrorHandler } from "@/components/error/GlobalErrorHandler";
 import { SessionRecoveryManager } from "@/components/auth/SessionRecoveryManager";
@@ -33,6 +33,7 @@ import {
   LazyAgentDashboardWrapper as AgentDashboard,
   LazyPortfolioWrapper as Portfolio,
   LazyPortfolioViewWrapper as PortfolioView,
+  LazyArtisanPortfolioPageWrapper as ArtisanPortfolioPage,
   LazyDisputesWrapper as Disputes,
   LazySettingsWrapper as Settings,
   LazyProfileWrapper as Profile,
@@ -101,6 +102,7 @@ const App = () => {
                 {/* Artisan routes */}
                 <Route path={ROUTES.PORTFOLIO} element={<Portfolio />} />
                 <Route path={ROUTES.PORTFOLIO_VIEW} element={<PortfolioView />} />
+                <Route path="/artisan/:artisanId/portfolio" element={<ArtisanPortfolioPage />} />
                 <Route path={ROUTES.VERIFICATION} element={<Verification />} />
                 <Route path={ROUTES.DISPUTES} element={<Disputes />} />
                 
@@ -110,6 +112,7 @@ const App = () => {
                 <Route path={ROUTES.AGENT_CHAT} element={<AgentChatDashboardPage />} />
                 
                 {/* Admin routes - consolidated under /admin/* */}
+                <Route path="/admin" element={<Navigate to={ROUTES.ADMIN.LOGIN} replace />} />
                 <Route path={ROUTES.ADMIN.LOGIN} element={<AdminLogin />} />
                 <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
                 <Route path={ROUTES.ADMIN.CONTROL_PANEL} element={<AdminControlPanel />} />

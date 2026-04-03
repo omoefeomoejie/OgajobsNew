@@ -65,10 +65,9 @@ export function CreateAdminDialog({ open, onOpenChange, onSuccess }: CreateAdmin
 
   const generatePassword = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-    let password = '';
-    for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+    const bytes = new Uint8Array(12);
+    crypto.getRandomValues(bytes);
+    const password = Array.from(bytes).map(b => chars[b % chars.length]).join('');
     form.setValue('password', password);
   };
 

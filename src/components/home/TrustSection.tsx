@@ -38,28 +38,28 @@ export const TrustSection = () => {
 
   const trustStats = [
     {
-      icon: Users,
-      label: 'Active Artisans',
-      value: '5,000+',
-      description: 'Verified professionals ready to serve'
+      icon: Shield,
+      label: 'Every Artisan Screened',
+      value: 'Verified',
+      description: 'Multi-step verification before listing'
+    },
+    {
+      icon: CreditCard,
+      label: 'Payment Protection',
+      value: 'Escrow',
+      description: 'Funds held safely until job is done'
+    },
+    {
+      icon: Clock,
+      label: 'Average Response Time',
+      value: '< 2hrs',
+      description: 'Artisans respond quickly to requests'
     },
     {
       icon: CheckCircle,
-      label: 'Success Rate',
-      value: '98.5%',
-      description: 'Jobs completed to satisfaction'
-    },
-    {
-      icon: Star,
-      label: 'Average Rating',
-      value: '4.9/5',
-      description: 'From thousands of reviews'
-    },
-    {
-      icon: Phone,
-      label: 'Response Time',
-      value: '< 2 mins',
-      description: 'Average customer support response'
+      label: 'Satisfaction Guarantee',
+      value: '100%',
+      description: 'Pay only when you are satisfied'
     }
   ];
 

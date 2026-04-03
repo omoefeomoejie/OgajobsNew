@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,7 @@ import {
 
 interface Portfolio {
   id: string;
+  artisan_id?: string;
   title: string;
   bio: string;
   specialties: string[];
@@ -76,6 +77,7 @@ interface Testimonial {
 
 export function PortfolioViewer() {
   const { portfolioId } = useParams();
+  const navigate = useNavigate();
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [packages, setPackages] = useState<ServicePackage[]>([]);
@@ -157,17 +159,15 @@ export function PortfolioViewer() {
   };
 
   const handleContact = () => {
-    toast({
-      title: "Contact Initiated",
-      description: "Redirecting to contact form..."
-    });
+    navigate(`/messages?artisan=${portfolioId}`);
   };
 
   const handleBooking = (packageId?: string) => {
-    toast({
-      title: "Booking Initiated",
-      description: packageId ? "Redirecting to package booking..." : "Redirecting to custom booking..."
-    });
+    if (packageId) {
+      navigate(`/book?portfolio=${portfolioId}&package=${packageId}`);
+    } else {
+      navigate(`/book?portfolio=${portfolioId}`);
+    }
   };
 
   if (loading) {
@@ -273,7 +273,7 @@ export function PortfolioViewer() {
                     <p className="mt-4 text-muted-foreground">{portfolio.bio}</p>
                     
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {portfolio.specialties.map((specialty, index) => (
+                      {(portfolio.specialties || []).map((specialty, index) => (
                         <Badge key={index} variant="secondary">
                           {specialty}
                         </Badge>
@@ -294,7 +294,7 @@ export function PortfolioViewer() {
 
               <TabsContent value="projects" className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {projects.map((project) => (
+                  {(projects || []).map((project) => (
                     <Card key={project.id}>
                       <div className="aspect-video bg-muted flex items-center justify-center">
                         <Award className="w-8 h-8 text-muted-foreground" />
@@ -337,7 +337,7 @@ export function PortfolioViewer() {
 
               <TabsContent value="packages" className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {packages.map((pkg) => (
+                  {(packages || []).map((pkg) => (
                     <Card key={pkg.id} className={`relative ${pkg.is_popular ? 'ring-2 ring-primary' : ''}`}>
                       {pkg.is_popular && (
                         <Badge className="absolute -top-2 left-4 bg-primary">
@@ -390,7 +390,7 @@ export function PortfolioViewer() {
               </TabsContent>
 
               <TabsContent value="reviews" className="space-y-4">
-                {testimonials.map((testimonial) => (
+                {(testimonials || []).map((testimonial) => (
                   <Card key={testimonial.id}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -491,7 +491,7 @@ export function PortfolioViewer() {
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Response Time</span>
-                  <span className="text-sm font-medium">Within 1 hour</span>
+                  <span className="text-sm font-medium">Varies</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Projects Completed</span>

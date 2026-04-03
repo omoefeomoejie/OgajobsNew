@@ -125,6 +125,22 @@ export function FinancialReporting() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30days');
 
+  const handleExport = () => {
+    if (!data) return;
+    const rows = [
+      ['Date', 'Revenue', 'Platform Fee', 'Transactions'],
+      ...(data.revenueBreakdown.daily || []).map(d => [d.date, d.revenue, d.platformFee, d.transactions]),
+    ];
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `financial-report-${dateRange}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     fetchFinancialData();
   }, [dateRange]);
@@ -138,12 +154,12 @@ export function FinancialReporting() {
       const daysBack = dateRange === '7days' ? 7 : dateRange === '30days' ? 30 : 90;
       const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
 
-      // Fetch financial data
+      // Fetch financial data — capture errors individually so one failure doesn't block others
       const [
-        { data: transactions },
-        { data: escrowPayments },
-        { data: withdrawals },
-        { data: bookings }
+        { data: transactions, error: txError },
+        { data: escrowPayments, error: escrowError },
+        { data: withdrawals, error: wdError },
+        { data: bookings, error: bookingsError }
       ] = await Promise.all([
         supabase
           .from('payment_transactions')
@@ -165,6 +181,11 @@ export function FinancialReporting() {
           .select('*')
           .gte('created_at', startDate.toISOString())
       ]);
+
+      if (txError) console.warn('payment_transactions fetch error:', txError.message);
+      if (escrowError) console.warn('escrow_payments fetch error:', escrowError.message);
+      if (wdError) console.warn('withdrawal_requests fetch error:', wdError.message);
+      if (bookingsError) console.warn('bookings fetch error:', bookingsError.message);
 
       // Calculate overview metrics
       const totalRevenue = transactions?.reduce((sum, t) => 
@@ -330,7 +351,7 @@ export function FinancialReporting() {
           <p className="text-muted-foreground">Revenue tracking, commission analysis & financial insights</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExport} disabled={!data}>
             <Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>

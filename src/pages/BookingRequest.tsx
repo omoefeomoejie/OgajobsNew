@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Briefcase, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { NIGERIAN_CITIES, SERVICE_CATEGORIES } from '@/lib/nigeria';
+import { SERVICE_CATEGORIES } from '@/lib/nigeria';
+import { LocationSelector } from '@/components/ui/LocationSelector';
 
 export default function BookingRequest() {
   const [searchParams] = useSearchParams();
@@ -168,18 +169,7 @@ export default function BookingRequest() {
 
               <div className="space-y-2">
                 <Label htmlFor="city">City *</Label>
-                <Select value={city} onValueChange={setCity}>
-                  <SelectTrigger id="city">
-                    <SelectValue placeholder="Select your city" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {NIGERIAN_CITIES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <LocationSelector value={city} onChange={setCity} placeholder="Select your area" />
               </div>
 
               <div className="space-y-2">

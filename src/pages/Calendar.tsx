@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { CalendarIcon, Clock, MapPin, User, Plus } from 'lucide-react';
@@ -25,7 +26,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,45 +34,39 @@ export default function CalendarPage() {
   }, []);
 
   const loadEvents = async () => {
+    if (!user?.email) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
-      
-      // Mock data - replace with actual API call
-      const mockEvents: CalendarEvent[] = [
-        {
-          id: '1',
-          title: 'Plumbing Installation',
-          date: new Date(),
-          time: '10:00 AM',
-          type: 'booking',
-          status: 'confirmed',
-          location: 'Victoria Island, Lagos',
-          client: 'John Doe',
-          description: 'Kitchen sink installation'
-        },
-        {
-          id: '2',
-          title: 'Electrical Repair',
-          date: new Date(Date.now() + 86400000), // Tomorrow
-          time: '2:00 PM',
-          type: 'booking',
-          status: 'pending',
-          location: 'Ikeja, Lagos',
-          client: 'Jane Smith',
-          description: 'Ceiling fan installation'
-        },
-        {
-          id: '3',
-          title: 'Project Deadline',
-          date: new Date(Date.now() + 172800000), // Day after tomorrow
-          time: '6:00 PM',
-          type: 'deadline',
-          status: 'pending',
-          description: 'Complete bathroom renovation'
-        }
-      ];
 
-      setEvents(mockEvents);
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('id, work_type, city, preferred_date, status, client_email')
+        .or(`client_email.eq.${user.email},artisan_id.eq.${user.id}`)
+        .in('status', ['pending', 'accepted', 'paid', 'in_progress', 'awaiting_approval'])
+        .order('preferred_date', { ascending: true })
+        .limit(30);
+
+      if (error) throw error;
+
+      const mapped: CalendarEvent[] = (data || [])
+        .filter((b) => b.preferred_date && b.preferred_date !== '1970-01-01')
+        .map((b) => ({
+          id: b.id,
+          title: b.work_type || 'Booking',
+          date: new Date(b.preferred_date),
+          time: '',
+          type: 'booking' as const,
+          status: ['paid', 'accepted', 'in_progress', 'awaiting_approval'].includes(b.status || '')
+            ? 'confirmed'
+            : 'pending',
+          location: b.city || undefined,
+          client: b.client_email || undefined,
+        }));
+
+      setEvents(mapped);
     } catch (error) {
       console.error('Error loading events:', error);
       toast({

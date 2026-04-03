@@ -37,18 +37,15 @@ export function ReputationScore() {
 
   const fetchReputationData = async () => {
     try {
-      // Fetch reviews
-      const { data: reviews } = await supabase
+      // Fetch reviews — compute trust score from actual review data
+      const { data: reviews, error: reviewsError } = await supabase
         .from('artisan_reviews')
         .select('rating')
         .eq('artisan_id', user?.id);
 
-      // Fetch trust metrics
-      const { data: trustMetrics } = await supabase
-        .from('trust_metrics')
-        .select('*')
-        .eq('artisan_id', user?.id)
-        .single();
+      if (reviewsError) {
+        console.error('Error fetching reviews:', reviewsError);
+      }
 
       // Fetch completed bookings
       const { data: bookings } = await supabase
@@ -57,32 +54,34 @@ export function ReputationScore() {
         .eq('artisan_id', user?.id);
 
       const totalReviews = reviews?.length || 0;
-      const averageRating = totalReviews > 0 
-        ? reviews!.reduce((sum, r) => sum + r.rating, 0) / totalReviews 
+      const averageRating = totalReviews > 0
+        ? reviews!.reduce((sum, r) => sum + r.rating, 0) / totalReviews
         : 0;
+
+      // Compute trust score from reviews (rating 1-5 maps to 0-100)
+      const computedScore = Math.round(averageRating * 20);
 
       const completedJobs = bookings?.filter(b => b.status === 'completed') || [];
       const completionRate = bookings?.length ? (completedJobs.length / bookings.length) * 100 : 0;
 
-      // Calculate on-time rate (mock calculation)
+      // Calculate on-time rate based on completion_date vs preferred_date
       const onTimeJobs = completedJobs.filter(job => {
         if (!job.completion_date || !job.preferred_date) return false;
         return new Date(job.completion_date) <= new Date(job.preferred_date);
       });
       const onTimeRate = completedJobs.length ? (onTimeJobs.length / completedJobs.length) * 100 : 0;
 
-      // Determine level and badge
-      const trustScore = trustMetrics?.trust_score || 0;
+      // Determine level and badge from computed trust score and review count
       let level = 'Bronze';
       let badge = 'New Artisan';
 
-      if (trustScore >= 80) {
+      if (computedScore >= 80) {
         level = 'Pro';
         badge = 'Verified Pro';
-      } else if (trustScore >= 60) {
+      } else if (computedScore >= 60) {
         level = 'Gold';
         badge = 'Trusted Expert';
-      } else if (trustScore >= 40) {
+      } else if (computedScore >= 40) {
         level = 'Silver';
         badge = 'Skilled Artisan';
       } else if (totalReviews >= 5) {
@@ -95,7 +94,7 @@ export function ReputationScore() {
         totalReviews,
         onTimeRate: Number(onTimeRate.toFixed(0)),
         completionRate: Number(completionRate.toFixed(0)),
-        trustScore,
+        trustScore: computedScore,
         level,
         badge
       });

@@ -32,6 +32,20 @@ export const PricingTransparency = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCity, setSelectedCity] = useState('Lagos');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [cities, setCities] = useState<string[]>(['Lagos', 'Abuja', 'Benin City']);
+
+  useEffect(() => {
+    // Fetch distinct cities from DB so hardcoded list stays up-to-date
+    supabase
+      .from('service_pricing')
+      .select('city')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const unique = [...new Set(data.map((r: any) => r.city as string))].sort();
+          setCities(unique);
+        }
+      });
+  }, []);
 
   useEffect(() => {
     fetchPricingData();
@@ -80,8 +94,6 @@ export const PricingTransparency = () => {
     return cat?.name || category;
   };
 
-  const cities = ['Lagos', 'Abuja', 'Benin City'];
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -123,7 +135,7 @@ export const PricingTransparency = () => {
                   <SelectValue placeholder="All categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="">All Categories</SelectItem>
                   {serviceCategories.map(category => (
                     <SelectItem key={category.slug} value={category.slug}>
                       {category.name}

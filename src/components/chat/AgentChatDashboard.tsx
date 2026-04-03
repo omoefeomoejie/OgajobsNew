@@ -79,6 +79,13 @@ const AgentChatDashboard: React.FC = () => {
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
+  // Request browser notification permission on mount
+  useEffect(() => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -101,8 +108,17 @@ const AgentChatDashboard: React.FC = () => {
           schema: 'public',
           table: 'live_chat_sessions',
         },
-        () => {
+        (payload) => {
           loadSessions();
+          // Notify agent of new chat request
+          if (payload.new && (payload.new as any).status === 'waiting') {
+            if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+              new Notification('New Chat Request — OgaJobs', {
+                body: `${(payload.new as any).customer_name || (payload.new as any).customer_email || 'A customer'} needs help`,
+                icon: '/favicon.ico'
+              });
+            }
+          }
         }
       )
       .subscribe();

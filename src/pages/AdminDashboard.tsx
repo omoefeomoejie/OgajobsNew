@@ -8,15 +8,54 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 
+interface QuickStats {
+  pendingApprovals: number;
+  activeJobs: number;
+  totalUsers: number;
+  escrowHeld: number;
+}
+
 export default function AdminDashboard() {
   const { user, profile } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
+  const [quickStats, setQuickStats] = useState<QuickStats>({
+    pendingApprovals: 0,
+    activeJobs: 0,
+    totalUsers: 0,
+    escrowHeld: 0,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     checkAdminAccess();
   }, [user]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchQuickStats();
+    }
+  }, [isAdmin]);
+
+  const fetchQuickStats = async () => {
+    try {
+      const [bookingsRes, profilesRes, paymentsRes] = await Promise.all([
+        supabase.from('bookings').select('status'),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('payment_transactions').select('amount, escrow_status').limit(1000),
+      ]);
+
+      const pendingApprovals = bookingsRes.data?.filter(b => b.status === 'pending').length || 0;
+      const activeJobs = bookingsRes.data?.filter(b => b.status === 'in_progress').length || 0;
+      const totalUsers = profilesRes.count || 0;
+      const escrowHeld = paymentsRes.data?.filter(p => p.escrow_status === 'held')
+        .reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+
+      setQuickStats({ pendingApprovals, activeJobs, totalUsers, escrowHeld });
+    } catch (error) {
+      console.error('Error fetching quick stats:', error);
+    }
+  };
 
   const checkAdminAccess = async () => {
     if (!user) {
@@ -178,19 +217,19 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold text-destructive">1</div>
+                <div className="text-2xl font-bold text-destructive">{quickStats.pendingApprovals}</div>
                 <div className="text-sm text-muted-foreground">Pending Approvals</div>
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">0</div>
+                <div className="text-2xl font-bold text-blue-600">{quickStats.activeJobs}</div>
                 <div className="text-sm text-muted-foreground">Active Jobs</div>
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold text-amber-600">2</div>
-                <div className="text-sm text-muted-foreground">Risk Alerts</div>
+                <div className="text-2xl font-bold text-amber-600">{quickStats.totalUsers}</div>
+                <div className="text-sm text-muted-foreground">Total Users</div>
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">₦0</div>
+                <div className="text-2xl font-bold text-green-600">₦{quickStats.escrowHeld.toLocaleString()}</div>
                 <div className="text-sm text-muted-foreground">Escrow Held</div>
               </div>
             </div>

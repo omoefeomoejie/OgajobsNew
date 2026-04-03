@@ -62,6 +62,7 @@ export const LazyAgentRegistration = lazy(() => import('@/pages/AgentRegistratio
 export const LazyAgentDashboard = lazy(() => import('@/pages/AgentDashboard'));
 export const LazyPortfolio = lazy(() => import('@/pages/Portfolio'));
 export const LazyPortfolioView = lazy(() => import('@/pages/PortfolioView'));
+export const LazyArtisanPortfolioPage = lazy(() => import('@/pages/ArtisanPortfolioPage'));
 export const LazyDisputes = lazy(() => import('@/pages/Disputes'));
 export const LazySettings = lazy(() => import('@/pages/Settings'));
 export const LazyProfile = lazy(() => import('@/pages/Profile'));
@@ -110,6 +111,7 @@ export const LazyAgentRegistrationWrapper = createLazyWrapper(LazyAgentRegistrat
 export const LazyAgentDashboardWrapper = createLazyWrapper(LazyAgentDashboard, React.createElement(DashboardLoadingFallback));
 export const LazyPortfolioWrapper = createLazyWrapper(LazyPortfolio, React.createElement(PageLoadingFallback));
 export const LazyPortfolioViewWrapper = createLazyWrapper(LazyPortfolioView, React.createElement(PageLoadingFallback));
+export const LazyArtisanPortfolioPageWrapper = createLazyWrapper(LazyArtisanPortfolioPage, React.createElement(PageLoadingFallback));
 export const LazyDisputesWrapper = createLazyWrapper(LazyDisputes, React.createElement(PageLoadingFallback));
 export const LazySettingsWrapper = createLazyWrapper(LazySettings, React.createElement(PageLoadingFallback));
 export const LazyProfileWrapper = createLazyWrapper(LazyProfile, React.createElement(PageLoadingFallback));

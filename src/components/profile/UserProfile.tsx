@@ -35,9 +35,9 @@ export function UserProfile({ showAvatar = true, showFullForm = true, compact = 
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
-    full_name: user?.user_metadata?.full_name || '',
+    full_name: profile?.full_name || user?.user_metadata?.full_name || '',
     bio: user?.user_metadata?.bio || '',
-    phone: user?.phone || '',
+    phone: profile?.phone || user?.phone || '',
     location: user?.user_metadata?.location || '',
     avatar_url: user?.user_metadata?.avatar_url || '',
   });
@@ -92,13 +92,14 @@ export function UserProfile({ showAvatar = true, showFullForm = true, compact = 
   const handleSaveProfile = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
           full_name: formData.full_name,
-          bio: formData.bio,
-          location: formData.location,
-        }
-      });
+          phone: formData.phone,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user!.id);
 
       if (error) throw error;
       toast.success('Profile updated successfully');

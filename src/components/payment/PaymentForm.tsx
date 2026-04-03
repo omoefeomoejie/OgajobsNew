@@ -31,6 +31,7 @@ export default function PaymentForm({
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentAttempts, setPaymentAttempts] = useState(0);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
   const { toast } = useToast();
 
   const { submitSecurely } = useSecureSubmit({
@@ -100,11 +101,13 @@ export default function PaymentForm({
 
           // Open payment page in new tab with validation
           const paymentWindow = window.open(data.authorization_url, '_blank', 'noopener,noreferrer');
-          
+
           if (!paymentWindow) {
             throw new Error('Payment popup was blocked. Please allow popups and try again.');
           }
-          
+
+          setPaymentInitiated(true);
+
           toast({
             title: "Payment Initiated",
             description: "Complete your payment in the new window",
@@ -224,9 +227,15 @@ export default function PaymentForm({
           <span>Powered by Paystack - Secure Payment Processing</span>
         </div>
 
-        <Button 
-          onClick={handlePayment} 
-          disabled={isProcessing || !amount || amount <= 0 || paymentAttempts >= 3}
+        {paymentInitiated && (
+          <p className="text-sm text-center text-muted-foreground">
+            Payment window opened. Complete payment there, then check My Bookings.
+          </p>
+        )}
+
+        <Button
+          onClick={handlePayment}
+          disabled={isProcessing || !amount || amount <= 0 || paymentAttempts >= 3 || paymentInitiated}
           className="w-full"
         >
           {isProcessing ? (

@@ -20,6 +20,7 @@ interface ControlStats {
   escrowAmount: number;
   dailyBookings: number;
   completionRate: number;
+  totalUsers: number;
 }
 
 interface ArtisanUser {
@@ -46,16 +47,20 @@ interface Booking {
 // Optimized single query for control stats
 const fetchControlStats = async (): Promise<ControlStats> => {
   // Use optimized individual queries instead of N+1 patterns
-  const [artisansRes, bookingsRes, paymentsRes] = await Promise.all([
+  const [artisansRes, bookingsRes, paymentsRes, profilesRes] = await Promise.all([
     supabase.from('artisans').select('suspended', { count: 'exact' }),
     supabase.from('bookings').select('status', { count: 'exact' }),
-    supabase.from('payment_transactions').select('amount, escrow_status').limit(1000)
+    supabase.from('payment_transactions').select('amount, escrow_status').limit(1000),
+    supabase.from('profiles').select('id', { count: 'exact', head: true })
   ]);
 
   const pendingArtisans = artisansRes.data?.filter(a => !a.suspended).length || 0;
   const activeBookings = bookingsRes.data?.filter(b => b.status === 'in_progress').length || 0;
   const escrowTotal = paymentsRes.data?.filter(p => p.escrow_status === 'held')
     .reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+  const totalBookings = bookingsRes.data?.length || 0;
+  const completedBookings = bookingsRes.data?.filter(b => b.status === 'completed').length || 0;
+  const completionRate = totalBookings > 0 ? Math.round((completedBookings / totalBookings) * 100) : 0;
 
   return {
     pendingVerifications: pendingArtisans,
@@ -63,7 +68,8 @@ const fetchControlStats = async (): Promise<ControlStats> => {
     flaggedUsers: 2, // Mock data - implement flagging system
     escrowAmount: escrowTotal,
     dailyBookings: bookingsRes.count || 0,
-    completionRate: 85 // Mock data - calculate from completed vs total
+    completionRate,
+    totalUsers: profilesRes.count || 0
   };
 };
 

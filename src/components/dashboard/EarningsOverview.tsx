@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, Wallet, Clock, Star } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -36,46 +34,57 @@ export function EarningsOverview() {
 
   const fetchEarningsData = async () => {
     try {
-      const { data: earningsData } = await supabase
-        .from('artisan_earnings_v2')
-        .select('*')
-        .eq('artisan_id', user?.id);
+      const { data: paymentsData, error } = await supabase
+        .from('payment_transactions')
+        .select('amount, created_at, escrow_status, transaction_type')
+        .eq('artisan_id', user?.id)
+        .order('created_at', { ascending: false });
 
-      if (earningsData) {
-        const now = new Date();
-        const today = now.toISOString().split('T')[0];
-        const weekStart = new Date(now.setDate(now.getDate() - now.getDay())).toISOString().split('T')[0];
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-
-        const todayEarnings = earningsData
-          .filter(e => e.created_at.startsWith(today))
-          .reduce((sum, e) => sum + Number(e.net_amount), 0);
-
-        const weekEarnings = earningsData
-          .filter(e => e.created_at >= weekStart)
-          .reduce((sum, e) => sum + Number(e.net_amount), 0);
-
-        const monthEarnings = earningsData
-          .filter(e => e.created_at >= monthStart)
-          .reduce((sum, e) => sum + Number(e.net_amount), 0);
-
-        const pendingAmount = earningsData
-          .filter(e => e.status === 'pending')
-          .reduce((sum, e) => sum + Number(e.net_amount), 0);
-
-        const withdrawableAmount = earningsData
-          .filter(e => e.status === 'available')
-          .reduce((sum, e) => sum + Number(e.net_amount), 0);
-
-        setEarnings({
-          today: todayEarnings,
-          thisWeek: weekEarnings,
-          thisMonth: monthEarnings,
-          pending: pendingAmount,
-          withdrawable: withdrawableAmount,
-          trend: 12.5 // Mock trend for now
-        });
+      if (error) {
+        console.error('Earnings fetch error:', error);
+        setLoading(false);
+        return;
       }
+
+      const releasedPayments = (paymentsData || []).filter(e => e.escrow_status === 'released');
+      const heldPayments = (paymentsData || []).filter(e => e.escrow_status === 'held');
+
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+
+      // Fix: avoid mutating `now` when computing weekStart
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      const weekStartStr = weekStart.toISOString().split('T')[0];
+
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+
+      const todayEarnings = releasedPayments
+        .filter(e => e.created_at.startsWith(today))
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      const weekEarnings = releasedPayments
+        .filter(e => e.created_at >= weekStartStr)
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      const monthEarnings = releasedPayments
+        .filter(e => e.created_at >= monthStart)
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      const pendingAmount = heldPayments
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      const withdrawableAmount = releasedPayments
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      setEarnings({
+        today: todayEarnings,
+        thisWeek: weekEarnings,
+        thisMonth: monthEarnings,
+        pending: pendingAmount,
+        withdrawable: withdrawableAmount,
+        trend: 0
+      });
     } catch (error) {
       console.error('Error fetching earnings:', error);
     } finally {
@@ -131,16 +140,18 @@ export function EarningsOverview() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-              {earnings.trend > 0 ? (
-                <TrendingUp className="h-4 w-4 text-green-500" />
-              ) : (
-                <TrendingDown className="h-4 w-4 text-red-500" />
-              )}
-              <span className={`text-sm font-medium ${earnings.trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {earnings.trend > 0 ? '+' : ''}{earnings.trend}% vs last month
-              </span>
-            </div>
+            {earnings.trend !== 0 && (
+              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                {earnings.trend > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm font-medium ${earnings.trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {earnings.trend > 0 ? '+' : ''}{earnings.trend}% vs last month
+                </span>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="status" className="space-y-4">

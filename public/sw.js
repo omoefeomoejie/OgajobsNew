@@ -1,9 +1,9 @@
-// CraftConnect PWA Service Worker - Advanced Offline & Mobile Features
-const CACHE_NAME = 'craftconnect-v2.0.0';
-const STATIC_CACHE = 'craftconnect-static-v2';
-const DYNAMIC_CACHE = 'craftconnect-dynamic-v2';
-const IMAGES_CACHE = 'craftconnect-images-v2';
-const API_CACHE = 'craftconnect-api-v2';
+// OgaJobs PWA Service Worker - Advanced Offline & Mobile Features
+const CACHE_NAME = 'ogajobs-v1.0.0';
+const STATIC_CACHE = 'ogajobs-static-v1';
+const DYNAMIC_CACHE = 'ogajobs-dynamic-v1';
+const IMAGES_CACHE = 'ogajobs-images-v1';
+const API_CACHE = 'ogajobs-api-v1';
 
 // Enhanced assets to cache for offline functionality
 const STATIC_ASSETS = [
@@ -15,16 +15,14 @@ const STATIC_ASSETS = [
   // Core app routes for offline access
   '/auth',
   '/dashboard',
-  '/artisan-dashboard',
-  '/client-dashboard',
   '/agent-dashboard',
-  '/booking-request',
-  '/service-directory',
-  '/portfolio',
+  '/book',
+  '/services',
+  '/my-bookings',
   '/messages',
   '/profile',
+  '/portfolio',
   '/settings',
-  '/my-bookings',
   '/verification',
   '/reviews',
   '/disputes'
@@ -38,7 +36,7 @@ const BATCH_DELAY = 3000;
 
 // Install event - enhanced caching
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing CraftConnect service worker v2.0.0...');
+  console.log('[SW] Installing OgaJobs service worker v1.0.0...');
   
   event.waitUntil(
     Promise.all([
@@ -291,7 +289,7 @@ self.addEventListener('sync', (event) => {
 
 async function queueForBackgroundSync(requestData) {
   return new Promise((resolve, reject) => {
-    const dbRequest = indexedDB.open('craftconnect-sync', 2);
+    const dbRequest = indexedDB.open('ogajobs-sync', 2);
     
     dbRequest.onerror = () => reject(dbRequest.error);
     
@@ -327,7 +325,7 @@ async function queueForBackgroundSync(requestData) {
 
 async function processBackgroundSyncQueue() {
   return new Promise((resolve, reject) => {
-    const dbRequest = indexedDB.open('craftconnect-sync', 2);
+    const dbRequest = indexedDB.open('ogajobs-sync', 2);
     
     dbRequest.onsuccess = async (event) => {
       const db = event.target.result;
@@ -389,7 +387,7 @@ function deleteFromStore(store, id) {
 // Initialize offline storage
 async function initializeOfflineStorage() {
   return new Promise((resolve, reject) => {
-    const dbRequest = indexedDB.open('craftconnect-offline', 1);
+    const dbRequest = indexedDB.open('ogajobs-offline', 1);
     
     dbRequest.onerror = () => reject(dbRequest.error);
     
@@ -454,7 +452,7 @@ async function showNotification(data) {
     body: data.body || data.message,
     icon: '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png',
     badge: '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png',
-    tag: data.tag || `craftconnect-${data.type}-${Date.now()}`,
+    tag: data.tag || `ogajobs-${data.type}-${Date.now()}`,
     renotify: data.renotify || false,
     requireInteraction: data.requireInteraction || false,
     vibrate: getVibrationPattern(data.type),
@@ -466,7 +464,7 @@ async function showNotification(data) {
   };
 
   return self.registration.showNotification(
-    data.title || 'CraftConnect',
+    data.title || 'OgaJobs',
     options
   );
 }
@@ -509,7 +507,7 @@ function showGroupedNotification(type, notifications) {
     body: `You have ${count} new ${typeLabels[type] || 'notifications'}`,
     icon: '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png',
     badge: '/lovable-uploads/74a2fa1b-09a7-4b4d-a017-2e43655ecc11.png',
-    tag: `craftconnect-group-${type}`,
+    tag: `ogajobs-group-${type}`,
     data: {
       type: 'grouped',
       groupType: type,
@@ -627,4 +625,4 @@ async function clearAllCaches() {
   );
 }
 
-console.log('[SW] CraftConnect PWA Service Worker v2.0.0 loaded successfully');
+console.log('[SW] OgaJobs PWA Service Worker v1.0.0 loaded successfully');

@@ -5,25 +5,11 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#3B82F6",
+  "theme_color": "#166534",
   "background_color": "#0F172A",
   "lang": "en",
   "scope": "/",
   "categories": ["business", "productivity", "lifestyle"],
-  "screenshots": [
-    {
-      "src": "/screenshot-mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "/screenshot-desktop.png", 
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -33,7 +19,7 @@
     },
     {
       "src": "/icon-512.png",
-      "sizes": "512x512", 
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
@@ -47,14 +33,14 @@
     },
     {
       "name": "My Bookings",
-      "short_name": "Bookings", 
-      "url": "/bookings",
+      "short_name": "Bookings",
+      "url": "/my-bookings",
       "icons": [{"src": "/icon-calendar.png", "sizes": "96x96"}]
     },
     {
       "name": "Messages",
       "short_name": "Messages",
-      "url": "/messages", 
+      "url": "/messages",
       "icons": [{"src": "/icon-message.png", "sizes": "96x96"}]
     }
   ]

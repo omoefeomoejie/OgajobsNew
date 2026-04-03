@@ -87,12 +87,8 @@ export default function Reviews() {
   };
 
   const fetchArtisanReviews = async () => {
-    // Get artisan record
-    const { data: artisanData } = await supabase
-      .from('artisans')
-      .select('id')
-      .eq('email', user?.email)
-      .maybeSingle();
+    // Use user.id directly since profiles.id === auth user id
+    const artisanData = user?.id ? { id: user.id } : null;
 
     if (!artisanData) return;
 
@@ -140,22 +136,18 @@ export default function Reviews() {
       .order('completion_date', { ascending: false });
 
     if (bookingsData) {
-      // Check which bookings already have reviews
-      const bookingsWithReviewStatus = await Promise.all(
-        bookingsData.map(async (booking: any) => {
-          const { data: existingReview } = await supabase
-            .from('artisan_reviews')
-            .select('id')
-            .eq('artisan_id', booking.artisan_id)
-            .eq('client_email', user?.email)
-            .single();
+      // Fetch all reviewed artisan IDs for this user in one query (avoids N+1)
+      const { data: reviewedData } = await supabase
+        .from('artisan_reviews')
+        .select('artisan_id')
+        .eq('client_email', user?.email);
 
-          return {
-            ...booking,
-            hasReview: !!existingReview
-          };
-        })
-      );
+      const reviewedArtisanIds = new Set(reviewedData?.map(r => r.artisan_id) || []);
+
+      const bookingsWithReviewStatus = bookingsData.map((booking: any) => ({
+        ...booking,
+        hasReview: reviewedArtisanIds.has(booking.artisan_id)
+      }));
 
       setCompletedBookings(bookingsWithReviewStatus);
     }

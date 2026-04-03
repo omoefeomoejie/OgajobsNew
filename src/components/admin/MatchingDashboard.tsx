@@ -133,8 +133,16 @@ export const MatchingDashboard: React.FC = () => {
       const manuallyAssigned = assignmentsData?.filter(a => a.assignment_type === 'manual').length || 0;
       const pendingAssignments = assignmentsData?.filter(a => a.status === 'pending').length || 0;
 
-      // Calculate average matching time (mock calculation)
-      const averageMatchingTime = 2.5; // hours
+      // Calculate average matching time: time from booking creation to assignment
+      const matchingTimes = (assignmentsData || []).map((a: any) => {
+        const booking = (bookingsData || []).find((b: any) => b.id === a.booking_id);
+        if (!booking) return null;
+        const ms = new Date(a.created_at).getTime() - new Date(booking.created_at).getTime();
+        return ms > 0 ? ms / 3600000 : null;
+      }).filter((t): t is number => t !== null);
+      const averageMatchingTime = matchingTimes.length > 0
+        ? matchingTimes.reduce((sum, t) => sum + t, 0) / matchingTimes.length
+        : 0;
 
       // Calculate success rate
       const completedAssignments = assignmentsData?.filter(a => a.status === 'accepted').length || 0;

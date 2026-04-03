@@ -14,17 +14,17 @@ import {
   Mail,
   Clock,
   CheckCircle,
-  AlertCircle,
   Plus,
   CreditCard,
   DollarSign,
-  MessageSquare,
   Briefcase,
   MoreVertical,
   Trash2,
   XCircle,
-  MessageCircle
+  MessageCircle,
+  Star
 } from 'lucide-react';
+import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,6 +63,7 @@ export default function MyBookings() {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     if (user?.email) {
@@ -71,11 +72,12 @@ export default function MyBookings() {
   }, [user]);
 
   const fetchBookings = async () => {
+    if (!user?.email) return;
     try {
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
-        .eq('client_email', user?.email)
+        .eq('client_email', user.email)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -288,7 +290,9 @@ export default function MyBookings() {
           </span>
           <span className={`flex items-center gap-1 font-medium ${getUrgencyColor(booking.urgency)}`}>
             <Clock className="h-4 w-4" />
-            {booking.urgency?.charAt(0).toUpperCase() + booking.urgency?.slice(1)} Priority
+            {booking.urgency
+              ? booking.urgency.charAt(0).toUpperCase() + booking.urgency.slice(1)
+              : 'Normal'} Priority
           </span>
         </CardDescription>
       </CardHeader>
@@ -379,7 +383,9 @@ export default function MyBookings() {
                     <div>
                       <span className="text-muted-foreground">Priority:</span>
                       <p className={`font-medium ${getUrgencyColor(booking.urgency)}`}>
-                        {booking.urgency?.charAt(0).toUpperCase() + booking.urgency?.slice(1)}
+                        {booking.urgency
+                          ? booking.urgency.charAt(0).toUpperCase() + booking.urgency.slice(1)
+                          : 'Normal'}
                       </p>
                     </div>
                   </div>
@@ -408,11 +414,11 @@ export default function MyBookings() {
             )}
 
 
-            {(booking.status === 'accepted' || booking.status === 'paid') && (
+            {(booking.status === 'accepted' || booking.status === 'paid' || booking.status === 'in_progress' || booking.status === 'awaiting_approval') && booking.artisan_id && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/messages')}
+                onClick={() => navigate(`/messages?artisan=${booking.artisan_id}`)}
                 className="flex items-center gap-2"
               >
                 <MessageCircle className="h-4 w-4" />
@@ -421,13 +427,24 @@ export default function MyBookings() {
             )}
 
             {booking.status === 'in_progress' && (
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={() => markAsCompleted(booking.id)}
                 variant="outline"
               >
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Mark Complete
+              </Button>
+            )}
+
+            {booking.status === 'completed' && booking.artisan_id && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setReviewBooking(booking)}
+              >
+                <Star className="h-3 w-3 mr-1" />
+                Leave a Review
               </Button>
             )}
           </div>
@@ -602,6 +619,20 @@ export default function MyBookings() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {reviewBooking && (
+        <ReviewDialog
+          isOpen={!!reviewBooking}
+          onClose={() => setReviewBooking(null)}
+          artisanId={reviewBooking.artisan_id}
+          artisanName={reviewBooking.artisan_email || 'Artisan'}
+          bookingId={reviewBooking.id}
+          onReviewSubmitted={() => {
+            setReviewBooking(null);
+            fetchBookings();
+          }}
+        />
+      )}
     </AppLayout>
   );
 }

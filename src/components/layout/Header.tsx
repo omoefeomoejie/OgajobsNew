@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { NIGERIAN_CITIES } from '@/lib/nigeria';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -7,17 +6,18 @@ import { Badge } from '@/components/ui/badge';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { LanguageSelector } from './LanguageSelector';
 import { ROUTES } from '@/config/routes';
-import { 
-  Shield, 
-  Phone, 
-  Menu, 
-  X, 
-  MapPin,
+import {
+  Shield,
+  Phone,
+  Menu,
+  X,
   Clock,
   Star,
   User,
-  ChevronDown
+  ChevronDown,
+  UserCircle
 } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { Logo } from '@/components/ui/logo';
 
@@ -27,7 +27,7 @@ export const Header = () => {
   const { t } = useTranslation();
 
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm">
+    <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm overflow-hidden">
       {/* Trust Banner - Responsive */}
       <div className="bg-primary text-primary-foreground py-1.5 sm:py-2">
         <div className="container mx-auto px-4">
@@ -76,7 +76,7 @@ export const Header = () => {
           </Link>
 
           {/* Desktop Navigation - Always Visible - Responsive Design */}
-          <div className="hidden md:flex items-center gap-4 lg:gap-6 flex-1 justify-center mx-4">
+          <div className="hidden md:flex items-center gap-2 lg:gap-4 flex-1 justify-center mx-2 flex-wrap">
             {/* Navigation Links - Responsive Display */}
             <nav className="flex items-center gap-4 lg:gap-8">
               <Link to={ROUTES.SERVICES} className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
@@ -90,23 +90,10 @@ export const Header = () => {
               </Link>
             </nav>
 
-            {/* Trust Score Badge - Responsive */}
-            <div className="hidden lg:flex items-center gap-2 bg-green-50 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full border border-green-200">
-              <Star className="w-3 h-3 lg:w-4 lg:h-4 text-yellow-500 fill-yellow-500" />
-              <span className="text-xs lg:text-sm font-medium text-green-700 whitespace-nowrap">4.9/5 Trust Score</span>
-            </div>
           </div>
 
           {/* Right Section - Location, Language, Auth */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            {/* Location Selector - Responsive */}
-            <div className="hidden lg:flex items-center gap-1 bg-muted px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg">
-              <MapPin className="w-3 h-3 lg:w-4 lg:h-4 text-muted-foreground" />
-              <select className="bg-transparent border-none outline-none text-xs lg:text-sm min-w-0">
-                {NIGERIAN_CITIES.map(c => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-
             {/* Language Selector - Responsive */}
             <div className="hidden sm:block">
               <LanguageSelector />
@@ -128,13 +115,23 @@ export const Header = () => {
                 <>
                   <NotificationCenter />
                   {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to={ROUTES.ADMIN.DASHBOARD}>Admin</Link>
-                    </Button>
+                    <Link to={ROUTES.ADMIN.DASHBOARD} title="Admin Dashboard">
+                      <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-orange-400/40 hover:ring-orange-400 transition-all">
+                        <AvatarFallback className="bg-orange-500 text-white text-sm font-semibold">
+                          {profile?.full_name?.charAt(0).toUpperCase() || 'A'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
                   ) : (
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to="/dashboard">Dashboard</Link>
-                    </Button>
+                    <Link to="/dashboard" title="My Dashboard">
+                      <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-primary/20 hover:ring-primary/60 transition-all">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+                          {profile?.full_name
+                            ? profile.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
+                            : user?.email?.charAt(0).toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
                   )}
                 </>
               ) : (
@@ -179,14 +176,6 @@ export const Header = () => {
                 </div>
               )}
 
-              {/* Location Selector - Mobile (Always Visible) */}
-              <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-                <select className="bg-transparent border-none outline-none text-sm flex-1">
-                  {NIGERIAN_CITIES.map(c => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-              
               {/* Navigation Links - Mobile */}
               <div className="space-y-2">
                 <Link 
@@ -211,12 +200,6 @@ export const Header = () => {
                   How It Works
                 </Link>
                 
-                <div className="flex items-center gap-2 py-2 px-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Star className="w-3 h-3 mr-1" />
-                    4.9/5 Trust Score
-                  </Badge>
-                </div>
               </div>
 
               {/* Mobile Actions */}
@@ -231,23 +214,23 @@ export const Header = () => {
                       <NotificationCenter />
                     </div>
                     {(profile?.role === 'admin' || profile?.role === 'super_admin') ? (
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start" 
-                        asChild 
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <Link to={ROUTES.ADMIN.DASHBOARD}>Admin Dashboard</Link>
-                      </Button>
+                      <Link to={ROUTES.ADMIN.DASHBOARD} title="Admin Dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-orange-400/40 hover:ring-orange-400 transition-all">
+                          <AvatarFallback className="bg-orange-500 text-white text-sm font-semibold">
+                            {profile?.full_name?.charAt(0).toUpperCase() || 'A'}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Link>
                     ) : (
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start" 
-                        asChild 
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <Link to={ROUTES.DASHBOARD}>Dashboard</Link>
-                      </Button>
+                      <Link to={ROUTES.DASHBOARD} title="My Dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-primary/20 hover:ring-primary/60 transition-all">
+                          <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+                            {profile?.full_name
+                              ? profile.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
+                              : user?.email?.charAt(0).toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Link>
                     )}
                   </>
                 ) : (

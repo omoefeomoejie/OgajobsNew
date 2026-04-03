@@ -66,14 +66,23 @@ export function SecurityDashboard() {
 
   const fetchSecurityMetrics = async () => {
     try {
-      // In a real implementation, these would come from proper analytics
-      // For now, we'll use placeholder data
+      const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+      const { data: logs } = await supabase
+        .from('audit_logs')
+        .select('operation, user_email, created_at')
+        .gte('created_at', since24h);
+
+      const totalRequests = logs?.length || 0;
+      const securityViolations = logs?.filter(l => l.operation === 'DELETE').length || 0;
+      const uniqueUsers = new Set(logs?.map(l => l.user_email).filter(Boolean)).size;
+
       setSecurityMetrics({
-        totalRequests: 15420,
-        rateLimitedRequests: 45,
-        validationFailures: 23,
-        securityViolations: 3,
-        activeUsers: 1250
+        totalRequests,
+        rateLimitedRequests: 0,   // requires dedicated rate-limit events table
+        validationFailures: 0,    // requires dedicated validation-failure events table
+        securityViolations,
+        activeUsers: uniqueUsers,
       });
     } catch (error) {
       console.error('Error fetching security metrics:', error);
@@ -255,49 +264,31 @@ export function SecurityDashboard() {
             <CardHeader>
               <CardTitle>Security Alerts</CardTitle>
               <CardDescription>
-                Monitor security violations and suspicious activities
+                Recent DELETE operations and high-risk audit events
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg border-red-200 bg-red-50">
-                  <div className="flex items-center space-x-4">
-                    <Badge variant="destructive">CRITICAL</Badge>
-                    <div>
-                      <p className="font-medium">SQL Injection Attempt Detected</p>
-                      <p className="text-sm text-muted-foreground">
-                        Blocked malicious query from IP: 192.168.1.100
+                {auditLogs.filter(l => l.operation === 'DELETE').length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">No security alerts in the last 50 events</p>
+                ) : (
+                  auditLogs.filter(l => l.operation === 'DELETE').map((log) => (
+                    <div key={log.id} className="flex items-center justify-between p-4 border rounded-lg border-red-200 bg-red-50">
+                      <div className="flex items-center space-x-4">
+                        <Badge variant="destructive">DELETE</Badge>
+                        <div>
+                          <p className="font-medium">Row deleted from {log.table_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            by {log.user_email || 'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(log.created_at).toLocaleString()}
                       </p>
                     </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground">2 hours ago</p>
-                </div>
-
-                <div className="flex items-center justify-between p-4 border rounded-lg border-amber-200 bg-amber-50">
-                  <div className="flex items-center space-x-4">
-                    <Badge className="bg-amber-500">HIGH</Badge>
-                    <div>
-                      <p className="font-medium">Multiple Failed Login Attempts</p>
-                      <p className="text-sm text-muted-foreground">
-                        5 consecutive failures from user@example.com
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground">4 hours ago</p>
-                </div>
-
-                <div className="flex items-center justify-between p-4 border rounded-lg border-orange-200 bg-orange-50">
-                  <div className="flex items-center space-x-4">
-                    <Badge className="bg-orange-500">MEDIUM</Badge>
-                    <div>
-                      <p className="font-medium">Unusual Request Pattern</p>
-                      <p className="text-sm text-muted-foreground">
-                        High frequency requests from new user account
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground">6 hours ago</p>
-                </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>

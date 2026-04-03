@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { MapPin, Phone, User, CreditCard } from 'lucide-react';
+import { LocationSelector } from '@/components/ui/LocationSelector';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
 
@@ -20,7 +21,6 @@ const AgentRegistration = () => {
   const [formData, setFormData] = useState({
     phone: '',
     location: '',
-    state: '',
     lga: '',
     address: '',
     bankAccount: '',
@@ -127,9 +127,10 @@ const AgentRegistration = () => {
       if (!user) throw new Error('Not authenticated');
 
       const locationData = {
-        state: formData.state,
+        area: formData.location,
         lga: formData.lga,
-        address: formData.address
+        address: formData.address,
+        ...(formData.experience ? { notes: formData.experience } : {})
       };
 
       const agentCode = generateAgentCode();
@@ -228,16 +229,18 @@ const AgentRegistration = () => {
                   
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+234 XXX XXX XXXX"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      required
-                      className="pl-10"
-                    />
-                    <Phone className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+                    <div className="relative">
+                      <Phone className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+234 XXX XXX XXXX"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        required
+                        className="pl-10"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -250,17 +253,12 @@ const AgentRegistration = () => {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="state">State</Label>
-                      <Select onValueChange={(value) => handleInputChange('state', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {nigerianStates.map((state) => (
-                            <SelectItem key={state} value={state}>{state}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label>Location</Label>
+                      <LocationSelector
+                        value={formData.location || ''}
+                        onChange={(val) => handleInputChange('location', val)}
+                        placeholder="Select your area"
+                      />
                     </div>
                     
                     <div className="space-y-2">

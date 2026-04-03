@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { User, Users, Shield, Search, Filter, MoreHorizontal, Plus } from 'lucide-react';
 import { CreateAdminDialog } from '@/components/admin/CreateAdminDialog';
 import { formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
   id: string;
@@ -29,6 +30,7 @@ interface UserProfile {
 
 export default function AdminUsers() {
   const { user, profile } = useAuth();
+  const { toast } = useToast();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -50,10 +52,16 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const { data: profilesData } = await supabase
+      const { data: profilesData, error } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching profiles:', error);
+        toast({ title: 'Error', description: 'Could not load users. Check admin permissions.', variant: 'destructive' });
+        return;
+      }
 
       if (profilesData) {
         setUsers(profilesData);
@@ -115,6 +123,22 @@ export default function AdminUsers() {
         return 'outline';
     }
   };
+
+  if (!loading && (!user || (profile && profile.role !== 'admin' && profile.role !== 'super_admin'))) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <Shield className="w-12 h-12 text-destructive mx-auto mb-4" />
+              <CardTitle>Access Denied</CardTitle>
+              <CardDescription>You don't have permission to manage users.</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </AppLayout>
+    );
+  }
 
   if (loading) {
     return (

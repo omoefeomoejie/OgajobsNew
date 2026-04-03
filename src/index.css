@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,7 +10,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 40 30% 98%;         /* Warm off-white */
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -18,19 +20,19 @@ All colors MUST be HSL.
     --popover-foreground: 222.2 84% 4.9%;
 
     /* OgaJobs Nigerian Green & Trust Colors */
-    --primary: 142 69% 35%;  /* Nigerian green */
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 142 69% 45%;
-    --primary-dark: 142 69% 25%;
+    --primary: 142 70% 28%;  /* Deep forest green */
+    --primary-foreground: 0 0% 98%;
+    --primary-light: 142 70% 38%;
+    --primary-dark: 142 70% 18%;
 
     --secondary: 220 14% 96%;
     --secondary-foreground: 142 69% 35%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 30 15% 94%;
+    --muted-foreground: 30 10% 40%;
 
-    --accent: 26 100% 55%;  /* Nigerian orange accent */
-    --accent-foreground: 0 0% 100%;
+    --accent: 25 90% 48%;  /* Warm Nigerian orange */
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -44,9 +46,9 @@ All colors MUST be HSL.
     --trust: 217 91% 60%;  /* Trust blue */
     --trust-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 142 69% 35%;
+    --border: 30 20% 88%;  /* Warm border */
+    --input: 30 20% 88%;
+    --ring: 142 70% 28%;
 
     --radius: 0.75rem;
 
@@ -60,21 +62,21 @@ All colors MUST be HSL.
     --shadow-trust: 0 8px 24px hsl(217 91% 60% / 0.15);
     --shadow-glow: 0 0 40px hsl(142 69% 35% / 0.2);
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 142 70% 12%;  /* Deep forest green */
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-foreground: 0 0% 95%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary: 0 0% 100%;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary-foreground: 142 70% 12%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent: 142 70% 20%;
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
 
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 142 70% 22%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 142 70% 45%;
 
     /* Chart Colors */
     --chart-1: 220 70% 50%;
@@ -148,5 +150,12 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
   }
 }

@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
-  MapPin, 
+import {
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  MapPin,
   DollarSign,
   Calendar,
   User,
@@ -18,7 +19,9 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
+import { ROUTES } from '@/config/routes';
 
 interface Booking {
   id: string;
@@ -33,10 +36,13 @@ interface Booking {
   created_at: string;
   completion_date?: string;
   payment_status: string;
+  urgency?: string;
 }
 
 export function BookingTimeline() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -82,13 +88,13 @@ export function BookingTimeline() {
     );
   };
 
-  const getDeadlineStatus = (preferredDate: string, status: string) => {
-    if (status === 'completed') return null;
-    
+  const getDeadlineStatus = (preferredDate: string | null, status: string) => {
+    if (status === 'completed' || !preferredDate) return null;
+
     const deadline = new Date(preferredDate);
     const now = new Date();
     const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (daysLeft < 0) {
       return <span className="text-xs text-red-500">Overdue</span>;
     } else if (daysLeft === 0) {
@@ -99,8 +105,82 @@ export function BookingTimeline() {
     return null;
   };
 
-  const handleAction = (action: string, bookingId: string) => {
+  const handleAction = async (action: string, bookingId: string) => {
     logger.debug('Booking action triggered', { action, hasBookingId: !!bookingId });
+    const booking = bookings.find(b => b.id === bookingId);
+
+    switch (action) {
+      case 'message':
+        navigate(ROUTES.MESSAGES);
+        break;
+
+      case 'cancel':
+        try {
+          const { error } = await supabase
+            .from('bookings')
+            .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+            .eq('id', bookingId)
+            .eq('client_email', user?.email);
+          if (error) throw error;
+          toast({ title: 'Booking cancelled', description: 'Your booking has been cancelled.' });
+          await fetchBookings();
+        } catch (err: any) {
+          toast({ title: 'Error', description: err.message || 'Failed to cancel booking.', variant: 'destructive' });
+        }
+        break;
+
+      case 'approve':
+      case 'approve_work':
+        try {
+          const { error } = await supabase
+            .from('bookings')
+            .update({ status: 'completed', completion_date: new Date().toISOString(), updated_at: new Date().toISOString() })
+            .eq('id', bookingId)
+            .eq('client_email', user?.email);
+          if (error) throw error;
+          toast({ title: 'Work approved', description: 'The booking has been marked as completed.' });
+          await fetchBookings();
+          navigate(ROUTES.BOOKINGS);
+        } catch (err: any) {
+          toast({ title: 'Error', description: err.message || 'Failed to approve work.', variant: 'destructive' });
+        }
+        break;
+
+      case 'request_change':
+        navigate(ROUTES.MESSAGES);
+        break;
+
+      case 'release_payment':
+      case 'release-payment':
+        try {
+          const { data, error } = await supabase.functions.invoke('release-escrow', {
+            body: { booking_id: bookingId }
+          });
+          if (error) throw error;
+          toast({ title: 'Payment released', description: 'Escrow payment has been released to the artisan.' });
+          await fetchBookings();
+        } catch (err: any) {
+          toast({ title: 'Release payment', description: 'Redirecting to bookings to manage payment.', variant: 'default' });
+          navigate(ROUTES.BOOKINGS);
+        }
+        break;
+
+      case 'review':
+        navigate(ROUTES.REVIEWS);
+        break;
+
+      case 'rehire':
+        if (booking?.artisan_id) {
+          navigate(`${ROUTES.BOOK}?artisan=${booking.artisan_id}`);
+        } else {
+          navigate(ROUTES.SERVICES);
+        }
+        break;
+
+      default:
+        navigate(ROUTES.BOOKINGS);
+        break;
+    }
   };
 
   if (loading) {
@@ -134,7 +214,9 @@ export function BookingTimeline() {
           <div className="text-center py-8">
             <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">No bookings yet</p>
-            <Button>Book Your First Service</Button>
+            <Button asChild>
+              <Link to={ROUTES.BOOK}>Book Your First Service</Link>
+            </Button>
           </div>
         ) : (
           <ScrollArea className="h-[500px]">
@@ -171,7 +253,12 @@ export function BookingTimeline() {
                   {/* Timeline Date */}
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>Preferred Date: {new Date(booking.preferred_date).toLocaleDateString()}</span>
+                    <span>
+                      Preferred Date:{' '}
+                      {booking.preferred_date
+                        ? new Date(booking.preferred_date).toLocaleDateString()
+                        : 'Flexible'}
+                    </span>
                     {booking.completion_date && (
                       <>
                         <Separator orientation="vertical" className="h-4" />
@@ -179,6 +266,16 @@ export function BookingTimeline() {
                       </>
                     )}
                   </div>
+
+                  {/* Urgency */}
+                  {booking.urgency && (
+                    <div className="text-sm text-muted-foreground">
+                      Priority:{' '}
+                      {booking.urgency
+                        ? booking.urgency.charAt(0).toUpperCase() + booking.urgency.slice(1)
+                        : 'Normal'}
+                    </div>
+                  )}
 
                   {/* Description */}
                   {booking.description && (
@@ -191,16 +288,16 @@ export function BookingTimeline() {
                   <div className="flex items-center gap-2 pt-2">
                     {booking.status === 'pending' && (
                       <>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleAction('message', booking.id)}
                         >
                           <MessageSquare className="h-3 w-3 mr-1" />
                           Message Artisan
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleAction('cancel', booking.id)}
                         >
@@ -208,25 +305,25 @@ export function BookingTimeline() {
                         </Button>
                       </>
                     )}
-                    
+
                     {booking.status === 'in_progress' && (
                       <>
-                        <Button 
+                        <Button
                           size="sm"
                           onClick={() => handleAction('approve', booking.id)}
                         >
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Approve Work
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleAction('request_change', booking.id)}
                         >
                           Request Change
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleAction('message', booking.id)}
                         >
@@ -235,9 +332,9 @@ export function BookingTimeline() {
                         </Button>
                       </>
                     )}
-                    
+
                     {booking.status === 'awaiting_payment' && (
-                      <Button 
+                      <Button
                         size="sm"
                         onClick={() => handleAction('release_payment', booking.id)}
                       >
@@ -245,18 +342,18 @@ export function BookingTimeline() {
                         Release Payment
                       </Button>
                     )}
-                    
+
                     {booking.status === 'completed' && (
                       <>
-                        <Button 
+                        <Button
                           size="sm"
                           onClick={() => handleAction('review', booking.id)}
                         >
                           <Star className="h-3 w-3 mr-1" />
                           Leave Review
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleAction('rehire', booking.id)}
                         >

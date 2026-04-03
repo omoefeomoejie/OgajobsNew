@@ -31,6 +31,7 @@ import FraudDetectionDashboard from '@/components/analytics/FraudDetectionDashbo
 import QualityPredictionDashboard from '@/components/analytics/QualityPredictionDashboard';
 import RecommendationEngine from '@/components/analytics/RecommendationEngine';
 import { PerformanceDashboard } from './PerformanceDashboard';
+import { VerificationReview } from './VerificationReview';
 
 // Enhanced Breadcrumb Integration
 function AdminBreadcrumbWrapper({ activeSection, setActiveSection, onNavigateHome }: { 
@@ -100,6 +101,8 @@ export function AdminDashboardContainer() {
         return <UserBehaviorAnalytics />;
       case 'safety':
         return <SecurityDashboard />;
+      case 'verifications':
+        return <VerificationReview />;
       default:
         return <MissionControlOptimized setActiveSection={setActiveSection} />;
     }

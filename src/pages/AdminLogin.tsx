@@ -14,18 +14,23 @@ import { PageWrapper } from '@/components/layout/PageWrapper';
 import { CreateAdminDialog } from '@/components/admin/CreateAdminDialog';
 import { Logo } from '@/components/ui/logo';
 
+const MAX_LOGIN_ATTEMPTS = 5;
+
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loginAttempts, setLoginAttempts] = useState(0);
   const [createAdminOpen, setCreateAdminOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isLocked = loginAttempts >= MAX_LOGIN_ATTEMPTS;
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked) return;
     setLoading(true);
     setError('');
 
@@ -36,7 +41,11 @@ export default function AdminLogin() {
       });
 
       if (error) {
-        setError(error.message);
+        const next = loginAttempts + 1;
+        setLoginAttempts(next);
+        setError(next >= MAX_LOGIN_ATTEMPTS
+          ? `Too many failed attempts. Please wait before trying again.`
+          : error.message);
         return;
       }
 
@@ -146,12 +155,17 @@ export default function AdminLogin() {
                     </div>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={loading}
+                  {isLocked && (
+                    <Alert variant="destructive">
+                      <AlertDescription>Account temporarily locked after {MAX_LOGIN_ATTEMPTS} failed attempts.</AlertDescription>
+                    </Alert>
+                  )}
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={loading || isLocked}
                   >
-                    {loading ? 'Verifying...' : 'Access Admin Panel'}
+                    {loading ? 'Verifying...' : isLocked ? 'Locked' : 'Access Admin Panel'}
                   </Button>
                 </form>
               </TabsContent>
@@ -174,8 +188,8 @@ export default function AdminLogin() {
                   </div>
                   
                   <div className="text-xs text-muted-foreground">
-                    <p>Note: Admin creation doesn't require authentication.</p>
-                    <p>Use this to create your first admin user or add new administrators.</p>
+                    <p>First-time setup: creates the initial admin account.</p>
+                    <p>Adding further admins requires an existing admin to be logged in.</p>
                   </div>
                 </div>
               </TabsContent>

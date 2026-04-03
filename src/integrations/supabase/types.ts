@@ -2454,6 +2454,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          available_as_artisan?: boolean | null
           created_at: string | null
           email: string | null
           full_name: string | null
@@ -2467,6 +2468,7 @@ export type Database = {
           verification_level: string | null
         }
         Insert: {
+          available_as_artisan?: boolean | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -2480,6 +2482,7 @@ export type Database = {
           verification_level?: string | null
         }
         Update: {
+          available_as_artisan?: boolean | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null

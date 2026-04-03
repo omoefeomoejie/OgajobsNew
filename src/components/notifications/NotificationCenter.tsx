@@ -58,13 +58,14 @@ export function NotificationCenter() {
     
     // Subscribe to real-time notifications
     const channel = supabase
-      .channel('notifications')
+      .channel(`notifications:${user.id}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
           // New notification received
@@ -162,16 +163,10 @@ export function NotificationCenter() {
   const fetchNotifications = async () => {
     if (!user) return;
     try {
-      // Build audience filter: show 'all' notifications plus role-specific ones
-      const roleAudience = profile?.role ? `${profile.role}s` : null;
-      const audienceFilter = roleAudience
-        ? `target_audience.eq.all,target_audience.eq.${roleAudience}`
-        : 'target_audience.eq.all';
-
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
-        .or(audienceFilter)
+        .or(`user_id.eq.${user.id},user_id.is.null`)
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -216,11 +211,13 @@ export function NotificationCenter() {
 
   const markAllAsRead = async () => {
     try {
+      await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', user?.id);
+
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
-      
-      // Note: Database update will work once types are regenerated
-      logger.debug('Marked all notifications as read');
     } catch (error) {
       logger.error('Error marking all notifications as read', { error });
     }

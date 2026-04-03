@@ -18,37 +18,39 @@ interface SystemAlert {
 }
 
 export function SystemHealthDashboard() {
-  const [alerts, setAlerts] = useState<SystemAlert[]>([
-    {
-      id: '1',
-      type: 'warning',
-      title: 'Notification Service Degraded',
-      description: 'Some push notifications may be delayed',
-      timestamp: new Date().toISOString(),
-      acknowledged: false
-    },
-    {
-      id: '2',
-      type: 'critical',
-      title: 'Payment Gateway Timeout',
-      description: 'Increased response times detected',
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      acknowledged: false
-    },
-    {
-      id: '3',
-      type: 'info',
-      title: 'Scheduled Maintenance',
-      description: 'Database optimization planned for tonight',
-      timestamp: new Date(Date.now() - 7200000).toISOString(),
-      acknowledged: true
-    }
-  ]);
+  const [alerts, setAlerts] = useState<SystemAlert[]>([]);
 
-  const acknowledgeAlert = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
+
+  const fetchAlerts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('monitoring_alerts')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setAlerts((data as SystemAlert[]) || []);
+    } catch {
+      // monitoring_alerts table may not exist yet — start with empty list
+      setAlerts([]);
+    }
+  };
+
+  const acknowledgeAlert = async (alertId: string) => {
+    // Optimistic update
+    setAlerts(prev => prev.map(alert =>
       alert.id === alertId ? { ...alert, acknowledged: true } : alert
     ));
+
+    // Persist to DB
+    await supabase
+      .from('monitoring_alerts')
+      .update({ acknowledged: true })
+      .eq('id', alertId);
   };
 
   const criticalAlerts = alerts.filter(alert => !alert.acknowledged && alert.type === 'critical');

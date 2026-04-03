@@ -21,7 +21,8 @@ import { logger } from '@/lib/logger';
 import { WelcomeEmailService } from '@/components/auth/WelcomeEmailService';
 import { EmailConfirmationScreen } from '@/components/auth/EmailConfirmationScreen';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { NIGERIAN_CITIES, SERVICE_CATEGORIES } from '@/lib/nigeria';
+import { SERVICE_CATEGORIES } from '@/lib/nigeria';
+import { LocationSelector } from '@/components/ui/LocationSelector';
 
 // Helper function to create user profile after email confirmation
 const createUserProfile = async (user: any, signupData: any) => {
@@ -43,6 +44,12 @@ const createUserProfile = async (user: any, signupData: any) => {
     const errorMsg = (profileResult as any)?.error || 'Profile setup failed';
     throw new Error(errorMsg);
   }
+
+  // Set available_as_artisan flag so the user can switch modes later
+  await supabase
+    .from('profiles')
+    .update({ available_as_artisan: signupData.role === 'artisan' })
+    .eq('id', user.id);
 
   // For artisans, also create their entry in the artisans table
   if (signupData.role === 'artisan' && signupData.category) {
@@ -84,6 +91,7 @@ export default function Auth() {
   const [signupData, setSignupData] = useState<any>(null);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
+  const [artisanCity, setArtisanCity] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -713,18 +721,11 @@ export default function Auth() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="city">City you operate in <span className="text-destructive">*</span></Label>
-                      <select
-                        id="city"
-                        name="city"
-                        required
-                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                        defaultValue=""
-                      >
-                        <option value="" disabled>Select your city...</option>
-                        {NIGERIAN_CITIES.map(c => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
+                      <LocationSelector
+                        value={artisanCity}
+                        onChange={setArtisanCity}
+                      />
+                      <input type="hidden" name="city" value={artisanCity} />
                     </div>
                   </div>
                 )}

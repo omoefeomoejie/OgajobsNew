@@ -2,12 +2,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import ClientDashboardPage from '@/pages/ClientDashboard';
 import ArtisanDashboardPage from '@/pages/ArtisanDashboard';
-import { AdminDashboardContainer as AdminDashboardComponent } from '@/components/admin/AdminDashboardContainer';
 import POSAgentDashboard from '@/components/pos-agent/POSAgentDashboard';
 import { logger } from '@/lib/logger';
+import { Navigate } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 
 export default function Dashboard() {
-  const { profile, loading, user } = useAuth();
+  const { profile, loading, user, activeMode } = useAuth();
 
   logger.debug('Dashboard state', {
     hasUser: !!user,
@@ -59,18 +60,18 @@ export default function Dashboard() {
   }
 
   const renderDashboard = () => {
-    logger.debug('Rendering dashboard for role', { role: profile?.role });
-    switch (profile?.role) {
-      case 'client':
-        return <ClientDashboardPage />;
+    logger.debug('Rendering dashboard', { role: profile?.role, activeMode });
+
+    // Admin and POS agent always show their own dashboard regardless of mode
+    if (profile?.role === 'admin' || profile?.role === 'super_admin') return <Navigate to={ROUTES.ADMIN.CONTROL_PANEL} replace />;
+    if (profile?.role === 'pos_agent') return <POSAgentDashboard />;
+
+    // Client/artisan use activeMode for switching
+    switch (activeMode) {
       case 'artisan':
         return <ArtisanDashboardPage />;
-      case 'admin':
-        return <AdminDashboardComponent />;
-      case 'pos_agent':
-        return <POSAgentDashboard />;
+      case 'client':
       default:
-        logger.warn('Unknown user role detected', { role: profile?.role });
         return <ClientDashboardPage />;
     }
   };

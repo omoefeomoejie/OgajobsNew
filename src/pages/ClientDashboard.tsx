@@ -78,7 +78,7 @@ export default function ClientDashboard() {
         </Button>
         
         <Button variant="outline" className="justify-start h-auto p-4" asChild>
-          <Link to="/my-bookings">
+          <Link to={ROUTES.BOOKINGS}>
             <div className="text-left">
               <Calendar className="w-5 h-5 mb-2" />
               <div className="font-medium">My Bookings</div>
@@ -86,9 +86,9 @@ export default function ClientDashboard() {
             </div>
           </Link>
         </Button>
-        
+
         <Button variant="outline" className="justify-start h-auto p-4" asChild>
-          <Link to="/favorites">
+          <Link to={ROUTES.FAVORITES}>
             <div className="text-left">
               <Heart className="w-5 h-5 mb-2" />
               <div className="font-medium">Favorites</div>
@@ -96,9 +96,9 @@ export default function ClientDashboard() {
             </div>
           </Link>
         </Button>
-        
+
         <Button variant="outline" className="justify-start h-auto p-4" asChild>
-          <Link to="/messages">
+          <Link to={ROUTES.MESSAGES}>
             <div className="text-left">
               <MessageSquare className="w-5 h-5 mb-2" />
               <div className="font-medium">Messages</div>
@@ -137,14 +137,14 @@ export default function ClientDashboard() {
               </div>
               
               <div className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  View Artisan Badges
+                <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                  <Link to={ROUTES.VERIFICATION}>View Artisan Badges</Link>
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  Start Dispute Resolution
+                <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                  <Link to={ROUTES.DISPUTES}>Start Dispute Resolution</Link>
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  Safety Guidelines
+                <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                  <Link to={ROUTES.SAFETY_GUIDELINES}>Safety Guidelines</Link>
                 </Button>
               </div>
             </CardContent>

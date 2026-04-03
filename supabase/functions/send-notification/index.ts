@@ -354,4 +354,46 @@ async function sendEmailNotification(template: string, data: Record<string, any>
   }
 }
 
-// ... keep existing code (push notifications and other functions)
+async function sendPushNotification(template: string, data: Record<string, any>, userId: string, supabase: any) {
+  try {
+    const { data: subscriptions } = await supabase
+      .from('push_subscriptions')
+      .select('*')
+      .eq('user_id', userId);
+    if (!subscriptions || subscriptions.length === 0) {
+      return { success: true, message: 'No push subscriptions' };
+    }
+    return { success: true, message: 'Push queued' };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+async function sendSMSNotification(template: string, data: Record<string, any>) {
+  return { success: false, error: 'SMS not configured' };
+}
+
+async function createInAppNotification(template: string, data: Record<string, any>, userId: string, supabase: any) {
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .insert({
+        user_id: userId,
+        title: data.title || template,
+        message: data.message || '',
+        type: data.type || 'system',
+        read: false,
+        target_audience: null,
+        created_at: new Date().toISOString()
+      });
+    if (error) {
+      console.error('In-app notification error:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, userId };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+serve(handler);

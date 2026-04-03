@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertTriangle, Clock, DollarSign, MessageSquare, CheckCircle, XCircle } from 'lucide-react';
+import { AlertTriangle, Clock, DollarSign, MessageSquare, CheckCircle, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,41 +21,44 @@ interface Dispute {
   description: string;
   created_at: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
+  resolution_notes?: string | null;
 }
 
 export function DisputeResolutionCenter() {
-  const [disputes, setDisputes] = useState<Dispute[]>([
-    {
-      id: '1',
-      booking_id: 'BK-001',
-      client_name: 'John Doe',
-      artisan_name: 'Ahmad Electrician',
-      dispute_type: 'payment',
-      amount: 15000,
-      status: 'pending',
-      description: 'Client claims work was not completed as agreed',
-      created_at: new Date().toISOString(),
-      priority: 'high'
-    },
-    {
-      id: '2',
-      booking_id: 'BK-002',
-      client_name: 'Sarah Johnson',
-      artisan_name: 'Bello Plumber',
-      dispute_type: 'quality',
-      amount: 8500,
-      status: 'investigating',
-      description: 'Quality of plumbing work not satisfactory',
-      created_at: new Date(Date.now() - 3600000).toISOString(),
-      priority: 'medium'
-    }
-  ]);
-
-  const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
+  const [disputes, setDisputes] = useState<Dispute[]>([]);
+  const [loading, setLoading] = useState(true);
   const [resolutionNotes, setResolutionNotes] = useState('');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    fetchDisputes();
+  }, []);
+
+  const fetchDisputes = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('disputes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setDisputes((data as Dispute[]) || []);
+    } catch (error) {
+      console.error('Error fetching disputes:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load disputes',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDisputeAction = async (disputeId: string, action: 'resolve' | 'escalate' | 'refund' | 'close') => {
+    setActionLoading(disputeId + action);
     try {
       let newStatus: Dispute['status'] = 'pending';
       let actionDescription = '';
@@ -79,24 +82,43 @@ export function DisputeResolutionCenter() {
           break;
       }
 
-      setDisputes(prev => prev.map(dispute => 
-        dispute.id === disputeId ? { ...dispute, status: newStatus } : dispute
-      ));
+      const updatePayload: Record<string, unknown> = {
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (resolutionNotes.trim()) {
+        updatePayload.resolution_notes = resolutionNotes.trim();
+      }
+
+      if (newStatus === 'resolved') {
+        updatePayload.resolved_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from('disputes')
+        .update(updatePayload)
+        .eq('id', disputeId);
+
+      if (error) throw error;
 
       toast({
-        title: "Dispute Updated",
-        description: `${actionDescription}`,
+        title: 'Dispute Updated',
+        description: actionDescription,
       });
 
       setResolutionNotes('');
       setSelectedDispute(null);
-    } catch (error) {
+      fetchDisputes();
+    } catch (error: any) {
       console.error('Error updating dispute:', error);
       toast({
-        title: "Error",
-        description: "Failed to update dispute. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to update dispute. Please try again.',
+        variant: 'destructive',
       });
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -122,12 +144,144 @@ export function DisputeResolutionCenter() {
 
   const urgentDisputes = disputes.filter(d => d.priority === 'urgent' || d.priority === 'high');
   const pendingDisputes = disputes.filter(d => d.status === 'pending');
+  const investigatingDisputes = disputes.filter(d => d.status === 'investigating');
+  const resolvedDisputes = disputes.filter(d => d.status === 'resolved' || d.status === 'escalated');
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <RefreshCw className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  const DisputeCard = ({ dispute }: { dispute: Dispute }) => (
+    <Card key={dispute.id} className="border-l-4 border-l-red-500">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">
+            Dispute #{dispute.id.slice(0, 8)} - {dispute.dispute_type.replace('_', ' ').toUpperCase()}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Badge className={getPriorityColor(dispute.priority)}>
+              {dispute.priority.toUpperCase()}
+            </Badge>
+            <Badge className={getStatusColor(dispute.status)}>
+              {dispute.status.toUpperCase()}
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div>
+            <span className="font-medium text-muted-foreground">Client:</span>
+            <p>{dispute.client_name || '—'}</p>
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Artisan:</span>
+            <p>{dispute.artisan_name || '—'}</p>
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Amount:</span>
+            <p className="font-semibold">₦{(dispute.amount || 0).toLocaleString()}</p>
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Booking:</span>
+            <p>{dispute.booking_id?.slice(0, 8) || '—'}</p>
+          </div>
+        </div>
+
+        <div>
+          <span className="font-medium text-muted-foreground">Description:</span>
+          <p className="mt-1 text-sm">{dispute.description}</p>
+        </div>
+
+        {dispute.resolution_notes && (
+          <div className="p-3 bg-muted rounded text-sm">
+            <span className="font-medium">Resolution Notes: </span>{dispute.resolution_notes}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between pt-4 border-t">
+          <span className="text-xs text-muted-foreground">
+            Created: {new Date(dispute.created_at).toLocaleString()}
+          </span>
+          {dispute.status === 'pending' && (
+            <Dialog onOpenChange={(open) => { if (!open) setResolutionNotes(''); }}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                >
+                  <MessageSquare className="w-4 h-4 mr-1" />
+                  Investigate
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Resolve Dispute #{dispute.id.slice(0, 8)}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="p-4 bg-muted rounded">
+                    <h4 className="font-semibold mb-2">Dispute Details</h4>
+                    <p className="text-sm">{dispute.description}</p>
+                    <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+                      <div>Client: {dispute.client_name || '—'}</div>
+                      <div>Artisan: {dispute.artisan_name || '—'}</div>
+                      <div>Amount: ₦{(dispute.amount || 0).toLocaleString()}</div>
+                      <div>Type: {dispute.dispute_type}</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Resolution Notes</label>
+                    <Textarea
+                      placeholder="Add your investigation notes and resolution details..."
+                      value={resolutionNotes}
+                      onChange={(e) => setResolutionNotes(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      disabled={actionLoading === dispute.id + 'escalate'}
+                      onClick={() => handleDisputeAction(dispute.id, 'escalate')}
+                    >
+                      Escalate
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      disabled={actionLoading === dispute.id + 'refund'}
+                      onClick={() => handleDisputeAction(dispute.id, 'refund')}
+                    >
+                      <DollarSign className="w-4 h-4 mr-1" />
+                      Process Refund
+                    </Button>
+                    <Button
+                      disabled={actionLoading === dispute.id + 'resolve'}
+                      onClick={() => handleDisputeAction(dispute.id, 'resolve')}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Resolve
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">🛡️ Dispute Resolution Center</h1>
+          <h1 className="text-3xl font-bold text-foreground">Dispute Resolution Center</h1>
           <p className="text-muted-foreground">Manage payment and service disputes</p>
         </div>
         <div className="flex gap-2">
@@ -140,10 +294,13 @@ export function DisputeResolutionCenter() {
           <Badge variant="secondary">
             {pendingDisputes.length} Pending Review
           </Badge>
+          <Button variant="outline" size="sm" onClick={fetchDisputes}>
+            <RefreshCw className="w-3 h-3 mr-1" />
+            Refresh
+          </Button>
         </div>
       </div>
 
-      {/* Priority Alerts */}
       {urgentDisputes.length > 0 && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
@@ -155,149 +312,54 @@ export function DisputeResolutionCenter() {
 
       <Tabs defaultValue="active" className="w-full">
         <TabsList>
-          <TabsTrigger value="active">Active Disputes ({pendingDisputes.length})</TabsTrigger>
-          <TabsTrigger value="investigating">Under Investigation</TabsTrigger>
-          <TabsTrigger value="resolved">Resolved</TabsTrigger>
+          <TabsTrigger value="active">Active ({pendingDisputes.length})</TabsTrigger>
+          <TabsTrigger value="investigating">Investigating ({investigatingDisputes.length})</TabsTrigger>
+          <TabsTrigger value="resolved">Resolved ({resolvedDisputes.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
-          <div className="grid gap-4">
-            {disputes.filter(d => d.status === 'pending').map((dispute) => (
-              <Card key={dispute.id} className="border-l-4 border-l-red-500">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">
-                      Dispute #{dispute.id} - {dispute.dispute_type.replace('_', ' ').toUpperCase()}
-                    </CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getPriorityColor(dispute.priority)}>
-                        {dispute.priority.toUpperCase()}
-                      </Badge>
-                      <Badge className={getStatusColor(dispute.status)}>
-                        {dispute.status.toUpperCase()}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-muted-foreground">Client:</span>
-                      <p>{dispute.client_name}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">Artisan:</span>
-                      <p>{dispute.artisan_name}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">Amount:</span>
-                      <p className="font-semibold">₦{dispute.amount.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">Booking:</span>
-                      <p>{dispute.booking_id}</p>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <span className="font-medium text-muted-foreground">Description:</span>
-                    <p className="mt-1 text-sm">{dispute.description}</p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <span className="text-xs text-muted-foreground">
-                      Created: {new Date(dispute.created_at).toLocaleString()}
-                    </span>
-                    <div className="flex gap-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setSelectedDispute(dispute)}
-                          >
-                            <MessageSquare className="w-4 h-4 mr-1" />
-                            Investigate
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Resolve Dispute #{dispute.id}</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div className="p-4 bg-muted rounded">
-                              <h4 className="font-semibold mb-2">Dispute Details</h4>
-                              <p className="text-sm">{dispute.description}</p>
-                              <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
-                                <div>Client: {dispute.client_name}</div>
-                                <div>Artisan: {dispute.artisan_name}</div>
-                                <div>Amount: ₦{dispute.amount.toLocaleString()}</div>
-                                <div>Type: {dispute.dispute_type}</div>
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <label className="text-sm font-medium">Resolution Notes</label>
-                              <Textarea
-                                placeholder="Add your investigation notes and resolution details..."
-                                value={resolutionNotes}
-                                onChange={(e) => setResolutionNotes(e.target.value)}
-                                className="mt-1"
-                              />
-                            </div>
-
-                            <div className="flex gap-2 justify-end">
-                              <Button
-                                variant="outline"
-                                onClick={() => handleDisputeAction(dispute.id, 'escalate')}
-                              >
-                                Escalate
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                onClick={() => handleDisputeAction(dispute.id, 'refund')}
-                              >
-                                <DollarSign className="w-4 h-4 mr-1" />
-                                Process Refund
-                              </Button>
-                              <Button
-                                onClick={() => handleDisputeAction(dispute.id, 'resolve')}
-                              >
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Resolve
-                              </Button>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                      
-                      <Button
-                        size="sm"
-                        onClick={() => handleDisputeAction(dispute.id, 'escalate')}
-                      >
-                        <AlertTriangle className="w-4 h-4 mr-1" />
-                        Escalate
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {pendingDisputes.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <CheckCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No active disputes</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {pendingDisputes.map((dispute) => (
+                <DisputeCard key={dispute.id} dispute={dispute} />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
-        <TabsContent value="investigating">
-          <div className="text-center py-8 text-muted-foreground">
-            <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p>Disputes under investigation will appear here</p>
-          </div>
+        <TabsContent value="investigating" className="space-y-4">
+          {investigatingDisputes.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No disputes under investigation</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {investigatingDisputes.map((dispute) => (
+                <DisputeCard key={dispute.id} dispute={dispute} />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
-        <TabsContent value="resolved">
-          <div className="text-center py-8 text-muted-foreground">
-            <CheckCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p>Resolved disputes will appear here</p>
-          </div>
+        <TabsContent value="resolved" className="space-y-4">
+          {resolvedDisputes.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <CheckCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No resolved disputes</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {resolvedDisputes.map((dispute) => (
+                <DisputeCard key={dispute.id} dispute={dispute} />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

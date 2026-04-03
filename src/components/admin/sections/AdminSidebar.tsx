@@ -40,6 +40,7 @@ const adminMenuItems = [
   { title: "Performance Metrics", url: "#performance", icon: Target },
   { title: "User Behavior", url: "#behavior", icon: BarChart3 },
   { title: "Trust & Safety", url: "#safety", icon: Shield },
+  { title: "KYC Verifications", url: "#verifications", icon: Shield },
 ];
 
 interface AdminSidebarProps {

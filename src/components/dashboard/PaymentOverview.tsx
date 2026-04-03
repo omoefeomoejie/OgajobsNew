@@ -4,18 +4,20 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  CreditCard, 
-  DollarSign, 
-  Clock, 
-  Receipt, 
+import {
+  CreditCard,
+  DollarSign,
+  Clock,
+  Receipt,
   Download,
   AlertCircle,
   CheckCircle,
-  Shield
+  Shield,
+  RefreshCw
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface PaymentData {
   escrowBalance: number;
@@ -34,6 +36,7 @@ interface PaymentData {
 
 export function PaymentOverview() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [paymentData, setPaymentData] = useState<PaymentData>({
     escrowBalance: 0,
     pendingInvoices: 0,
@@ -41,6 +44,7 @@ export function PaymentOverview() {
     transactions: []
   });
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -49,65 +53,83 @@ export function PaymentOverview() {
   }, [user]);
 
   const fetchPaymentData = async () => {
+    setFetchError(null);
     try {
-      // Fetch escrow payments
-      const { data: escrowData } = await supabase
+      // escrow_payments uses client_id (UUID) — confirmed against DB types
+      const { data: escrowData, error: escrowError } = await supabase
         .from('escrow_payments')
         .select('*')
         .eq('client_id', user?.id);
 
+      if (escrowError) {
+        console.error('Error fetching escrow payments:', escrowError);
+        throw escrowError;
+      }
+
       // Fetch bookings for payment info
-      const { data: bookingsData } = await supabase
+      const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
         .select('*')
         .eq('client_email', user?.email);
 
-      if (escrowData && bookingsData) {
-        const escrowBalance = escrowData
-          .filter(e => e.status === 'held')
-          .reduce((sum, e) => sum + Number(e.amount), 0);
-
-        const pendingInvoices = bookingsData
-          .filter(b => b.payment_status === 'pending')
-          .reduce((sum, b) => sum + Number(b.budget || 0), 0);
-
-        const totalSpent = bookingsData
-          .filter(b => b.payment_status === 'paid')
-          .reduce((sum, b) => sum + Number(b.budget || 0), 0);
-
-        // Mock transactions for demonstration
-        const transactions = [
-          ...escrowData.map(e => ({
-            id: e.id,
-            amount: Number(e.amount),
-            type: 'escrow',
-            status: e.status,
-            date: e.created_at,
-            description: `Escrow payment for booking`,
-            booking_id: e.booking_id
-          })),
-          ...bookingsData
-            .filter(b => b.payment_status === 'paid')
-            .map(b => ({
-              id: b.id,
-              amount: Number(b.budget || 0),
-              type: 'payment',
-              status: 'completed',
-              date: b.created_at,
-              description: `Payment for ${b.work_type}`,
-              booking_id: b.id
-            }))
-        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        setPaymentData({
-          escrowBalance,
-          pendingInvoices,
-          totalSpent,
-          transactions
-        });
+      if (bookingsError) {
+        console.error('Error fetching bookings for payment:', bookingsError);
+        throw bookingsError;
       }
-    } catch (error) {
+
+      const resolvedEscrow = escrowData || [];
+      const resolvedBookings = bookingsData || [];
+
+      const escrowBalance = resolvedEscrow
+        .filter(e => e.status === 'held')
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      const pendingInvoices = resolvedBookings
+        .filter(b => b.payment_status === 'pending')
+        .reduce((sum, b) => sum + Number(b.budget || 0), 0);
+
+      const totalSpent = resolvedBookings
+        .filter(b => b.payment_status === 'paid')
+        .reduce((sum, b) => sum + Number(b.budget || 0), 0);
+
+      const transactions = [
+        ...resolvedEscrow.map(e => ({
+          id: e.id,
+          amount: Number(e.amount),
+          type: 'escrow',
+          status: e.status || 'unknown',
+          date: e.created_at || new Date().toISOString(),
+          description: 'Escrow payment for booking',
+          booking_id: e.booking_id
+        })),
+        ...resolvedBookings
+          .filter(b => b.payment_status === 'paid')
+          .map(b => ({
+            id: b.id,
+            amount: Number(b.budget || 0),
+            type: 'payment',
+            status: 'completed',
+            date: b.created_at,
+            description: `Payment for ${b.work_type}`,
+            booking_id: b.id
+          }))
+      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      setPaymentData({
+        escrowBalance,
+        pendingInvoices,
+        totalSpent,
+        transactions
+      });
+    } catch (error: any) {
       console.error('Error fetching payment data:', error);
+      const message = error?.message || 'Failed to load payment data.';
+      setFetchError(message);
+      toast({
+        title: 'Payment data unavailable',
+        description: message,
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -142,6 +164,33 @@ export function PaymentOverview() {
           <div className="animate-pulse space-y-4">
             <div className="h-24 bg-muted rounded"></div>
             <div className="h-32 bg-muted rounded"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Payment Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 space-y-4">
+            <AlertCircle className="h-12 w-12 mx-auto text-destructive" />
+            <p className="text-sm text-muted-foreground">{fetchError}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setLoading(true); fetchPaymentData(); }}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
           </div>
         </CardContent>
       </Card>

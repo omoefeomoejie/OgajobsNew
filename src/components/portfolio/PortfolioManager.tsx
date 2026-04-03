@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -86,6 +86,46 @@ export function PortfolioManager() {
   const [editingPackage, setEditingPackage] = useState<ServicePackage | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+
+  const profilePhotoRef = useRef<HTMLInputElement>(null);
+  const projectImageRef = useRef<HTMLInputElement>(null);
+  const [projectImagePreview, setProjectImagePreview] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingProjectImage, setUploadingProjectImage] = useState(false);
+
+  const uploadImage = async (file: File, path: string): Promise<string | null> => {
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: 'Error', description: 'File must be under 10MB', variant: 'destructive' });
+      return null;
+    }
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user?.id}-${path}-${Date.now()}.${fileExt}`;
+    const { error } = await supabase.storage.from('avatars').upload(fileName, file);
+    if (error) {
+      toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
+      return null;
+    }
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+    return publicUrl;
+  };
+
+  const handleProfilePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const url = await uploadImage(file, 'profile');
+      if (url) await updatePortfolio({ profile_image_url: url });
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handleProjectImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setProjectImagePreview(URL.createObjectURL(file));
+  };
 
   const [newProject, setNewProject] = useState({
     title: '',
@@ -220,61 +260,73 @@ export function PortfolioManager() {
     }
   };
 
+  const resetProjectDialog = () => {
+    setNewProject({ title: '', description: '', category: '', before_image_url: '', after_image_url: '', completion_date: '', client_name: '', project_duration: '', materials_used: '', project_cost: '' });
+    if (projectImageRef.current) projectImageRef.current.value = '';
+    setProjectImagePreview(null);
+    setEditingProject(null);
+    setShowProjectDialog(false);
+  };
+
   const addProject = async () => {
     if (!portfolio) {
-      // Create portfolio first
-      const newPortfolio = await createPortfolio({
-        title: 'My Portfolio',
-        bio: 'Professional artisan services',
-        specialties: [],
-        years_experience: 0,
-        hourly_rate: 5000
-      });
+      const newPortfolio = await createPortfolio({ title: 'My Portfolio', bio: 'Professional artisan services', specialties: [], years_experience: 0, hourly_rate: 5000 });
       if (!newPortfolio) return;
     }
 
+    setUploadingProjectImage(true);
     try {
-      const { data, error } = await supabase
-        .from('portfolio_projects')
-        .insert({
-          portfolio_id: portfolio?.id,
-          ...newProject,
-          materials_used: newProject.materials_used.split(',').map(m => m.trim()),
-          project_cost: parseFloat(newProject.project_cost) || 0,
-          completion_date: newProject.completion_date || null
-        })
-        .select()
-        .single();
+      let imageUrl = newProject.after_image_url;
+      const file = projectImageRef.current?.files?.[0];
+      if (file) {
+        const uploaded = await uploadImage(file, 'project');
+        if (uploaded) imageUrl = uploaded;
+      }
 
-      if (error) throw error;
-      
-      setProjects([...projects, data]);
-      setNewProject({
-        title: '',
-        description: '',
-        category: '',
-        before_image_url: '',
-        after_image_url: '',
-        completion_date: '',
-        client_name: '',
-        project_duration: '',
-        materials_used: '',
-        project_cost: ''
-      });
-      setShowProjectDialog(false);
+      const payload = {
+        ...newProject,
+        after_image_url: imageUrl,
+        materials_used: newProject.materials_used.split(',').map(m => m.trim()).filter(Boolean),
+        project_cost: parseFloat(newProject.project_cost) || 0,
+        completion_date: newProject.completion_date || null
+      };
 
-      toast({
-        title: "Project Added",
-        description: "Your project has been added to your portfolio"
-      });
+      if (editingProject) {
+        // Update existing project
+        const { data, error } = await supabase
+          .from('portfolio_projects')
+          .update(payload)
+          .eq('id', editingProject.id)
+          .select()
+          .single();
+        if (error) throw error;
+        setProjects(projects.map(p => p.id === editingProject.id ? data : p));
+        toast({ title: 'Project Updated', description: 'Your project has been updated' });
+      } else {
+        // Insert new project
+        const { data, error } = await supabase
+          .from('portfolio_projects')
+          .insert({ portfolio_id: portfolio?.id, ...payload })
+          .select()
+          .single();
+        if (error) throw error;
+        setProjects([...projects, data]);
+        toast({ title: 'Project Added', description: 'Your project has been added to your portfolio' });
+      }
+
+      resetProjectDialog();
     } catch (error: any) {
-      console.error('Error adding project:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add project",
-        variant: "destructive"
-      });
+      console.error('Error saving project:', error);
+      toast({ title: 'Error', description: 'Failed to save project', variant: 'destructive' });
+    } finally {
+      setUploadingProjectImage(false);
     }
+  };
+
+  const resetPackageDialog = () => {
+    setNewPackage({ package_name: '', description: '', price: '', duration: '', includes: '', category: '', is_popular: false });
+    setEditingPackage(null);
+    setShowPackageDialog(false);
   };
 
   const addPackage = async () => {
@@ -290,43 +342,58 @@ export function PortfolioManager() {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('service_packages')
-        .insert({
-          portfolio_id: portfolio?.id,
-          ...newPackage,
-          includes: newPackage.includes.split(',').map(i => i.trim()),
-          price: parseFloat(newPackage.price) || 0
-        })
-        .select()
-        .single();
+      const payload = {
+        ...newPackage,
+        includes: newPackage.includes.split(',').map(i => i.trim()).filter(Boolean),
+        price: parseFloat(newPackage.price) || 0
+      };
 
-      if (error) throw error;
-      
-      setPackages([...packages, data]);
-      setNewPackage({
-        package_name: '',
-        description: '',
-        price: '',
-        duration: '',
-        includes: '',
-        category: '',
-        is_popular: false
-      });
-      setShowPackageDialog(false);
+      if (editingPackage) {
+        const { data, error } = await supabase
+          .from('service_packages')
+          .update(payload)
+          .eq('id', editingPackage.id)
+          .select()
+          .single();
+        if (error) throw error;
+        setPackages(packages.map(p => p.id === editingPackage.id ? data : p));
+        toast({ title: 'Package Updated', description: 'Your service package has been updated' });
+      } else {
+        const { data, error } = await supabase
+          .from('service_packages')
+          .insert({
+            portfolio_id: portfolio?.id,
+            ...payload
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        setPackages([...packages, data]);
+        toast({ title: 'Package Added', description: 'Your service package has been added' });
+      }
 
-      toast({
-        title: "Package Added",
-        description: "Your service package has been added"
-      });
+      resetPackageDialog();
     } catch (error: any) {
-      console.error('Error adding package:', error);
+      console.error('Error saving package:', error);
       toast({
         title: "Error",
-        description: "Failed to add package",
+        description: "Failed to save package",
         variant: "destructive"
       });
     }
+  };
+
+  const deletePackage = async (packageId: string) => {
+    const { error } = await supabase
+      .from('service_packages')
+      .delete()
+      .eq('id', packageId);
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to delete package', variant: 'destructive' });
+      return;
+    }
+    setPackages(prev => prev.filter(p => p.id !== packageId));
+    toast({ title: 'Package deleted' });
   };
 
   const deleteProject = async (projectId: string) => {
@@ -471,10 +538,22 @@ export function PortfolioManager() {
                           <Camera className="w-8 h-8" />
                         </AvatarFallback>
                       </Avatar>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => profilePhotoRef.current?.click()}
+                        disabled={uploadingPhoto}
+                      >
                         <Upload className="w-4 h-4 mr-2" />
-                        Upload Photo
+                        {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
                       </Button>
+                      <input
+                        ref={profilePhotoRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleProfilePhotoChange}
+                      />
                     </div>
                     
                     <div className="grid grid-cols-3 gap-4 text-center">
@@ -490,6 +569,19 @@ export function PortfolioManager() {
                         <div className="text-2xl font-bold text-primary">{packages.length}</div>
                         <div className="text-xs text-muted-foreground">Service Packages</div>
                       </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <Button
+                        variant={portfolio.is_public ? 'outline' : 'default'}
+                        className="w-full"
+                        onClick={() => updatePortfolio({ is_public: !portfolio.is_public })}
+                      >
+                        {portfolio.is_public ? 'Make Private' : 'Publish Portfolio'}
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-1 text-center">
+                        {portfolio.is_public ? 'Portfolio is visible to clients' : 'Portfolio is hidden from clients'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -508,10 +600,35 @@ export function PortfolioManager() {
                   Add Project
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Add New Project</DialogTitle>
+                  <DialogTitle>{editingProject ? 'Edit Project' : 'Add New Project'}</DialogTitle>
                 </DialogHeader>
+                <div className="space-y-4 mb-4">
+                  <div>
+                    <Label>Project Photo</Label>
+                    <div
+                      className="mt-1 border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer hover:border-muted-foreground/50 transition-colors"
+                      onClick={() => projectImageRef.current?.click()}
+                    >
+                      {projectImagePreview ? (
+                        <img src={projectImagePreview} alt="Preview" className="mx-auto max-h-36 object-contain rounded" />
+                      ) : (
+                        <div className="space-y-1">
+                          <Camera className="w-8 h-8 mx-auto text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">Click to choose an image (max 10MB)</p>
+                        </div>
+                      )}
+                      <input
+                        ref={projectImageRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleProjectImageChange}
+                      />
+                    </div>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-4">
                     <div>
@@ -595,11 +712,11 @@ export function PortfolioManager() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button variant="outline" onClick={() => setShowProjectDialog(false)}>
+                  <Button variant="outline" onClick={resetProjectDialog}>
                     Cancel
                   </Button>
-                  <Button onClick={addProject}>
-                    Add Project
+                  <Button onClick={addProject} disabled={uploadingProjectImage}>
+                    {uploadingProjectImage ? 'Saving...' : editingProject ? 'Save Changes' : 'Add Project'}
                   </Button>
                 </div>
               </DialogContent>
@@ -609,14 +726,38 @@ export function PortfolioManager() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
               <Card key={project.id} className="overflow-hidden">
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                  <Camera className="w-8 h-8 text-muted-foreground" />
+                <div className="aspect-video bg-muted flex items-center justify-center overflow-hidden">
+                  {project.after_image_url ? (
+                    <img src={project.after_image_url} alt={project.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Camera className="w-8 h-8 text-muted-foreground" />
+                  )}
                 </div>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-medium">{project.title}</h3>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingProject(project);
+                          setNewProject({
+                            title: project.title,
+                            description: project.description || '',
+                            category: project.category,
+                            before_image_url: project.before_image_url || '',
+                            after_image_url: project.after_image_url || '',
+                            completion_date: project.completion_date || '',
+                            client_name: project.client_name || '',
+                            project_duration: project.project_duration || '',
+                            materials_used: (project.materials_used || []).join(', '),
+                            project_cost: project.project_cost?.toString() || ''
+                          });
+                          setProjectImagePreview(project.after_image_url || null);
+                          setShowProjectDialog(true);
+                        }}
+                      >
                         <Edit3 className="w-3 h-3" />
                       </Button>
                       <Button 
@@ -671,7 +812,7 @@ export function PortfolioManager() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Create Service Package</DialogTitle>
+                  <DialogTitle>{editingPackage ? 'Edit Service Package' : 'Create Service Package'}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
@@ -736,11 +877,11 @@ export function PortfolioManager() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button variant="outline" onClick={() => setShowPackageDialog(false)}>
+                  <Button variant="outline" onClick={resetPackageDialog}>
                     Cancel
                   </Button>
                   <Button onClick={addPackage}>
-                    Create Package
+                    {editingPackage ? 'Save Changes' : 'Create Package'}
                   </Button>
                 </div>
               </DialogContent>
@@ -782,11 +923,32 @@ export function PortfolioManager() {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => {
+                        setEditingPackage(pkg);
+                        setNewPackage({
+                          package_name: pkg.package_name,
+                          description: pkg.description || '',
+                          price: pkg.price.toString(),
+                          duration: pkg.duration || '',
+                          includes: (pkg.includes || []).join(', '),
+                          category: pkg.category || '',
+                          is_popular: pkg.is_popular || false
+                        });
+                        setShowPackageDialog(true);
+                      }}
+                    >
                       <Edit3 className="w-3 h-3 mr-1" />
                       Edit
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => deletePackage(pkg.id)}
+                    >
                       <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>

@@ -15,7 +15,8 @@ import {
   Clock,
   AlertCircle,
   XCircle,
-  MessageCircle
+  MessageCircle,
+  X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,14 +36,13 @@ interface Job {
 }
 
 export function ActiveJobsPanel() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [openRequests, setOpenRequests] = useState<Job[]>([]);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState<string | null>(null);
-  const [declining, setDeclining] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -111,15 +111,25 @@ export function ActiveJobsPanel() {
         let conversationId = existingConv?.id;
 
         if (!conversationId) {
-          const { data: newConv } = await supabase
+          // Get client's display name via SECURITY DEFINER function (bypasses profiles RLS)
+          const { data: clientDisplayName } = await supabase
+            .rpc('get_display_name_by_email', { user_email: job.client_email });
+
+          const { data: newConv, error: convError } = await supabase
             .from('conversations')
             .insert({
               artisan_id: user.id,
+              artisan_email: user.email,
+              artisan_name: profile?.full_name || user.email,
               client_email: job.client_email,
+              client_name: clientDisplayName || job.client_email.split('@')[0],
               created_at: new Date().toISOString(),
             })
             .select('id')
             .single();
+          if (convError) {
+            console.error('Failed to create conversation:', convError);
+          }
           conversationId = newConv?.id;
         }
 
@@ -148,6 +158,26 @@ export function ActiveJobsPanel() {
       });
     } finally {
       setAccepting(null);
+    }
+  };
+
+  const handleDeclineJob = async (bookingId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          status: 'cancelled',
+          artisan_id: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({ title: 'Job declined', description: 'The booking request has been declined.' });
+      fetchJobs();
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to decline job', variant: 'destructive' });
     }
   };
 
@@ -225,14 +255,25 @@ export function ActiveJobsPanel() {
 
       <div className="flex items-center gap-2 pt-1">
         {isOpen && (
-          <Button
-            size="sm"
-            onClick={() => handleAccept(job.id)}
-            disabled={accepting === job.id}
-          >
-            <CheckCircle className="h-3 w-3 mr-1" />
-            {accepting === job.id ? 'Accepting…' : 'Accept Job'}
-          </Button>
+          <>
+            <Button
+              size="sm"
+              onClick={() => handleAccept(job.id)}
+              disabled={accepting === job.id}
+            >
+              <CheckCircle className="h-3 w-3 mr-1" />
+              {accepting === job.id ? 'Accepting…' : 'Accept Job'}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleDeclineJob(job.id)}
+              disabled={accepting === job.id}
+            >
+              <X className="h-3 w-3 mr-1" />
+              Decline
+            </Button>
+          </>
         )}
 
         {!isOpen && job.status === 'paid' && (

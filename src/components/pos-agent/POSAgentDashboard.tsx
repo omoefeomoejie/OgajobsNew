@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, DollarSign, UserPlus, TrendingUp, Eye, Search, Filter, Plus, MoreVertical, Check, Clock, AlertCircle } from 'lucide-react';
+import { Users, DollarSign, UserPlus, TrendingUp, Eye, Search, MoreVertical, Check, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -10,7 +10,6 @@ import CommissionTracker from './CommissionTracker';
 const POSAgentDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
-  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [agentStats, setAgentStats] = useState({
@@ -334,7 +333,10 @@ const POSAgentDashboard = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {recentArtisans.map((artisan) => (
+                  {recentArtisans.filter((artisan: any) =>
+                    (filterStatus === 'all' || artisan.status === filterStatus) &&
+                    (searchTerm === '' || artisan.name.toLowerCase().includes(searchTerm.toLowerCase()) || artisan.service.toLowerCase().includes(searchTerm.toLowerCase()))
+                  ).map((artisan) => (
                     <div key={artisan.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
@@ -368,8 +370,8 @@ const POSAgentDashboard = () => {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">Commission History</h3>
-                  <Button 
-                    onClick={() => setShowWithdrawalModal(true)}
+                  <Button
+                    onClick={() => setActiveTab('withdrawals')}
                     className="flex items-center gap-2"
                     variant="outline"
                   >
@@ -420,30 +422,6 @@ const POSAgentDashboard = () => {
         />
       )}
 
-      {showWithdrawalModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-auto">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold">Withdraw Commission</h2>
-              <button 
-                onClick={() => setShowWithdrawalModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
-              >
-                <Clock className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-4">
-              <CommissionWithdrawal 
-                availableBalance={agentStats.totalEarnings - agentStats.pendingCommission}
-                onWithdrawalSuccess={() => {
-                  setShowWithdrawalModal(false);
-                  loadDashboardData();
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

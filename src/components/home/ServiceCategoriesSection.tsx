@@ -26,6 +26,15 @@ const iconMap = {
   Cog
 };
 
+const iconColorClasses = [
+  'bg-green-100 text-green-700 group-hover:bg-green-600 group-hover:text-white',
+  'bg-orange-100 text-orange-700 group-hover:bg-orange-600 group-hover:text-white',
+  'bg-blue-100 text-blue-700 group-hover:bg-blue-600 group-hover:text-white',
+  'bg-purple-100 text-purple-700 group-hover:bg-purple-600 group-hover:text-white',
+  'bg-red-100 text-red-700 group-hover:bg-red-600 group-hover:text-white',
+  'bg-yellow-100 text-yellow-700 group-hover:bg-yellow-600 group-hover:text-white',
+];
+
 export const ServiceCategoriesSection = () => {
   const prioritizedCategories = serviceCategories.sort((a, b) => a.priority - b.priority);
 
@@ -51,8 +60,9 @@ export const ServiceCategoriesSection = () => {
 
         {/* Service Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {prioritizedCategories.map((category) => {
+          {prioritizedCategories.map((category, index) => {
             const IconComponent = iconMap[category.iconName as keyof typeof iconMap] || Home;
+            const colorCls = iconColorClasses[index % iconColorClasses.length];
             const topServices = category.subcategories.slice(0, 3);
             
             return (
@@ -63,8 +73,8 @@ export const ServiceCategoriesSection = () => {
                 <CardContent className="p-6">
                   {/* Category Icon & Name */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-                      <IconComponent className="w-6 h-6 text-primary group-hover:text-white" />
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-colors ${colorCls}`}>
+                      <IconComponent className="w-6 h-6" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-lg">{category.name}</h3>
@@ -129,16 +139,16 @@ export const ServiceCategoriesSection = () => {
         {/* Featured Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="text-center">
-            <div className="text-3xl font-bold text-primary mb-2">5,000+</div>
+            <div className="text-3xl font-bold text-primary mb-2">Growing</div>
             <div className="text-muted-foreground">Verified Artisans</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-primary mb-2">50k+</div>
-            <div className="text-muted-foreground">Jobs Completed</div>
+            <div className="text-3xl font-bold text-primary mb-2">Secure</div>
+            <div className="text-muted-foreground">Escrow Payments</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-primary mb-2">4.9/5</div>
-            <div className="text-muted-foreground">Average Rating</div>
+            <div className="text-3xl font-bold text-primary mb-2">Vetted</div>
+            <div className="text-muted-foreground">Every Artisan</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-primary mb-2">24/7</div>
