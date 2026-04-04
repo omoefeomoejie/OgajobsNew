@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, XCircle, Home, Receipt, Shield } from 'lucide-react';
@@ -9,6 +10,24 @@ export default function PaymentSuccess() {
   const navigate = useNavigate();
   const reference = searchParams.get('reference');
   const [countdown, setCountdown] = useState(4);
+
+  useEffect(() => {
+    if (!reference) return;
+
+    const verifyPayment = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('verify-payment', {
+          body: { reference }
+        });
+        if (error) console.error('Verify payment error:', error);
+        else console.log('Payment verified:', data);
+      } catch (err) {
+        console.error('Verification failed:', err);
+      }
+    };
+
+    verifyPayment();
+  }, [reference]);
 
   useEffect(() => {
     if (!reference) return;

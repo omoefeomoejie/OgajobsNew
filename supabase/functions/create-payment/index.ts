@@ -55,7 +55,7 @@ serve(async (req) => {
         amount: amount * 100, // Convert to kobo (Paystack expects amount in kobo)
         currency: currency,
         reference: reference,
-        callback_url: `${req.headers.get("origin")}/payment-success`,
+        callback_url: `https://ogajobs.com.ng/payment-success`,
         metadata: {
           user_id: user.id,
           transaction_type: transaction_type,
