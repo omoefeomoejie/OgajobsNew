@@ -7,75 +7,105 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
+  // Use service role key - bypasses RLS so booking updates always work
+  const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-    {
-      global: {
-        headers: { Authorization: req.headers.get("Authorization")! },
-      },
-    }
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
   );
 
   try {
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      throw new Error("User not authenticated");
-    }
-
     const { reference } = await req.json();
 
     if (!reference) {
       throw new Error("Payment reference is required");
     }
 
+    console.log(`Verifying payment reference: ${reference}`);
+
     // Verify payment with Paystack
-    const paystackResponse = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${Deno.env.get("PAYSTACK_SECRET_KEY")}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const paystackResponse = await fetch(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${Deno.env.get("PAYSTACK_SECRET_KEY")}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const paystackData = await paystackResponse.json();
+    console.log(`Paystack response status: ${paystackData.data?.status}`);
 
     if (!paystackData.status) {
       throw new Error(paystackData.message || "Payment verification failed");
     }
 
-    const paymentStatus = paystackData.data.status;
-    const amount = paystackData.data.amount / 100; // Convert from kobo to naira
+    const paymentStatus = paystackData.data.status; // "success" or "failed"
+    const amount = paystackData.data.amount / 100; // kobo to naira
 
-    // Update payment transaction in database
-    const { data: transaction, error: updateError } = await supabaseClient
+    // Find the transaction by reference
+    const { data: transaction, error: findError } = await supabase
+      .from("payment_transactions")
+      .select("*")
+      .eq("paystack_reference", reference)
+      .maybeSingle();
+
+    if (findError || !transaction) {
+      console.log("Transaction not found:", findError);
+      throw new Error("Transaction not found for this reference");
+    }
+
+    console.log(`Transaction found: ${transaction.id}, current status: ${transaction.payment_status}`);
+
+    // If already processed, return early
+    if (transaction.payment_status === "success") {
+      console.log("Transaction already processed");
+      return new Response(
+        JSON.stringify({ status: "success", already_processed: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
+    // Update transaction status
+    await supabase
       .from("payment_transactions")
       .update({
         payment_status: paymentStatus,
         updated_at: new Date().toISOString(),
       })
-      .eq("paystack_reference", reference)
-      .eq("user_id", user.id)
-      .select()
-      .single();
+      .eq("paystack_reference", reference);
 
-    if (updateError) {
-      console.log("Database update error:", updateError);
-      throw new Error("Failed to update transaction status");
-    }
+    console.log(`Transaction updated to: ${paymentStatus}`);
 
-    // If payment is successful and it's a booking payment, create escrow entry and update booking
-    if (paymentStatus === "success" && transaction.transaction_type === "booking_payment") {
+    // If payment successful - update booking and create escrow
+    if (paymentStatus === "success" && transaction.booking_id) {
+      console.log(`Updating booking ${transaction.booking_id} to paid`);
+
+      // Update booking status
+      const { error: bookingError } = await supabase
+        .from("bookings")
+        .update({
+          status: "paid",
+          payment_status: "paid",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", transaction.booking_id);
+
+      if (bookingError) {
+        console.log("Booking update error:", bookingError);
+      } else {
+        console.log("Booking successfully marked as paid");
+      }
+
       // Create escrow entry
-      const { error: escrowError } = await supabaseClient
+      const { error: escrowError } = await supabase
         .from("escrow_payments")
-        .insert({
+        .upsert({
           transaction_id: transaction.id,
           booking_id: transaction.booking_id,
           client_id: transaction.client_id,
@@ -84,27 +114,13 @@ serve(async (req) => {
           platform_fee: transaction.platform_fee,
           artisan_amount: transaction.artisan_earnings,
           status: "pending",
-          auto_release_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-        });
+          auto_release_date: new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        }, { onConflict: "transaction_id" });
 
       if (escrowError) {
         console.log("Escrow creation error:", escrowError);
-      }
-
-      // Update booking status to paid
-      if (transaction.booking_id) {
-        const { error: bookingError } = await supabaseClient
-          .from("bookings")
-          .update({
-            status: "paid",
-            payment_status: "paid",
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", transaction.booking_id);
-
-        if (bookingError) {
-          console.log("Booking update error:", bookingError);
-        }
       }
     }
 
@@ -112,7 +128,7 @@ serve(async (req) => {
       JSON.stringify({
         status: paymentStatus,
         amount: amount,
-        transaction: transaction,
+        booking_updated: paymentStatus === "success" && !!transaction.booking_id,
         verified: paymentStatus === "success",
       }),
       {
