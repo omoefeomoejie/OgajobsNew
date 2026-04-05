@@ -426,6 +426,16 @@ export default function MyBookings() {
               </Button>
             )}
 
+            {booking.status === 'awaiting_approval' && (
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => markAsCompleted(booking.id)}
+              >
+                ✓ Approve & Release Payment
+              </Button>
+            )}
+
             {booking.status === 'in_progress' && (
               <Button
                 size="sm"
