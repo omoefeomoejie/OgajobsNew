@@ -197,6 +197,21 @@ export default function Messages() {
 
       if (error) throw error;
 
+      if (receiverEmail) {
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            userEmail: receiverEmail,
+            type: 'in_app',
+            template: 'new_message',
+            data: {
+              title: 'New Message',
+              message: `You have a new message`,
+              type: 'message'
+            }
+          }
+        });
+      }
+
       const optimisticMsg: Message = {
         id: `temp-${Date.now()}`,
         conversation_id: selectedConversation.id,

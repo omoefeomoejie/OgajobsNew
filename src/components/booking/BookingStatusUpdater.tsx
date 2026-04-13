@@ -57,6 +57,32 @@ export default function BookingStatusUpdater({ booking, onStatusUpdate }: Bookin
       });
 
       onStatusUpdate?.();
+
+      await supabase.functions.invoke('send-notification', {
+        body: {
+          userEmail: booking.client_email,
+          type: 'email',
+          template: 'booking_confirmed',
+          data: {
+            clientName: 'Client',
+            artisanName: 'Your Artisan',
+            serviceType: booking.work_type,
+            preferredDate: booking.preferred_date || 'Flexible',
+          }
+        }
+      });
+      await supabase.functions.invoke('send-notification', {
+        body: {
+          userEmail: booking.client_email,
+          type: 'in_app',
+          template: 'booking_confirmed',
+          data: {
+            title: 'Booking Status Updated',
+            message: `Your ${booking.work_type} booking status is now: ${newStatus}`,
+            type: 'booking_update'
+          }
+        }
+      });
     } catch (error) {
       console.error('Error updating booking status:', error);
       toast({

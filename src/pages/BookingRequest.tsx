@@ -81,6 +81,34 @@ export default function BookingRequest() {
         }
       }
 
+      if (booking?.artisan_email) {
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            userEmail: booking.artisan_email,
+            type: 'email',
+            template: 'booking_assigned',
+            data: {
+              artisanName: 'Artisan',
+              bookingTitle: workType,
+              location: city,
+              budget: budget || '0',
+            }
+          }
+        });
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            userEmail: booking.artisan_email,
+            type: 'in_app',
+            template: 'booking_assigned',
+            data: {
+              title: 'New Booking Request',
+              message: `You have a new ${workType} request in ${city}`,
+              type: 'booking_request'
+            }
+          }
+        });
+      }
+
       setSubmitted(true);
       toast({
         title: 'Booking request submitted!',

@@ -1,13 +1,19 @@
+import { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  CheckCircle, 
-  Star, 
-  TrendingUp, 
-  Shield, 
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LocationSelector } from '@/components/ui/LocationSelector';
+import { SERVICE_CATEGORIES } from '@/lib/nigeria';
+import {
+  CheckCircle,
+  Star,
+  TrendingUp,
+  Shield,
   Clock,
   Users,
   DollarSign,
@@ -16,9 +22,60 @@ import {
   Mail
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export default function BecomeArtisan() {
   const navigate = useNavigate();
+  const { user, refreshProfile } = useAuth();
+  const { toast } = useToast();
+  const [artisanSubmitting, setArtisanSubmitting] = useState(false);
+  const [artisanForm, setArtisanForm] = useState({
+    fullName: '',
+    phone: '',
+    category: '',
+    city: '',
+  });
+
+  const handleArtisanRegister = async () => {
+    if (!user?.email) {
+      navigate('/auth?tab=register&role=artisan');
+      return;
+    }
+    setArtisanSubmitting(true);
+    try {
+      await supabase.from('artisans').upsert({
+        email: user.email,
+        full_name: artisanForm.fullName,
+        phone: artisanForm.phone,
+        category: artisanForm.category,
+        city: artisanForm.city,
+        skill: artisanForm.category,
+      }, { onConflict: 'email' });
+
+      await supabase.from('profiles')
+        .update({ available_as_artisan: true })
+        .eq('id', user.id);
+
+      await refreshProfile();
+
+      toast({
+        title: 'Profile Complete',
+        description: 'You are now registered as an artisan. Welcome to OgaJobs!',
+      });
+
+      navigate('/dashboard');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to save your profile. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setArtisanSubmitting(false);
+    }
+  };
 
   const benefits = [
     {
@@ -282,6 +339,67 @@ export default function BecomeArtisan() {
         </section>
       </main>
       
+      {/* Artisan Registration Form */}
+      <section className="py-16 bg-muted/50">
+        <div className="max-w-lg mx-auto px-4">
+          <h2 className="text-2xl font-bold text-center mb-2">Complete Your Artisan Profile</h2>
+          <p className="text-muted-foreground text-center mb-8">
+            Tell us your skill and location so we can match you with the right jobs.
+          </p>
+          <div className="space-y-4 bg-background p-6 rounded-xl shadow-sm border">
+            <div className="space-y-2">
+              <Label htmlFor="artisan-name">Full Name</Label>
+              <Input
+                id="artisan-name"
+                placeholder="Enter your full name"
+                value={artisanForm.fullName}
+                onChange={(e) => setArtisanForm(prev => ({ ...prev, fullName: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="artisan-phone">Phone Number</Label>
+              <Input
+                id="artisan-phone"
+                placeholder="e.g. 08012345678"
+                value={artisanForm.phone}
+                onChange={(e) => setArtisanForm(prev => ({ ...prev, phone: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Your Skill / Trade</Label>
+              <Select
+                value={artisanForm.category}
+                onValueChange={(val) => setArtisanForm(prev => ({ ...prev, category: val }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your skill" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SERVICE_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Your City</Label>
+              <LocationSelector
+                value={artisanForm.city}
+                onChange={(val) => setArtisanForm(prev => ({ ...prev, city: val }))}
+                placeholder="Select your city"
+              />
+            </div>
+            <Button
+              className="w-full"
+              disabled={artisanSubmitting || !artisanForm.fullName || !artisanForm.category || !artisanForm.city}
+              onClick={handleArtisanRegister}
+            >
+              {artisanSubmitting ? 'Saving...' : 'Complete Registration'}
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );

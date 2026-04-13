@@ -52,18 +52,44 @@ export function ActiveJobsPanel() {
 
   const fetchJobs = async () => {
     try {
-      console.log('Fetching my jobs for artisan:', user?.id, user?.email);
-      // Open requests: pending, no artisan assigned yet
-      const { data: openData, error: openError } = await supabase
+      const { data: artisanData } = await supabase
+        .from('artisans')
+        .select('category, city')
+        .eq('email', user?.email)
+        .maybeSingle();
+
+      if (!artisanData?.category) {
+        setOpenRequests([]);
+        setMyJobs([]);
+        setLoading(false);
+        return;
+      }
+
+      const { data: cityData } = await supabase
         .from('bookings')
         .select('*')
         .eq('status', 'pending')
         .is('artisan_id', null)
+        .eq('work_type', artisanData.category)
+        .eq('city', artisanData.city)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      // My assigned jobs
-      const { data: myData, error: myError } = await supabase
+      let openData = cityData && cityData.length > 0 ? cityData : [];
+
+      if (openData.length === 0) {
+        const { data: stateData } = await supabase
+          .from('bookings')
+          .select('*')
+          .eq('status', 'pending')
+          .is('artisan_id', null)
+          .eq('work_type', artisanData.category)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        openData = stateData || [];
+      }
+
+      const { data: myData } = await supabase
         .from('bookings')
         .select('*')
         .eq('artisan_id', user?.id)
@@ -71,7 +97,7 @@ export function ActiveJobsPanel() {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      setOpenRequests(openData || []);
+      setOpenRequests(openData);
       setMyJobs(myData || []);
     } catch (error) {
       console.error('Error fetching jobs:', error);
