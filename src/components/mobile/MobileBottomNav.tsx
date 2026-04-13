@@ -62,15 +62,6 @@ export function MobileBottomNav() {
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
               )}
               
-              {/* Message badge example */}
-              {item.url === '/messages' && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
-                >
-                  3
-                </Badge>
-              )}
             </NavLink>
           );
         })}

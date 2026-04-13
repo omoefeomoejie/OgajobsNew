@@ -39,10 +39,11 @@ export function AppSidebar() {
 
   const handleModeSwitch = () => {
     if (activeMode === 'client' && !isArtisanSetup) {
-      // Client not yet registered as artisan — take them to registration
       navigate(ROUTES.BECOME_ARTISAN);
     } else {
-      setActiveMode(activeMode === 'client' ? 'artisan' : 'client');
+      const newMode = activeMode === 'client' ? 'artisan' : 'client';
+      setActiveMode(newMode);
+      navigate('/dashboard');
     }
   };
 

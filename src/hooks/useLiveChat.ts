@@ -58,6 +58,20 @@ export const useLiveChat = () => {
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
+  useEffect(() => {
+    const savedId = localStorage.getItem('livechat_session_id');
+    if (savedId) {
+      supabase.from('live_chat_sessions').select('*')
+        .eq('id', savedId).neq('status', 'closed').maybeSingle()
+        .then(({ data }) => { if (data) setSession(data as any); });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (session?.id) localStorage.setItem('livechat_session_id', session.id);
+    else localStorage.removeItem('livechat_session_id');
+  }, [session?.id]);
+
   // Create a new chat session
   const startChat = async (initialMessage?: string, customerInfo?: { name?: string; email?: string }) => {
     try {

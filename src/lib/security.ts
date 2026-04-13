@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 // Input sanitization
 export function sanitizeInput(input: string): string {
   return input
-    .trim()
     .replace(/[<>]/g, '') // Remove potential XSS characters
     .replace(/[\x00-\x1F\x7F]/g, '') // Remove control characters
     .substring(0, 1000); // Limit length

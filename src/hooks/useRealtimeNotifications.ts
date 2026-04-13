@@ -36,6 +36,7 @@ export function useRealtimeNotifications() {
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -63,13 +64,16 @@ export function useRealtimeNotifications() {
     }
   }, [user]);
 
-  // Mark notification as read (simplified for existing table)
+  // Mark notification as read
   const markAsRead = useCallback(async (notificationId: string) => {
     if (!user) return;
-
     try {
-      // For now, just update local state since existing table doesn't have read status
-      setNotifications(prev => 
+      await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', notificationId)
+        .eq('user_id', user.id);
+      setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
@@ -104,9 +108,11 @@ export function useRealtimeNotifications() {
       const { error } = await supabase
         .from('notifications')
         .insert({
+          user_id: targetUserId,
           title,
           message,
-          target_audience: 'specific_user', // Could be enhanced
+          type: type || 'system',
+          read: false,
         });
 
       if (error) throw error;

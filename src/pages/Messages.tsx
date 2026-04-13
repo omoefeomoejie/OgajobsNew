@@ -197,8 +197,18 @@ export default function Messages() {
 
       if (error) throw error;
 
+      const optimisticMsg: Message = {
+        id: `temp-${Date.now()}`,
+        conversation_id: selectedConversation.id,
+        sender_email: user.email,
+        receiver_email: receiverEmail || '',
+        message: newMessage.trim(),
+        created_at: new Date().toISOString(),
+        read: false,
+      };
+      setMessages(prev => [...prev, optimisticMsg]);
       setNewMessage('');
-      await fetchMessages(selectedConversation.id);
+      fetchMessages(selectedConversation.id);
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast({

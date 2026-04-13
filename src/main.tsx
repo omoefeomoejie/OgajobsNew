@@ -17,6 +17,16 @@ import { PerformanceProvider } from '@/components/performance/PerformanceProvide
 import { reportBundleSize, addResourceHints, registerServiceWorker } from "@/utils/performanceOptimization"
 import { logBundleAnalysis } from "@/utils/bundleAnalyzer"
 
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason?.message?.includes('Failed to fetch dynamically imported module')) {
+    const reloadKey = 'chunk_reload_attempted';
+    if (!sessionStorage.getItem(reloadKey)) {
+      sessionStorage.setItem(reloadKey, '1');
+      window.location.reload();
+    }
+  }
+});
+
 // Initialize performance optimizations
 addResourceHints();
 registerServiceWorker();

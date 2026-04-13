@@ -32,6 +32,7 @@ interface Booking {
   status: string;
   artisan_id: string;
   artisan_email: string;
+  artisan_name?: string;
   description: string;
   created_at: string;
   completion_date?: string;
@@ -239,7 +240,7 @@ export function BookingTimeline() {
                         {booking.artisan_email && (
                           <div className="flex items-center gap-1">
                             <User className="h-3 w-3" />
-                            {booking.artisan_email}
+                            {booking.artisan_name || booking.artisan_email}
                           </div>
                         )}
                       </div>
