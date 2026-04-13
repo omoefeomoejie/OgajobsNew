@@ -328,7 +328,7 @@ async function sendEmailNotification(template: string, data: Record<string, any>
 
     // Send email using Resend
     const { data: emailResult, error } = await resend.emails.send({
-      from: 'OgaJobs <noreply@ogajobs.com>',
+      from: 'OgaJobs <noreply@ogajobs.com.ng>',
       to: [email],
       subject: subject,
       html: emailHtml,
