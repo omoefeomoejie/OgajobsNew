@@ -36,9 +36,18 @@ serve(async (req) => {
       throw new Error("Invalid amount");
     }
 
+    // Read commission rate from platform_settings
+    const { data: commissionSetting } = await supabaseClient
+      .from('platform_settings')
+      .select('value')
+      .eq('key', 'commission_rate')
+      .maybeSingle();
+
+    const commissionRate = commissionSetting ? parseFloat(commissionSetting.value) / 100 : 0.10;
+
     // Calculate fees
-    const platformFee = Math.round(amount * 0.10 * 100) / 100; // 10% platform fee
-    const artisanEarnings = Math.round(amount * 0.90 * 100) / 100; // 90% to artisan
+    const platformFee = Math.round(amount * commissionRate * 100) / 100;
+    const artisanEarnings = Math.round(amount * (1 - commissionRate) * 100) / 100;
 
     // Generate unique reference
     const reference = `ogajobs_${Date.now()}_${user.id.slice(0, 8)}`;
@@ -55,7 +64,7 @@ serve(async (req) => {
         amount: amount * 100, // Convert to kobo (Paystack expects amount in kobo)
         currency: currency,
         reference: reference,
-        callback_url: `https://ogajobs.com.ng/payment-success`,
+        callback_url: `${Deno.env.get('APP_URL') || 'https://www.ogajobs.com.ng'}/payment-success`,
         metadata: {
           user_id: user.id,
           transaction_type: transaction_type,

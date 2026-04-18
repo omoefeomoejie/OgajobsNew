@@ -264,6 +264,37 @@ export const MatchingDashboard: React.FC = () => {
 
       fetchMatchingData();
 
+      // Notify all newly assigned artisans
+      try {
+        const { data: assignments } = await supabase
+          .from('booking_assignments')
+          .select('artisan_id, artisans(full_name, email), bookings(work_type, city, budget)')
+          .eq('booking_id', bookingId)
+          .eq('assignment_type', 'auto_matched');
+
+        if (assignments && assignments.length > 0) {
+          await Promise.all(assignments.map(async (assignment: any) => {
+            const artisanEmail = assignment.artisans?.email;
+            if (artisanEmail) {
+              await supabase.functions.invoke('send-notification', {
+                body: {
+                  userEmail: artisanEmail,
+                  type: 'in_app',
+                  template: 'booking_assigned',
+                  data: {
+                    title: 'New Job Request',
+                    message: `A new ${assignment.bookings?.work_type} job is available in ${assignment.bookings?.city}`,
+                    type: 'booking_request',
+                  },
+                },
+              });
+            }
+          }));
+        }
+      } catch (notifyError) {
+        console.error('Failed to notify artisans after manual match:', notifyError);
+      }
+
     } catch (error) {
       console.error('Error triggering auto-matching:', error);
       toast({

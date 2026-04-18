@@ -8,31 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Wallet, CreditCard, History, AlertCircle, CheckCircle } from 'lucide-react';
-
-const NIGERIAN_BANKS = [
-  { code: "044", name: "Access Bank" },
-  { code: "014", name: "Afribank" },
-  { code: "023", name: "Citibank" },
-  { code: "050", name: "Ecobank" },
-  { code: "011", name: "First Bank" },
-  { code: "214", name: "First City Monument Bank" },
-  { code: "070", name: "Fidelity Bank" },
-  { code: "058", name: "Guaranty Trust Bank" },
-  { code: "030", name: "Heritage Bank" },
-  { code: "082", name: "Keystone Bank" },
-  { code: "076", name: "Polaris Bank" },
-  { code: "221", name: "Stanbic IBTC Bank" },
-  { code: "068", name: "Standard Chartered" },
-  { code: "232", name: "Sterling Bank" },
-  { code: "100", name: "Suntrust Bank" },
-  { code: "032", name: "Union Bank" },
-  { code: "033", name: "United Bank for Africa" },
-  { code: "215", name: "Unity Bank" },
-  { code: "035", name: "Wema Bank" },
-  { code: "057", name: "Zenith Bank" }
-];
+import { NIGERIAN_BANKS } from '@/lib/nigeria';
 
 interface WithdrawalData {
   availableBalance: number;
@@ -54,6 +33,7 @@ interface WithdrawalRequest {
 }
 
 export const WithdrawalInterface: React.FC = () => {
+  const { user } = useAuth();
   const [withdrawalData, setWithdrawalData] = useState<WithdrawalData>({
     availableBalance: 0,
     totalEarnings: 0,
@@ -67,12 +47,40 @@ export const WithdrawalInterface: React.FC = () => {
   const [selectedBank, setSelectedBank] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
+  const [minWithdrawal, setMinWithdrawal] = useState(1000);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchWithdrawalData();
     fetchWithdrawalHistory();
   }, []);
+
+  useEffect(() => {
+    supabase
+      .from('platform_settings')
+      .select('value')
+      .eq('key', 'min_withdrawal')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setMinWithdrawal(parseFloat(data.value));
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!user?.email) return;
+    supabase
+      .from('artisans')
+      .select('bank_code, account_number, account_name, bank_name')
+      .eq('email', user.email)
+      .maybeSingle()
+      .then(({ data }) => {
+        if ((data as any)?.bank_code) {
+          setSelectedBank((data as any).bank_code);
+          setAccountNumber((data as any).account_number || '');
+          setAccountName((data as any).account_name || '');
+        }
+      });
+  }, [user?.email]);
 
   const fetchWithdrawalData = async () => {
     try {
@@ -320,12 +328,12 @@ export const WithdrawalInterface: React.FC = () => {
                     placeholder="Enter amount"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    min="1000"
+                    min={minWithdrawal.toString()}
                     max={withdrawalData.availableBalance}
                     required
                   />
                   <p className="text-sm text-muted-foreground">
-                    Minimum withdrawal: ₦1,000 | Available: ₦{withdrawalData.availableBalance.toLocaleString()}
+                    Minimum withdrawal: ₦{minWithdrawal.toLocaleString()} | Available: ₦{withdrawalData.availableBalance.toLocaleString()}
                   </p>
                 </div>
 
@@ -372,7 +380,7 @@ export const WithdrawalInterface: React.FC = () => {
 
                 <Button
                   type="submit"
-                  disabled={submitting || withdrawalData.availableBalance < 1000}
+                  disabled={submitting || withdrawalData.availableBalance < minWithdrawal}
                   className="w-full"
                 >
                   {submitting ? "Processing..." : "Submit Withdrawal Request"}

@@ -28,63 +28,69 @@ export function EarningsOverview() {
 
   useEffect(() => {
     if (user?.id) {
-      fetchEarningsData();
+      fetchEarnings();
     }
   }, [user]);
 
-  const fetchEarningsData = async () => {
+  const fetchEarnings = async () => {
+    if (!user?.id) return;
     try {
-      const { data: paymentsData, error } = await supabase
-        .from('payment_transactions')
-        .select('amount, created_at, escrow_status, transaction_type')
-        .eq('artisan_id', user?.id)
+      setLoading(true);
+
+      type EarningRow = {
+        artisan_amount: number;
+        gross_amount: number;
+        platform_fee: number;
+        status: string;
+        created_at: string;
+      };
+
+      // Fetch artisan net earnings from artisan_earnings_v2
+      // Cast required: table is not yet in Supabase generated types
+      const { data: earningsRaw, error } = await (supabase as any)
+        .from('artisan_earnings_v2')
+        .select('artisan_amount, gross_amount, platform_fee, status, created_at')
+        .eq('artisan_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Earnings fetch error:', error);
-        setLoading(false);
-        return;
-      }
+      if (error) throw error;
 
-      const releasedPayments = (paymentsData || []).filter(e => e.escrow_status === 'released');
-      const heldPayments = (paymentsData || []).filter(e => e.escrow_status === 'held');
+      const allEarnings: EarningRow[] = earningsRaw || [];
+      const releasedEarnings = allEarnings.filter(e => e.status === 'transferred' || e.status === 'pending_withdrawal');
 
       const now = new Date();
-      const today = now.toISOString().split('T')[0];
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()).toISOString();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-      // Fix: avoid mutating `now` when computing weekStart
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay());
-      const weekStartStr = weekStart.toISOString().split('T')[0];
+      const todayEarnings = releasedEarnings
+        .filter(e => e.created_at >= todayStart)
+        .reduce((sum, e) => sum + Number(e.artisan_amount), 0);
 
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+      const weekEarnings = releasedEarnings
+        .filter(e => e.created_at >= weekStart)
+        .reduce((sum, e) => sum + Number(e.artisan_amount), 0);
 
-      const todayEarnings = releasedPayments
-        .filter(e => e.created_at.startsWith(today))
-        .reduce((sum, e) => sum + Number(e.amount), 0);
-
-      const weekEarnings = releasedPayments
-        .filter(e => e.created_at >= weekStartStr)
-        .reduce((sum, e) => sum + Number(e.amount), 0);
-
-      const monthEarnings = releasedPayments
+      const monthEarnings = releasedEarnings
         .filter(e => e.created_at >= monthStart)
-        .reduce((sum, e) => sum + Number(e.amount), 0);
+        .reduce((sum, e) => sum + Number(e.artisan_amount), 0);
 
-      const pendingAmount = heldPayments
-        .reduce((sum, e) => sum + Number(e.amount), 0);
+      const withdrawableAmount = releasedEarnings
+        .reduce((sum, e) => sum + Number(e.artisan_amount), 0);
 
-      const withdrawableAmount = releasedPayments
-        .reduce((sum, e) => sum + Number(e.amount), 0);
+      const pendingAmount = allEarnings
+        .filter(e => e.status === 'pending_withdrawal')
+        .reduce((sum, e) => sum + Number(e.artisan_amount), 0);
 
       setEarnings({
         today: todayEarnings,
         thisWeek: weekEarnings,
         thisMonth: monthEarnings,
-        pending: pendingAmount,
         withdrawable: withdrawableAmount,
-        trend: 0
+        pending: pendingAmount,
+        trend: 0,
       });
+
     } catch (error) {
       console.error('Error fetching earnings:', error);
     } finally {

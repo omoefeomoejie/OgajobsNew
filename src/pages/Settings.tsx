@@ -23,15 +23,27 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 
 export default function Settings() {
   const { profile, user, refreshProfile } = useAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [enablingArtisan, setEnablingArtisan] = useState(false);
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || '',
-    phone: profile?.phone || '',
+    phone: (profile as any)?.phone || '',
     email: user?.email || '',
   });
 
@@ -61,10 +73,10 @@ export default function Settings() {
         .eq('id', user!.id);
 
       if (error) throw error;
-      toast.success('Profile updated successfully');
+      toast({ title: 'Profile updated successfully' });
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      toast({ title: 'Failed to update profile', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -80,9 +92,9 @@ export default function Settings() {
         .eq('id', user.id);
       if (error) throw error;
       await refreshProfile();
-      toast.success('Artisan mode enabled! Use the sidebar switch to toggle between modes.');
+      toast({ title: 'Artisan mode enabled! Use the sidebar switch to toggle between modes.' });
     } catch (error: any) {
-      toast.error(error.message || 'Failed to enable artisan mode');
+      toast({ title: error.message || 'Failed to enable artisan mode', variant: 'destructive' });
     } finally {
       setEnablingArtisan(false);
     }
@@ -370,16 +382,46 @@ export default function Settings() {
               
               <Separator />
               
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-destructive">Delete Account</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Permanently delete your account and all data
-                  </p>
-                </div>
-                <Button variant="destructive">
-                  Delete Account
-                </Button>
+              <div className="space-y-2">
+                <Label className="text-destructive">Delete Account</Label>
+                <p className="text-sm text-muted-foreground">
+                  Permanently delete your account. This action cannot be undone.
+                  You have a 30-day grace period to contact support to recover your account.
+                </p>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Delete Account</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Your account will be deactivated immediately and permanently deleted after 30 days.
+                        All your active bookings must be completed or cancelled first.
+                        Contact support@ogajobs.com.ng within 30 days to recover your account.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={async () => {
+                          const { error } = await supabase.functions.invoke('delete-account', {
+                            body: { reason: 'User requested deletion' }
+                          });
+                          if (error) {
+                            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                          } else {
+                            toast({ title: 'Account deleted', description: 'You have been signed out.' });
+                            window.location.href = '/';
+                          }
+                        }}
+                      >
+                        Yes, delete my account
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>

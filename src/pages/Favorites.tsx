@@ -36,8 +36,8 @@ export default function Favorites() {
   const fetchFavorites = async () => {
     try {
       // Query favorites table joined with artisan profile data
-      const { data, error } = await supabase
-        .from('favorites')
+      const { data, error } = await (supabase as any)
+        .from('artisan_favorites')
         .select(`
           id,
           artisan_id,
@@ -51,7 +51,7 @@ export default function Favorites() {
             photo_url
           )
         `)
-        .eq('user_id', user?.id);
+        .eq('client_id', user?.id);
 
       if (error) {
         // Table may not exist — show empty state gracefully
@@ -82,20 +82,16 @@ export default function Favorites() {
     }
   };
 
-  const handleRemoveFavorite = async (favoriteId: string) => {
-    try {
-      const { error } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('id', favoriteId)
-        .eq('user_id', user?.id);
+  const removeFavorite = async (favoriteId: string) => {
+    const { error } = await (supabase as any)
+      .from('artisan_favorites')
+      .delete()
+      .eq('id', favoriteId)
+      .eq('client_id', user?.id);
 
-      if (error) throw error;
-
-      setFavorites(prev => prev.filter(f => f.favorite_id !== favoriteId));
-      toast({ title: 'Removed', description: 'Artisan removed from favorites.' });
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message || 'Failed to remove favorite.', variant: 'destructive' });
+    if (!error) {
+      setFavorites(prev => prev.filter(f => f.id !== favoriteId));
+      toast({ title: 'Removed from favorites' });
     }
   };
 
@@ -150,7 +146,7 @@ export default function Favorites() {
                       size="icon"
                       variant="ghost"
                       className="text-red-500"
-                      onClick={() => handleRemoveFavorite(artisan.favorite_id)}
+                      onClick={() => removeFavorite(artisan.favorite_id)}
                       title="Remove from favorites"
                     >
                       <Heart className="w-4 h-4 fill-current" />

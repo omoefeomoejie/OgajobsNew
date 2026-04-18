@@ -1,7 +1,7 @@
-import { 
-  Shield, 
-  Users, 
-  Briefcase, 
+import {
+  Shield,
+  Users,
+  Briefcase,
   DollarSign,
   AlertTriangle,
   TrendingUp,
@@ -9,7 +9,8 @@ import {
   Zap,
   Target,
   BarChart3,
-  Brain
+  Brain,
+  Settings
 } from 'lucide-react';
 import {
   Sidebar,
@@ -41,6 +42,7 @@ const adminMenuItems = [
   { title: "User Behavior", url: "#behavior", icon: BarChart3 },
   { title: "Trust & Safety", url: "#safety", icon: Shield },
   { title: "KYC Verifications", url: "#verifications", icon: Shield },
+  { title: "Settings", url: "#settings", icon: Settings },
 ];
 
 interface AdminSidebarProps {

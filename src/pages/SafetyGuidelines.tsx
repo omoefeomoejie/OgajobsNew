@@ -388,7 +388,7 @@ export default function SafetyGuidelines() {
                   </Button>
                   <Button variant="outline" size="lg">
                     <Phone className="w-5 h-5 mr-2" />
-                    OgaJobs Safety: +234 803 123 4567
+                    OgaJobs Safety: +234 700 642 5627
                   </Button>
                 </div>
               </div>

@@ -4,8 +4,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, Phone, Mail, Search, HelpCircle, Book, Users } from 'lucide-react';
+import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 
 export default function HelpCenter() {
+  const { settings } = usePlatformSettings();
   const faqs = [
     {
       question: "How do I book an artisan?",
@@ -69,7 +71,7 @@ export default function HelpCenter() {
               <CardDescription>Speak directly with our support team</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full">+234 (0) 123 456 7890</Button>
+              <Button variant="outline" className="w-full">{settings.support_phone}</Button>
             </CardContent>
           </Card>
 
@@ -80,7 +82,7 @@ export default function HelpCenter() {
               <CardDescription>Send us your questions via email</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full">support@ogajobs.com.ng</Button>
+              <Button variant="outline" className="w-full">{settings.support_email}</Button>
             </CardContent>
           </Card>
         </div>

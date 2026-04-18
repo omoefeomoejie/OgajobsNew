@@ -405,7 +405,7 @@ export default function POSPartnership() {
             <div className="flex flex-col md:flex-row gap-8 justify-center items-center text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4" />
-                <span>Partnership Support: +234 803 123 4567</span>
+                <span>Partnership Support: +234 700 642 5627</span>
               </div>
             </div>
           </div>

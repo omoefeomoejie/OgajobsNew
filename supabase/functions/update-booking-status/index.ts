@@ -7,7 +7,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -22,56 +21,44 @@ serve(async (req) => {
     }
   );
 
+  const serviceClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
+
   try {
-    // Get authenticated user
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      throw new Error("User not authenticated");
-    }
+    if (authError || !user) throw new Error("User not authenticated");
 
     const { booking_id, status, completion_confirmed } = await req.json();
 
-    if (!booking_id || !status) {
-      throw new Error("Booking ID and status are required");
-    }
+    if (!booking_id || !status) throw new Error("Booking ID and status are required");
 
-    // Validate status
-    const validStatuses = ['pending', 'assigned', 'paid', 'in_progress', 'completed', 'cancelled'];
-    if (!validStatuses.includes(status)) {
-      throw new Error("Invalid status");
-    }
+    const validStatuses = ['pending', 'assigned', 'paid', 'in_progress', 'completed', 'cancelled', 'awaiting_approval'];
+    if (!validStatuses.includes(status)) throw new Error("Invalid status");
 
-    // Get current booking
     const { data: booking, error: fetchError } = await supabaseClient
       .from('bookings')
       .select('*')
       .eq('id', booking_id)
       .single();
 
-    if (fetchError || !booking) {
-      throw new Error("Booking not found");
-    }
+    if (fetchError || !booking) throw new Error("Booking not found");
 
-    // Check if user is authorized to update this booking
     const isClient = booking.client_email === user.email;
     const isArtisan = booking.artisan_email === user.email || booking.artisan_id === user.id;
-    
-    if (!isClient && !isArtisan) {
-      throw new Error("Not authorized to update this booking");
-    }
 
-    // Update booking status
+    if (!isClient && !isArtisan) throw new Error("Not authorized to update this booking");
+
     const updateData: any = {
-      status: status,
+      status,
       updated_at: new Date().toISOString(),
     };
 
-    // If marking as completed, add completion date
-    if (status === 'completed') {
+    if (status === 'completed' || status === 'awaiting_approval') {
       updateData.completion_date = new Date().toISOString();
     }
 
-    // If payment confirmed, update payment status
     if (completion_confirmed && status === 'paid') {
       updateData.payment_status = 'paid';
     }
@@ -83,32 +70,75 @@ serve(async (req) => {
       .select()
       .single();
 
-    if (updateError) {
-      throw new Error("Failed to update booking status");
+    if (updateError) throw new Error("Failed to update booking status");
+
+    // Send notifications based on status change
+    const notifyEmail = isArtisan ? booking.client_email : booking.artisan_email;
+    const notifyRole = isArtisan ? 'client' : 'artisan';
+
+    const notificationMap: Record<string, { title: string; message: string }> = {
+      in_progress: {
+        title: 'Job Started',
+        message: `Your ${booking.work_type} job has been started by the artisan`,
+      },
+      awaiting_approval: {
+        title: 'Job Completed — Review Required',
+        message: `Your artisan has completed the ${booking.work_type} job. Please review and release payment.`,
+      },
+      completed: {
+        title: 'Job Completed',
+        message: `Your ${booking.work_type} job has been marked as completed`,
+      },
+      cancelled: {
+        title: 'Booking Cancelled',
+        message: `Your ${booking.work_type} booking has been cancelled`,
+      },
+    };
+
+    const notification = notificationMap[status];
+    if (notification && notifyEmail) {
+      await serviceClient.functions.invoke('send-notification', {
+        body: {
+          userEmail: notifyEmail,
+          type: 'in_app',
+          template: status,
+          data: {
+            title: notification.title,
+            message: notification.message,
+            type: 'booking_update',
+          },
+        },
+      });
+
+      await serviceClient.functions.invoke('send-notification', {
+        body: {
+          userEmail: notifyEmail,
+          type: 'email',
+          template: 'booking_confirmed',
+          data: {
+            clientName: notifyRole === 'client' ? 'Client' : 'Artisan',
+            artisanName: notifyRole === 'client' ? 'Your Artisan' : 'Client',
+            serviceType: booking.work_type,
+            preferredDate: booking.preferred_date || 'Flexible',
+          },
+        },
+      });
     }
 
-    // If booking is completed and there's an escrow payment, we could auto-release it
-    // (This would be a business decision - auto-release or require manual release)
-    
     return new Response(
       JSON.stringify({
         success: true,
         booking: updatedBooking,
         message: `Booking status updated to ${status}`,
       }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
-  } catch (error) {
+
+  } catch (error: any) {
     console.error("Error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
     );
   }
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { DollarSign, CreditCard, AlertCircle } from 'lucide-react';
+import { NIGERIAN_BANKS } from '@/lib/nigeria';
 
 interface CommissionWithdrawalProps {
   availableBalance: number;
@@ -19,35 +20,24 @@ const CommissionWithdrawal: React.FC<CommissionWithdrawalProps> = ({
 }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [minWithdrawal, setMinWithdrawal] = useState(1000);
+
+  useEffect(() => {
+    supabase
+      .from('platform_settings')
+      .select('value')
+      .eq('key', 'min_withdrawal')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setMinWithdrawal(parseFloat(data.value));
+      });
+  }, []);
   const [formData, setFormData] = useState({
     amount: '',
     bankCode: '',
     accountNumber: '',
     accountName: '',
   });
-
-  const nigerianBanks = [
-    { code: '044', name: 'Access Bank' },
-    { code: '014', name: 'Afribank' },
-    { code: '023', name: 'Citibank' },
-    { code: '050', name: 'Ecobank' },
-    { code: '011', name: 'First Bank' },
-    { code: '214', name: 'First City Monument Bank' },
-    { code: '070', name: 'Fidelity Bank' },
-    { code: '058', name: 'Guaranty Trust Bank' },
-    { code: '030', name: 'Heritage Bank' },
-    { code: '301', name: 'Jaiz Bank' },
-    { code: '082', name: 'Keystone Bank' },
-    { code: '076', name: 'Polaris Bank' },
-    { code: '221', name: 'Stanbic IBTC Bank' },
-    { code: '068', name: 'Standard Chartered' },
-    { code: '232', name: 'Sterling Bank' },
-    { code: '032', name: 'Union Bank' },
-    { code: '033', name: 'United Bank for Africa' },
-    { code: '215', name: 'Unity Bank' },
-    { code: '035', name: 'Wema Bank' },
-    { code: '057', name: 'Zenith Bank' }
-  ];
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -67,19 +57,20 @@ const CommissionWithdrawal: React.FC<CommissionWithdrawalProps> = ({
         throw new Error('Invalid withdrawal amount');
       }
 
-      if (withdrawalAmount < 1000) {
-        throw new Error('Minimum withdrawal amount is ₦1,000');
+      if (withdrawalAmount < minWithdrawal) {
+        throw new Error(`Minimum withdrawal amount is ₦${minWithdrawal.toLocaleString()}`);
       }
 
-      // Create withdrawal request (simplified for now)
       const { error } = await supabase
-        .from('withdrawal_requests')
+        .from('withdrawal_requests_v2')
         .insert({
-          artisan_id: user.id, // Using artisan_id field for agent withdrawals for now
+          artisan_id: user.id,
           amount: withdrawalAmount,
+          bank_name: NIGERIAN_BANKS.find(bank => bank.code === formData.bankCode)?.name || '',
           bank_code: formData.bankCode,
-          bank_account_number: formData.accountNumber,
+          account_number: formData.accountNumber,
           account_name: formData.accountName,
+          withdrawal_method: 'bank_transfer',
           status: 'pending'
         });
 
@@ -136,15 +127,15 @@ const CommissionWithdrawal: React.FC<CommissionWithdrawalProps> = ({
             <Input
               id="amount"
               type="number"
-              placeholder="Enter amount (min ₦1,000)"
+              placeholder={`Enter amount (min ₦${minWithdrawal.toLocaleString()})`}
               value={formData.amount}
               onChange={(e) => handleInputChange('amount', e.target.value)}
-              min="1000"
+              min={minWithdrawal.toString()}
               max={availableBalance}
               required
             />
             <p className="text-xs text-gray-500">
-              Minimum withdrawal: ₦1,000
+              Minimum withdrawal: ₦{minWithdrawal.toLocaleString()}
             </p>
           </div>
 
@@ -155,7 +146,7 @@ const CommissionWithdrawal: React.FC<CommissionWithdrawalProps> = ({
                 <SelectValue placeholder="Select your bank" />
               </SelectTrigger>
               <SelectContent>
-                {nigerianBanks.map((bank) => (
+                {NIGERIAN_BANKS.map((bank) => (
                   <SelectItem key={bank.code} value={bank.code}>
                     {bank.name}
                   </SelectItem>

@@ -138,6 +138,7 @@ export function useRealtimeNotifications() {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
           const notification = payload.new as any;

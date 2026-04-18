@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { serviceCategories } from '@/data/serviceCategories';
+import { SERVICE_CATEGORIES } from '@/lib/nigeria';
 import { ROUTES } from '@/config/routes';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -57,13 +58,17 @@ export default function Services() {
       query = query.ilike('city', `%${selectedLocation.split(' - ').pop()}%`);
     }
 
+    if (searchQuery) {
+      query = query.or(`skill.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%,full_name.ilike.%${searchQuery}%`);
+    }
+
     query
       .order('created_at', { ascending: false })
       .limit(6)
       .then(({ data }) => {
         if (data) setFeaturedArtisans(data as FeaturedArtisan[]);
       });
-  }, [selectedLocation]);
+  }, [selectedLocation, searchQuery]);
   
   const filteredCategories = serviceCategories.filter(category => {
     const matchesSearch = searchQuery === '' || 
@@ -81,7 +86,11 @@ export default function Services() {
     const params = new URLSearchParams();
     params.set('category', categorySlug);
     if (serviceSlug) {
-      params.set('service', serviceSlug);
+      const canonicalCategory = SERVICE_CATEGORIES.find(
+        c => c.value.toLowerCase() === serviceSlug.toLowerCase()
+          || c.label.toLowerCase().includes(serviceSlug.toLowerCase())
+      )?.value || serviceSlug;
+      params.set('service', canonicalCategory);
     }
     navigate(`/book?${params.toString()}`);
   };

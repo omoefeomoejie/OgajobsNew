@@ -152,19 +152,20 @@ export function BookingTimeline() {
         break;
 
       case 'release_payment':
-      case 'release-payment':
-        try {
-          const { data, error } = await supabase.functions.invoke('release-escrow', {
-            body: { booking_id: bookingId }
+      case 'release-payment': {
+        const { data: escrow } = await supabase
+          .from('escrow_payments')
+          .select('id')
+          .eq('booking_id', bookingId)
+          .maybeSingle();
+
+        if (escrow?.id) {
+          await supabase.functions.invoke('release-escrow', {
+            body: { escrow_id: escrow.id }
           });
-          if (error) throw error;
-          toast({ title: 'Payment released', description: 'Escrow payment has been released to the artisan.' });
-          await fetchBookings();
-        } catch (err: any) {
-          toast({ title: 'Release payment', description: 'Redirecting to bookings to manage payment.', variant: 'default' });
-          navigate(ROUTES.BOOKINGS);
         }
         break;
+      }
 
       case 'review':
         navigate(ROUTES.REVIEWS);
@@ -334,7 +335,8 @@ export function BookingTimeline() {
                       </>
                     )}
 
-                    {booking.status === 'awaiting_payment' && (
+                    {/* awaiting_approval = artisan marked complete, client must approve and release escrow */}
+                    {booking.status === 'awaiting_approval' && (
                       <Button
                         size="sm"
                         onClick={() => handleAction('release_payment', booking.id)}

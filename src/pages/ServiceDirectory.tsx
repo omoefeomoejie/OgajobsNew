@@ -20,6 +20,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { SERVICE_CATEGORIES } from '@/lib/nigeria';
 
 interface Artisan {
   id: string;
@@ -37,18 +38,7 @@ interface Artisan {
   reviewCount?: number;
 }
 
-const categories = [
-  'All Categories',
-  'Plumbing',
-  'Electrical',
-  'Carpentry',
-  'Painting',
-  'Cleaning',
-  'Garden',
-  'HVAC',
-  'Roofing',
-  'Other'
-];
+const categories = ['All Categories', ...SERVICE_CATEGORIES.map(c => c.value)];
 
 const cities = [
   'All Cities',

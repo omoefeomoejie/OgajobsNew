@@ -73,6 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // The profiles table is the sole source of truth for roles.
         // user_metadata is client-writable and must never be trusted for authorization.
         setProfile(data);
+        if ((data as any).deleted_at) {
+          await supabase.auth.signOut();
+          setProfile(null);
+          window.location.href = '/';
+          return;
+        }
         initActiveMode(data);
       } else {
         // Profile not found — create one with the role from signup metadata.

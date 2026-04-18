@@ -130,6 +130,34 @@ export default function Messages() {
       );
 
       setConversations(conversationsWithDetails);
+
+      // Backfill missing artisan_email on old conversation rows
+      const needsBackfill = conversationsWithDetails.filter(
+        c => !c.artisan_email && c.artisan_id
+      );
+      if (needsBackfill.length > 0) {
+        const artisanIds = needsBackfill.map(c => c.artisan_id);
+        const { data: artisanData } = await supabase
+          .from('artisans')
+          .select('id, email, full_name')
+          .in('id', artisanIds);
+
+        if (artisanData && artisanData.length > 0) {
+          // Update conversations table with missing data
+          await Promise.all(artisanData.map(async (artisan) => {
+            await supabase
+              .from('conversations')
+              .update({
+                artisan_email: artisan.email,
+                artisan_name: artisan.full_name,
+              })
+              .eq('artisan_id', artisan.id)
+              .is('artisan_email', null);
+          }));
+          // Refresh conversations to get updated data
+          await fetchConversations();
+        }
+      }
     } catch (error: any) {
       console.error('Error fetching conversations:', JSON.stringify(error));
       toast({
@@ -184,6 +212,16 @@ export default function Messages() {
       const receiverEmail = selectedConversation.client_email === user.email
         ? selectedConversation.artisan_email
         : selectedConversation.client_email;
+
+      if (!receiverEmail) {
+        toast({
+          title: 'Cannot send message',
+          description: 'Recipient information is missing. Please refresh and try again.',
+          variant: 'destructive',
+        });
+        setSending(false);
+        return;
+      }
 
       const { error } = await supabase
         .from('messages')

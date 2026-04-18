@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,8 +19,10 @@ import {
   Upload,
   Shield
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { NIGERIAN_BANKS } from '@/lib/nigeria';
 
 interface UserProfileProps {
   showAvatar?: boolean;
@@ -33,7 +35,27 @@ export function UserProfile({ showAvatar = true, showFullForm = true, compact = 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [bankCode, setBankCode] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountName, setAccountName] = useState('');
   
+  useEffect(() => {
+    if (user?.id && (profile?.role === 'artisan' || profile?.available_as_artisan)) {
+      supabase
+        .from('artisans')
+        .select('bank_code, account_number, account_name')
+        .eq('email', user.email)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            setBankCode((data as any).bank_code || '');
+            setAccountNumber((data as any).account_number || '');
+            setAccountName((data as any).account_name || '');
+          }
+        });
+    }
+  }, [user?.id, profile?.role]);
+
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || user?.user_metadata?.full_name || '',
     bio: user?.user_metadata?.bio || '',
@@ -102,6 +124,19 @@ export function UserProfile({ showAvatar = true, showFullForm = true, compact = 
         .eq('id', user!.id);
 
       if (error) throw error;
+
+      if (profile?.role === 'artisan' || profile?.available_as_artisan) {
+        await (supabase as any)
+          .from('artisans')
+          .update({
+            bank_name: NIGERIAN_BANKS.find(b => b.code === bankCode)?.name || '',
+            bank_code: bankCode,
+            account_number: accountNumber,
+            account_name: accountName,
+          })
+          .eq('email', user?.email);
+      }
+
       toast.success('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -255,9 +290,48 @@ export function UserProfile({ showAvatar = true, showFullForm = true, compact = 
               />
             </div>
 
-            <Button 
-              onClick={handleSaveProfile} 
-              disabled={loading} 
+            {(profile?.role === 'artisan' || profile?.available_as_artisan) && (
+              <div className="space-y-4 pt-4 border-t">
+                <h3 className="font-medium text-sm">Bank Account Details</h3>
+                <p className="text-xs text-muted-foreground">
+                  Saved bank details are used for automatic payment transfers when a client releases payment.
+                </p>
+                <div className="space-y-2">
+                  <Label>Bank</Label>
+                  <Select value={bankCode} onValueChange={setBankCode}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your bank" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {NIGERIAN_BANKS.map((bank) => (
+                        <SelectItem key={bank.code} value={bank.code}>{bank.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Account Number</Label>
+                  <Input
+                    placeholder="10-digit account number"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    maxLength={10}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Account Name</Label>
+                  <Input
+                    placeholder="Name on bank account"
+                    value={accountName}
+                    onChange={(e) => setAccountName(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            <Button
+              onClick={handleSaveProfile}
+              disabled={loading}
               className="flex items-center gap-2"
             >
               <Save className="w-4 h-4" />

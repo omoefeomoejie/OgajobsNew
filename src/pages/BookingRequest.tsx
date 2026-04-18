@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +22,25 @@ export default function BookingRequest() {
   const { toast } = useToast();
 
   const preselectedArtisan = searchParams.get('artisan');
+
+  const [preselectedArtisanEmail, setPreselectedArtisanEmail] = useState<string | null>(null);
+  const [preselectedArtisanId, setPreselectedArtisanId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (preselectedArtisan) {
+      supabase
+        .from('artisans')
+        .select('id, email')
+        .eq('id', preselectedArtisan)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            setPreselectedArtisanEmail(data.email);
+            setPreselectedArtisanId(data.id);
+          }
+        });
+    }
+  }, [preselectedArtisan]);
 
   const [workType, setWorkType] = useState(searchParams.get('service') || '');
   const [city, setCity] = useState('');
@@ -61,7 +80,8 @@ export default function BookingRequest() {
         description: description || null,
         urgency,
         budget: budget ? parseFloat(budget) : null,
-        artisan_email: preselectedArtisan || null,
+        artisan_email: preselectedArtisanEmail || null,
+        artisan_id: preselectedArtisanId || null,
         status: 'pending',
         payment_status: 'unpaid',
         created_at: new Date().toISOString(),
@@ -78,6 +98,49 @@ export default function BookingRequest() {
           });
         } catch (matchError) {
           console.error('Auto-match attempted:', matchError);
+        }
+
+        // Notify all auto-assigned artisans
+        try {
+          const { data: assignments } = await supabase
+            .from('booking_assignments')
+            .select('artisan_id, artisans(full_name, email)')
+            .eq('booking_id', booking.id);
+
+          if (assignments && assignments.length > 0) {
+            await Promise.all(assignments.map(async (assignment: any) => {
+              const artisanEmail = assignment.artisans?.email;
+              if (artisanEmail) {
+                await supabase.functions.invoke('send-notification', {
+                  body: {
+                    userEmail: artisanEmail,
+                    type: 'in_app',
+                    template: 'booking_assigned',
+                    data: {
+                      title: 'New Job Request',
+                      message: `A new ${workType} job is available in ${city}. Budget: ₦${budget || 'Flexible'}`,
+                      type: 'booking_request',
+                    },
+                  },
+                });
+                await supabase.functions.invoke('send-notification', {
+                  body: {
+                    userEmail: artisanEmail,
+                    type: 'email',
+                    template: 'booking_assigned',
+                    data: {
+                      artisanName: assignment.artisans?.full_name || 'Artisan',
+                      bookingTitle: workType,
+                      location: city,
+                      budget: budget || 'Flexible',
+                    },
+                  },
+                });
+              }
+            }));
+          }
+        } catch (notifyError) {
+          console.error('Failed to notify assigned artisans:', notifyError);
         }
       }
 

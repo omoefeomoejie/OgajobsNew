@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Logo } from '@/components/ui/logo';
 import { ROUTES } from '@/config/routes';
+import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -17,6 +18,8 @@ import {
 } from 'lucide-react';
 
 export const Footer = () => {
+  const { settings } = usePlatformSettings();
+
   return (
     <footer className="bg-primary text-primary-foreground">
       {/* Trust Section */}
@@ -80,13 +83,13 @@ export const Footer = () => {
               Eliminating anxiety, building trust, ensuring quality.
             </p>
             <div className="flex gap-4">
-              <Button size="icon" variant="secondary" className="w-8 h-8">
+              <Button size="icon" variant="secondary" className="w-8 h-8" onClick={() => window.open(settings.facebook_url, '_blank')}>
                 <Facebook className="w-4 h-4" />
               </Button>
-              <Button size="icon" variant="secondary" className="w-8 h-8">
+              <Button size="icon" variant="secondary" className="w-8 h-8" onClick={() => window.open(settings.twitter_url, '_blank')}>
                 <Twitter className="w-4 h-4" />
               </Button>
-              <Button size="icon" variant="secondary" className="w-8 h-8">
+              <Button size="icon" variant="secondary" className="w-8 h-8" onClick={() => window.open(settings.instagram_url, '_blank')}>
                 <Instagram className="w-4 h-4" />
               </Button>
               <Button size="icon" variant="secondary" className="w-8 h-8">
@@ -125,11 +128,11 @@ export const Footer = () => {
             <div className="space-y-4 mb-6">
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5" />
-                <span className="text-primary-foreground/80">+234 (0) 123 456 7890</span>
+                <span className="text-primary-foreground/80">{settings.support_phone}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5" />
-                <span className="text-primary-foreground/80">support@ogajobs.com.ng</span>
+                <span className="text-primary-foreground/80">{settings.support_email}</span>
               </div>
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 mt-1" />

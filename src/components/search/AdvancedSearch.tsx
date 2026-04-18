@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { SERVICE_CATEGORIES } from '@/lib/nigeria';
 import { 
   Search, 
   Filter, 
@@ -78,10 +79,6 @@ interface SearchAnalytics {
   timestamp: string;
 }
 
-const CATEGORIES = [
-  'Plumbing', 'Electrical', 'Carpentry', 'Painting', 'Cleaning', 
-  'Gardening', 'Tailoring', 'Catering', 'Photography', 'Repair'
-];
 
 const CITIES = [
   'Lagos', 'Abuja', 'Kano', 'Ibadan', 'Port Harcourt', 'Benin City',
@@ -409,8 +406,8 @@ export function AdvancedSearch() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
-                      {CATEGORIES.map(category => (
-                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                      {SERVICE_CATEGORIES.map(cat => (
+                        <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

@@ -12,6 +12,7 @@ import { MapPin, Phone, User, CreditCard } from 'lucide-react';
 import { LocationSelector } from '@/components/ui/LocationSelector';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useWelcomeEmail } from '@/hooks/useWelcomeEmail';
+import { NIGERIAN_BANKS, NIGERIAN_STATES_LIST } from '@/lib/nigeria';
 
 const AgentRegistration = () => {
   const navigate = useNavigate();
@@ -29,86 +30,6 @@ const AgentRegistration = () => {
     experience: '',
   });
 
-  const nigerianStates = [
-    'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
-    'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe',
-    'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara',
-    'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau',
-    'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
-  ];
-
-  const nigerianBanks = [
-    // Traditional Banks
-    { name: 'Access Bank', code: '044' },
-    { name: 'Citibank Nigeria', code: '023' },
-    { name: 'Ecobank Nigeria', code: '050' },
-    { name: 'Fidelity Bank', code: '070' },
-    { name: 'First Bank of Nigeria', code: '011' },
-    { name: 'First City Monument Bank', code: '214' },
-    { name: 'Guaranty Trust Bank', code: '058' },
-    { name: 'Heritage Bank', code: '030' },
-    { name: 'Keystone Bank', code: '082' },
-    { name: 'Polaris Bank', code: '076' },
-    { name: 'Providus Bank', code: '101' },
-    { name: 'Stanbic IBTC Bank', code: '221' },
-    { name: 'Standard Chartered Bank', code: '068' },
-    { name: 'Sterling Bank', code: '232' },
-    { name: 'SunTrust Bank', code: '100' },
-    { name: 'Union Bank of Nigeria', code: '032' },
-    { name: 'United Bank for Africa', code: '033' },
-    { name: 'Unity Bank', code: '215' },
-    { name: 'Wema Bank', code: '035' },
-    { name: 'Zenith Bank', code: '057' },
-    
-    // Digital Banks
-    { name: 'Carbon (Formerly One Finance)', code: '565' },
-    { name: 'Kuda Bank', code: '50211' },
-    { name: 'ALAT by Wema', code: '035A' },
-    { name: 'VFD Microfinance Bank', code: '566' },
-    { name: 'Mint MFB', code: '50515' },
-    { name: 'Rubies MFB', code: '125' },
-    { name: 'Eyowo', code: '50126' },
-    
-    // Microfinance Banks
-    { name: 'LAPO Microfinance Bank', code: '50563' },
-    { name: 'AB Microfinance Bank', code: '51204' },
-    { name: 'Accion Microfinance Bank', code: '51336' },
-    { name: 'Advans La Fayette Microfinance Bank', code: '51244' },
-    { name: 'Amju Unique MFB', code: '50926' },
-    { name: 'Bainescredit MFB', code: '51229' },
-    { name: 'CEMCS Microfinance Bank', code: '50823' },
-    { name: 'Esan Microfinance Bank', code: '50126' },
-    { name: 'Firmus MFB', code: '51314' },
-    { name: 'Fortis Microfinance Bank', code: '501' },
-    { name: 'Ibile Microfinance Bank', code: '51244' },
-    { name: 'Infinity MFB', code: '50457' },
-    { name: 'NPF Microfinance Bank', code: '552' },
-    { name: 'Page MFiBank', code: '50746' },
-    { name: 'Petra Mircofinance Bank', code: '50746' },
-    { name: 'Rephidim Microfinance Bank', code: '50994' },
-    { name: 'Safetrust Microfinance Bank', code: '403' },
-    { name: 'Stellas MFB', code: '51253' },
-    { name: 'Trustfund Microfinance Bank', code: '51269' },
-    
-    // Payment Service Banks & Fintechs
-    { name: 'OPay Digital Services', code: '999992' },
-    { name: 'PalmPay', code: '999991' },
-    { name: 'MoniePoint MFB', code: '50515' },
-    { name: 'FairMoney Microfinance Bank', code: '51318' },
-    { name: 'Flutterwave Technology Solutions', code: '50211' },
-    { name: 'Paystack', code: '50211' },
-    { name: 'Interswitch', code: '50211' },
-    
-    // Islamic Banking
-    { name: 'Jaiz Bank', code: '301' },
-    { name: 'Taj Bank', code: '302' },
-    
-    // Others
-    { name: 'Globus Bank', code: '00103' },
-    { name: 'PremiumTrust Bank', code: '105' },
-    { name: 'Parallex Bank', code: '104' },
-    { name: 'Titan Trust Bank', code: '102' }
-  ].sort((a, b) => a.name.localeCompare(b.name));
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -134,6 +55,14 @@ const AgentRegistration = () => {
       };
 
       const agentCode = generateAgentCode();
+
+      // Fetch commission rate from platform settings
+      const { data: commissionSetting } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'commission_rate')
+        .maybeSingle();
+      const agentCommissionRate = commissionSetting?.value ? parseFloat(commissionSetting.value) : 10.0;
 
       // Get user profile for email
       const { data: profile, error: profileFetchError } = await supabase
@@ -164,7 +93,7 @@ const AgentRegistration = () => {
         bank_code: formData.bankCode,
         account_name: formData.accountName,
         status: 'active',
-        commission_rate: 10.0, // Default 10% commission
+        commission_rate: agentCommissionRate,
         total_artisans_onboarded: 0,
         total_commission_earned: 0
       };
@@ -323,7 +252,7 @@ const AgentRegistration = () => {
                         <SelectValue placeholder="Select bank" />
                       </SelectTrigger>
                         <SelectContent>
-                          {nigerianBanks.map((bank) => (
+                          {NIGERIAN_BANKS.map((bank) => (
                             <SelectItem key={bank.code} value={bank.code}>
                               {bank.name}
                             </SelectItem>

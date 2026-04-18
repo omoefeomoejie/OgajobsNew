@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,7 +32,19 @@ export default function PaymentForm({
   const [paymentAttempts, setPaymentAttempts] = useState(0);
   const [lastError, setLastError] = useState<string | null>(null);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
+  const [commissionRate, setCommissionRate] = useState(0.10);
   const { toast } = useToast();
+
+  useEffect(() => {
+    supabase
+      .from('platform_settings')
+      .select('value')
+      .eq('key', 'commission_rate')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setCommissionRate(parseFloat(data.value) / 100);
+      });
+  }, []);
 
   const { submitSecurely } = useSecureSubmit({
     rateLimitKey: `payment_${transactionType}`,
@@ -53,8 +65,8 @@ export default function PaymentForm({
     }
   });
 
-  const platformFee = Math.round(amount * 0.10 * 100) / 100;
-  const artisanEarnings = Math.round(amount * 0.90 * 100) / 100;
+  const platformFee = Math.round(amount * commissionRate * 100) / 100;
+  const artisanEarnings = Math.round(amount * (1 - commissionRate) * 100) / 100;
 
   const handlePayment = async () => {
     setLastError(null);

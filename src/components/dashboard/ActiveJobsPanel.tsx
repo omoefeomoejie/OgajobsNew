@@ -43,6 +43,7 @@ export function ActiveJobsPanel() {
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState<string | null>(null);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -62,8 +63,10 @@ export function ActiveJobsPanel() {
         setOpenRequests([]);
         setMyJobs([]);
         setLoading(false);
+        setNeedsOnboarding(true);
         return;
       }
+      setNeedsOnboarding(false);
 
       const { data: cityData } = await supabase
         .from('bookings')
@@ -169,6 +172,33 @@ export function ActiveJobsPanel() {
             created_at: new Date().toISOString(),
           });
         }
+
+        // Notify client that their job was accepted
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            userEmail: job.client_email,
+            type: 'in_app',
+            template: 'booking_confirmed',
+            data: {
+              title: 'Job Accepted',
+              message: `Your ${job.work_type} request in ${job.city} has been accepted by an artisan`,
+              type: 'booking_update',
+            },
+          },
+        });
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            userEmail: job.client_email,
+            type: 'email',
+            template: 'booking_confirmed',
+            data: {
+              clientName: job.client_email.split('@')[0],
+              artisanName: profile?.full_name || user.email,
+              serviceType: job.work_type,
+              preferredDate: job.preferred_date || 'Flexible',
+            },
+          },
+        });
       }
 
       toast({
@@ -356,6 +386,17 @@ export function ActiveJobsPanel() {
         <CardDescription>Browse open requests and manage your work</CardDescription>
       </CardHeader>
       <CardContent>
+        {needsOnboarding && (
+          <div className="p-6 text-center border rounded-lg bg-muted/50 mb-4">
+            <p className="font-medium mb-2">Complete your artisan profile to see job requests</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Tell us your skill and city so we can match you with the right jobs.
+            </p>
+            <Button onClick={() => navigate('/become-artisan')} size="sm">
+              Complete Profile
+            </Button>
+          </div>
+        )}
         <Tabs defaultValue="open">
           <TabsList className="mb-4">
             <TabsTrigger value="open">

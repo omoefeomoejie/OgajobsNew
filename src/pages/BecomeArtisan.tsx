@@ -25,8 +25,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 
 export default function BecomeArtisan() {
+  const { settings } = usePlatformSettings();
   const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
   const { toast } = useToast();
@@ -81,7 +83,7 @@ export default function BecomeArtisan() {
     {
       icon: DollarSign,
       title: "Flexible Earnings",
-      description: "Set your own rates and work on your schedule. Top artisans earn ₦200,000+ monthly."
+      description: `Set your own rates and work on your schedule. Top artisans earn ${settings.stat_avg_monthly_earnings} monthly.`
     },
     {
       icon: Users,
@@ -146,7 +148,7 @@ export default function BecomeArtisan() {
             <div className="max-w-4xl mx-auto text-center">
               <Badge className="bg-white/20 text-white border-white/30 mb-6">
                 <TrendingUp className="w-4 h-4 mr-2" />
-                Join 5,000+ Verified Artisans
+                Join {settings.stat_artisan_count} Verified Artisans
               </Badge>
               
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
@@ -217,15 +219,15 @@ export default function BecomeArtisan() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>
-                <div className="text-3xl font-bold text-primary mb-2">₦150k+</div>
+                <div className="text-3xl font-bold text-primary mb-2">{settings.stat_avg_monthly_earnings}</div>
                 <div className="text-muted-foreground">Average Monthly Earnings</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-primary mb-2">4.9/5</div>
+                <div className="text-3xl font-bold text-primary mb-2">{settings.stat_satisfaction_rating}</div>
                 <div className="text-muted-foreground">Artisan Satisfaction</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-primary mb-2">48hrs</div>
+                <div className="text-3xl font-bold text-primary mb-2">{settings.stat_approval_time}</div>
                 <div className="text-muted-foreground">Average Approval Time</div>
               </div>
               <div>
@@ -328,11 +330,11 @@ export default function BecomeArtisan() {
             <div className="flex flex-col md:flex-row gap-8 justify-center items-center text-sm">
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4" />
-                <span>Need help? Call: +234 803 123 4567</span>
+                <span>Need help? Call: {settings.support_phone}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                <span>artisans@ogajobs.com</span>
+                <span>{settings.artisan_email}</span>
               </div>
             </div>
           </div>

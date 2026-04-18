@@ -108,18 +108,32 @@ export default function MyBookings() {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Booking marked as completed!"
-      });
+      // Look up the escrow record for this booking
+      const { data: escrow, error: escrowError } = await supabase
+        .from('escrow_payments')
+        .select('id')
+        .eq('booking_id', bookingId)
+        .maybeSingle();
 
+      if (escrow?.id) {
+        const { error: releaseError } = await supabase.functions.invoke('release-escrow', {
+          body: { escrow_id: escrow.id }
+        });
+        if (releaseError) {
+          console.error('Escrow release failed:', releaseError);
+          toast({
+            title: "Payment Release Failed",
+            description: "Booking marked complete but escrow release failed. Contact support.",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
+      toast({ title: "Success", description: "Booking completed and payment released to artisan!" });
       await fetchBookings();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to mark booking as completed",
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: "Failed to complete booking", variant: "destructive" });
     }
   };
 
@@ -426,6 +440,7 @@ export default function MyBookings() {
               </Button>
             )}
 
+            {/* awaiting_approval = artisan marked complete, client must approve and release escrow */}
             {booking.status === 'awaiting_approval' && (
               <Button
                 size="sm"

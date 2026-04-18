@@ -15,7 +15,6 @@ import {
   TrendingUp,
   CheckCircle
 } from 'lucide-react';
-import { serviceCategories } from '@/data/serviceCategories';
 import { NIGERIA_STATES } from '@/lib/nigeria';
 
 export const HeroSection = memo(() => {
@@ -131,6 +130,7 @@ export const HeroSection = memo(() => {
                   placeholder={t('hero.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
                   className="pl-12 h-12 text-base border-2 border-muted focus:border-primary text-foreground bg-background"
                 />
               </div>

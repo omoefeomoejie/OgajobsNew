@@ -359,3 +359,35 @@ export const NIGERIA_STATES: Record<string, string[]> = {
 
 /** Flat sorted list of all states for state dropdown */
 export const NIGERIAN_STATES_LIST = Object.keys(NIGERIA_STATES).sort();
+
+export const NIGERIAN_BANKS = [
+  { code: '044', name: 'Access Bank' },
+  { code: '014', name: 'Afribank' },
+  { code: '023', name: 'Citibank' },
+  { code: '050', name: 'Ecobank' },
+  { code: '011', name: 'First Bank' },
+  { code: '214', name: 'First City Monument Bank' },
+  { code: '070', name: 'Fidelity Bank' },
+  { code: '058', name: 'Guaranty Trust Bank' },
+  { code: '030', name: 'Heritage Bank' },
+  { code: '082', name: 'Keystone Bank' },
+  { code: '076', name: 'Polaris Bank' },
+  { code: '101', name: 'Providus Bank' },
+  { code: '221', name: 'Stanbic IBTC Bank' },
+  { code: '068', name: 'Standard Chartered' },
+  { code: '232', name: 'Sterling Bank' },
+  { code: '032', name: 'Union Bank' },
+  { code: '033', name: 'United Bank for Africa' },
+  { code: '215', name: 'Unity Bank' },
+  { code: '035', name: 'Wema Bank' },
+  { code: '057', name: 'Zenith Bank' },
+  { code: '301', name: 'Jaiz Bank' },
+  { code: '999992', name: 'OPay' },
+  { code: '50211', name: 'Kuda Bank' },
+  { code: '50515', name: 'Moniepoint' },
+  { code: '999991', name: 'PalmPay' },
+  { code: '565', name: 'Carbon' },
+  { code: '566', name: 'VFD Microfinance Bank' },
+  { code: '125', name: 'Rubies Bank' },
+  { code: '090175', name: 'Mkobo Microfinance Bank' },
+];

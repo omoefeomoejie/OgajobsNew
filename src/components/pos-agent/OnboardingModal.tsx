@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { X } from 'lucide-react';
+import { SERVICE_CATEGORIES, NIGERIAN_STATES_LIST } from '@/lib/nigeria';
 
 interface OnboardingModalProps {
   onClose: () => void;
@@ -26,19 +27,6 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
     address: '',
   });
 
-  const serviceCategories = [
-    'Plumbing', 'Electrical', 'Carpentry', 'Tailoring', 'Catering',
-    'Hair Styling', 'Makeup', 'Cleaning', 'Painting', 'Welding',
-    'Auto Mechanic', 'Phone Repair', 'Appliance Repair'
-  ];
-
-  const nigerianStates = [
-    'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
-    'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe',
-    'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara',
-    'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau',
-    'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
-  ];
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -198,9 +186,9 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
                   <SelectValue placeholder="Select service category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {serviceCategories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
+                  {SERVICE_CATEGORIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -214,7 +202,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, onSuccess })
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
-                  {nigerianStates.map((state) => (
+                  {NIGERIAN_STATES_LIST.map((state) => (
                     <SelectItem key={state} value={state}>
                       {state}
                     </SelectItem>
