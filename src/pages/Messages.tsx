@@ -331,9 +331,9 @@ export default function Messages() {
 
   return (
     <AppLayout>
-      <div className="flex h-[calc(100vh-12rem)]">
+      <div className="flex h-[calc(100vh-17rem)] md:h-[calc(100vh-12rem)]">
         {/* Conversations List */}
-        <div className="w-1/3 border-r flex flex-col">
+        <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-1/3 border-r flex-col`}>
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Messages</h2>
@@ -409,12 +409,18 @@ export default function Messages() {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 flex flex-col">
+        <div className={`${selectedConversation ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
           {selectedConversation ? (
             <>
               {/* Chat Header */}
               <div className="p-4 border-b bg-background">
                 <div className="flex items-center gap-3">
+                  <button
+                    className="md:hidden mr-2 p-1 rounded hover:bg-muted"
+                    onClick={() => setSelectedConversation(null)}
+                  >
+                    ←
+                  </button>
                   <Avatar>
                     <AvatarFallback>
                       <User className="h-5 w-5" />

@@ -41,7 +41,7 @@ export function MobileBottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t border-border z-40 safe-area-pb">
-      <div className="grid grid-cols-5 h-16">
+      <div className={`grid grid-cols-${navigationItems.slice(0, 5).length} h-16`}>
         {navigationItems.slice(0, 5).map((item) => {
           const isActive = location.pathname === item.url;
           return (

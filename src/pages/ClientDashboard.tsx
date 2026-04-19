@@ -25,7 +25,7 @@ export default function ClientDashboard() {
   const { profile } = useAuth();
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="max-w-7xl mx-auto p-6 space-y-8 overflow-x-hidden">
       {/* Enhanced Header with Capabilities */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 rounded-lg mb-6">
         <div className="flex items-start justify-between">

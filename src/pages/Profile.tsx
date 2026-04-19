@@ -114,7 +114,7 @@ export default function Profile() {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList>
+            <TabsList className="w-full">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Profile Info

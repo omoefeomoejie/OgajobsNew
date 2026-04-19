@@ -398,7 +398,7 @@ export function ActiveJobsPanel() {
           </div>
         )}
         <Tabs defaultValue="open">
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 w-full">
             <TabsTrigger value="open">
               Open Requests {openRequests.length > 0 && `(${openRequests.length})`}
             </TabsTrigger>
@@ -417,7 +417,7 @@ export function ActiveJobsPanel() {
                 </p>
               </div>
             ) : (
-              <ScrollArea className="h-[400px]">
+              <ScrollArea className="h-[min(400px,60vh)]">
                 <div className="space-y-4">
                   {openRequests.map((job) => (
                     <JobCard key={job.id} job={job} isOpen={true} />
@@ -437,7 +437,7 @@ export function ActiveJobsPanel() {
                 </p>
               </div>
             ) : (
-              <ScrollArea className="h-[400px]">
+              <ScrollArea className="h-[min(400px,60vh)]">
                 <div className="space-y-4">
                   {myJobs.map((job) => (
                     <JobCard key={job.id} job={job} isOpen={false} />

@@ -208,7 +208,7 @@ export function PaymentOverview() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Payment Summary */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <Shield className="h-4 w-4 text-blue-500" />
@@ -270,8 +270,8 @@ export function PaymentOverview() {
                 <div className="space-y-3">
                   {paymentData.transactions.map((transaction) => (
                     <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="space-y-1">
-                        <p className="font-medium">{transaction.description}</p>
+                      <div className="space-y-1 min-w-0">
+                        <p className="font-medium truncate">{transaction.description}</p>
                         <p className="text-sm text-muted-foreground">
                           {new Date(transaction.date).toLocaleDateString()}
                         </p>
